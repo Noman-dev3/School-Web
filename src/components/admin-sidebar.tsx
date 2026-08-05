@@ -116,6 +116,7 @@ export function AdminSidebar({ isCollapsed = false, onToggleCollapse }: AdminSid
           label: 'Content Management',
           icon: <FolderKanban className="h-4 w-4 shrink-0 text-blue-600 dark:text-blue-400" />,
           subItems: [
+            { href: '/admin/content-management/visual-builder', label: '🎨 Live Visual Builder' },
             { href: '/admin/content-management/results', label: 'Exam Results' },
             { href: '/admin/content-management/events', label: 'Events Calendar' },
             { href: '/admin/content-management/gallery', label: 'Photo Gallery' },
