@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
-  Paintbrush, Save, Monitor, Tablet, Smartphone, Palette, ArrowRight, 
-  ShieldCheck, Sparkles, CheckCircle2, BookOpen, Phone, RefreshCw, Loader2, 
-  Check, Eye, Link2, Type, Sliders
+  Paintbrush, Save, Monitor, Tablet, Smartphone, ArrowRight, 
+  ShieldCheck, Sparkles, CheckCircle2, BookOpen, Phone, Loader2, 
+  Check, Image as ImageIcon, Edit2, Link as LinkIcon
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -35,7 +35,7 @@ const COLOR_SWATCHES = [
   { id: 'dark', bg: 'bg-slate-900 hover:bg-slate-800 text-white', hex: '#0f172a', name: 'Dark' },
 ];
 
-export default function RelumeVisualBuilderPage() {
+export default function FullyDynamicVisualBuilderPage() {
   const { toast } = useToast();
   const [viewport, setViewport] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [loading, setLoading] = useState(true);
@@ -45,15 +45,16 @@ export default function RelumeVisualBuilderPage() {
   const [activeElementId, setActiveElementId] = useState<string | null>(null);
   const [floatingPos, setFloatingPos] = useState<{ x: number; y: number } | null>(null);
 
-  // REAL LIVE DATA & INLINE CONTENT STATE
+  // FULLY DYNAMIC DATABASE CONTENT STATE
   const [settings, setSettings] = useState<any>({
     announcementText: "📢 Admissions Open for Session 2026-2027! Entrance Test Registration ends August 15.",
     heroTitle: "Pakistan Islamic International School System",
-    heroSub: "Nurturing Academic Excellence & Quranic Ethics with 100% FBISE Distinction",
+    heroSub: "Nurturing Academic Excellence & Quranic Ethics with 100% FBISE Distinction Rate",
     heroCtaLabel: "Apply for Admission 2026",
     heroCtaColor: "bg-emerald-600 hover:bg-emerald-700 text-white",
     heroCtaHex: "#059669",
     heroCtaShape: "rounded-full",
+    heroImageUrl: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1000&q=80",
     bullet1: "100% Board Pass & Distinction Merit",
     bullet2: "Balanced Modern STEM & Hifz Program",
     bullet3: "Certified Master's Qualified Educators",
@@ -62,7 +63,28 @@ export default function RelumeVisualBuilderPage() {
     stat2Val: "98.8%",  stat2Lbl: "Board Pass Rate",
     stat3Val: "45+",    stat3Lbl: "Qualified Educators",
     stat4Val: "100%",   stat4Lbl: "FBISE Distinction",
+    
+    // SECTION NAMES & DESCRIPTIONS (DYNAMIC FROM DB)
+    portalsTitle: "Key Academic Services & Portals",
+    portalsDesc: "Quickly access essential school resources, admission forms, board examination results, and upcoming academic events.",
+    programsTitle: "Academic Programs & Pathways",
+    programsDesc: "Structured Montessori, Primary, and High School Curricula aligned with FBISE.",
+    featuresTitle: "Why Choose PIISS Swat",
+    featuresDesc: "Our core pillars of educational rigor, Quranic values, and modern STEM innovation.",
+    aboutTitle: "About School & Institutional Mission",
+    aboutDesc: "Learn about our founding story, vision, and dedication to Islamic character development.",
     ourStory: "Pioneer International Islamic School System was founded with a vision to integrate Quranic ethics and FBISE academic rigor.",
+    toppersTitle: "FBISE Board Achievers & Distinction Holders",
+    toppersDesc: "Celebrating outstanding academic merit and board exam toppers.",
+    teachersTitle: "Distinguished Faculty & Educators",
+    teachersDesc: "Experienced educators dedicated to academic excellence and moral leadership.",
+    eventsTitle: "Upcoming School Events & Academic Calendar",
+    eventsDesc: "Important dates for board examinations, sports galas, and Quran exhibitions.",
+    faqTitle: "Frequently Asked Questions",
+    faqDesc: "Clear answers to common questions about admissions, fee vouchers, and campus life.",
+    contactTitle: "Campus Contact & Inquiry Info",
+    contactDesc: "Reach out to our admissions office for enrollment guidelines and campus tours.",
+    
     contactPhone: "0300 1234567",
     contactEmail: "info@piiss.edu.pk",
     contactAddress: "Main Campus, Swat Valley, Khyber Pakhtunkhwa",
@@ -106,6 +128,15 @@ export default function RelumeVisualBuilderPage() {
     loadData();
   }, []);
 
+  // Prevent any link from navigating away from the builder!
+  const handleCanvasClickCapture = (e: React.MouseEvent) => {
+    const anchor = (e.target as HTMLElement).closest('a');
+    if (anchor) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  };
+
   // Handle Element Click for Floating Toolbar Position
   const handleElementClick = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -134,6 +165,13 @@ export default function RelumeVisualBuilderPage() {
         contactEmail: settings.contactEmail,
         contactAddress: settings.contactAddress,
         officeHours: settings.officeHours,
+        heroImageUrl: settings.heroImageUrl,
+        announcementText: settings.announcementText,
+        heroTitle: settings.heroTitle,
+        heroSub: settings.heroSub,
+        heroCtaLabel: settings.heroCtaLabel,
+        heroCtaColor: settings.heroCtaColor,
+        heroCtaShape: settings.heroCtaShape,
         updated_at: new Date().toISOString()
       });
 
@@ -142,20 +180,20 @@ export default function RelumeVisualBuilderPage() {
       }
 
       await supabase.from('site_settings').upsert({
-        key: 'relume_visual_config',
+        key: 'full_visual_builder_config',
         value: { settings, updated_at: new Date().toISOString() }
       });
 
-      localStorage.setItem('piiss_relume_config', JSON.stringify(settings));
+      localStorage.setItem('piiss_full_visual_config', JSON.stringify(settings));
 
       toast({
         title: "Published Live to Database! 🚀",
-        description: "Your inline text edits and button styling are saved to the database.",
+        description: "All section titles, descriptions, image URLs, and button styles saved to Supabase DB.",
       });
     } catch (err: any) {
       toast({
         title: "Saved Locally",
-        description: "Edits updated in browser session.",
+        description: "Edits saved in browser session.",
       });
     } finally {
       setIsSaving(false);
@@ -168,7 +206,10 @@ export default function RelumeVisualBuilderPage() {
     'w-full';
 
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)] overflow-hidden bg-slate-950 text-slate-100 select-none relative" onClick={() => setActiveElementId(null)}>
+    <div 
+      className="flex flex-col h-[calc(100vh-4rem)] overflow-hidden bg-slate-950 text-slate-100 select-none relative" 
+      onClick={() => setActiveElementId(null)}
+    >
       
       {/* ═══════════════════════════════════════════════════════════════
           TOP TOOLBAR: VIEWPORT & PUBLISH CONTROLS
@@ -181,9 +222,9 @@ export default function RelumeVisualBuilderPage() {
           </div>
           <div>
             <h1 className="text-sm font-extrabold tracking-tight text-white flex items-center gap-2 font-headline">
-              Relume-Style Visual Builder <Badge variant="outline" className="text-[10px] bg-emerald-500/10 text-emerald-400 border-emerald-500/30 font-mono">Click-to-Type Enabled</Badge>
+              Fully Editable Visual Builder <Badge variant="outline" className="text-[10px] bg-emerald-500/10 text-emerald-400 border-emerald-500/30 font-mono">100% DB Dynamic</Badge>
             </h1>
-            <p className="text-[10px] text-slate-400">Click ANY text directly on the page below to type & edit. No form inputs needed!</p>
+            <p className="text-[10px] text-slate-400">Click ANY section title, description, or image to edit directly. Links are locked inside builder.</p>
           </div>
         </div>
 
@@ -228,7 +269,7 @@ export default function RelumeVisualBuilderPage() {
       </header>
 
       {/* ═══════════════════════════════════════════════════════════════
-          RELUME-STYLE FLOATING FORMATTING BAR (APPEARS ON CLICK)
+          FLOATING FORMATTING TOOLBAR (FOR ACTIVE CLICKED ELEMENT)
           ═══════════════════════════════════════════════════════════════ */}
       {activeElementId && floatingPos && (
         <div 
@@ -263,9 +304,12 @@ export default function RelumeVisualBuilderPage() {
       )}
 
       {/* ═══════════════════════════════════════════════════════════════
-          CLEAN REAL LANDING PAGE CANVAS (RELUME DIRECT EDITABLE)
+          CANVAS WORKSPACE WITH LINK NAVIGATION INHIBITED
           ═══════════════════════════════════════════════════════════════ */}
-      <main className="flex-1 overflow-y-auto bg-slate-950 [scrollbar-width:none]">
+      <main 
+        onClickCapture={handleCanvasClickCapture}
+        className="flex-1 overflow-y-auto bg-slate-950 [scrollbar-width:none]"
+      >
         {loading ? (
           <div className="flex flex-col items-center justify-center py-28 text-slate-400 gap-3">
             <Loader2 className="w-9 h-9 animate-spin text-emerald-500" />
@@ -274,7 +318,7 @@ export default function RelumeVisualBuilderPage() {
         ) : (
           <div className={`transition-all duration-300 bg-background text-foreground ${viewportClass}`}>
             
-            {/* 1. TICKER BAR (DIRECT CONTENT EDITABLE) */}
+            {/* 1. ANNOUNCEMENT TICKER (CLICK TO EDIT) */}
             <div className="bg-emerald-700 text-white text-xs font-bold py-2.5 px-4 flex items-center justify-between gap-4 border-b border-emerald-600">
               <div className="flex items-center gap-2 flex-1">
                 <Sparkles className="w-4 h-4 shrink-0 text-amber-300 animate-pulse" />
@@ -290,7 +334,7 @@ export default function RelumeVisualBuilderPage() {
               </div>
             </div>
 
-            {/* 2. HERO SECTION (DIRECT CONTENT EDITABLE) */}
+            {/* 2. HERO SECTION (CLICK TO EDIT TITLE, SUBTITLE & IMAGE) */}
             <section className="relative pt-10 pb-16 lg:pt-16 lg:pb-24 overflow-hidden bg-background border-b border-border/50">
               <div className="container relative z-10 mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
                 <div className="grid lg:grid-cols-12 gap-10 items-center">
@@ -310,7 +354,7 @@ export default function RelumeVisualBuilderPage() {
                       </span>
                     </div>
 
-                    {/* Headline (Direct Content Editable) */}
+                    {/* Headline */}
                     <h1 
                       contentEditable
                       suppressContentEditableWarning
@@ -321,7 +365,7 @@ export default function RelumeVisualBuilderPage() {
                       {settings.heroTitle}
                     </h1>
 
-                    {/* Subtitle (Direct Content Editable) */}
+                    {/* Subtitle */}
                     <p 
                       contentEditable
                       suppressContentEditableWarning
@@ -373,7 +417,12 @@ export default function RelumeVisualBuilderPage() {
                   {/* Right Hero Showcase */}
                   <div className="lg:col-span-5 relative">
                     <div className="bg-card rounded-3xl p-4 border border-border/80 shadow-2xl space-y-4">
-                      <div className="relative h-72 rounded-2xl overflow-hidden bg-slate-900 text-white p-6 flex flex-col justify-end">
+                      <div className="relative h-72 rounded-2xl overflow-hidden bg-slate-900 text-white p-6 flex flex-col justify-end group">
+                        <img 
+                          src={settings.heroImageUrl || "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1000&q=80"}
+                          alt="Hero Showcase" 
+                          className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-500"
+                        />
                         <div className="absolute inset-0 bg-gradient-to-t from-emerald-950 via-slate-900/60 to-transparent" />
                         <div className="relative z-10 space-y-1">
                           <Badge className="bg-amber-400 text-slate-950 font-bold text-[10px]">PIISS Swat Motto</Badge>
@@ -383,9 +432,17 @@ export default function RelumeVisualBuilderPage() {
                         </div>
                       </div>
 
-                      <div className="p-3.5 bg-emerald-500/10 rounded-2xl border border-emerald-500/20 text-center">
-                        <p className="text-xs font-bold text-emerald-700 dark:text-emerald-400">1st Position Federal Board (FBISE)</p>
-                        <p className="text-[10px] text-muted-foreground">Highest Merit & Academic Distinction in Swat</p>
+                      {/* Image URL Editable Field */}
+                      <div className="p-3 bg-muted/40 rounded-2xl border border-border/60 text-xs space-y-1">
+                        <span className="font-bold text-muted-foreground text-[10px] uppercase flex items-center gap-1">
+                          <ImageIcon className="w-3 h-3 text-emerald-600" /> Hero Showcase Image URL (DB)
+                        </span>
+                        <input
+                          value={settings.heroImageUrl || ''}
+                          onChange={(e) => setSettings({ ...settings, heroImageUrl: e.target.value })}
+                          placeholder="Paste image URL..."
+                          className="w-full bg-background border border-border/80 rounded-lg px-2 py-1 text-[11px] font-mono text-foreground"
+                        />
                       </div>
                     </div>
                   </div>
@@ -394,7 +451,7 @@ export default function RelumeVisualBuilderPage() {
               </div>
             </section>
 
-            {/* 3. HERO STATS (DIRECT CONTENT EDITABLE NUMBERS & LABELS) */}
+            {/* 3. HERO STATS (EDITABLE NUMBERS & LABELS) */}
             <section className="py-10 bg-muted/40 border-b border-border/50">
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -429,16 +486,72 @@ export default function RelumeVisualBuilderPage() {
               </div>
             </section>
 
-            {/* 4. QUICK SERVICES & PORTALS GRID */}
+            {/* 4. EDITABLE SECTION TITLES & DESCRIPTIONS */}
+
+            {/* PORTALS SECTION HEADER */}
+            <div className="pt-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-1">
+              <h2 
+                contentEditable 
+                suppressContentEditableWarning 
+                onBlur={(e) => handleContentBlur('portalsTitle', e)}
+                className="text-2xl sm:text-3xl font-bold font-headline text-foreground cursor-text hover:outline hover:outline-2 hover:outline-emerald-500/60 rounded px-1"
+              >
+                {settings.portalsTitle}
+              </h2>
+              <p 
+                contentEditable 
+                suppressContentEditableWarning 
+                onBlur={(e) => handleContentBlur('portalsDesc', e)}
+                className="text-xs text-muted-foreground cursor-text hover:outline hover:outline-2 hover:outline-emerald-500/60 rounded px-1"
+              >
+                {settings.portalsDesc}
+              </p>
+            </div>
             <QuickPortalGrid />
 
-            {/* 5. ACADEMIC PROGRAMS */}
+            {/* PROGRAMS SECTION HEADER */}
+            <div className="pt-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-1">
+              <h2 
+                contentEditable 
+                suppressContentEditableWarning 
+                onBlur={(e) => handleContentBlur('programsTitle', e)}
+                className="text-2xl sm:text-3xl font-bold font-headline text-foreground cursor-text hover:outline hover:outline-2 hover:outline-emerald-500/60 rounded px-1"
+              >
+                {settings.programsTitle}
+              </h2>
+              <p 
+                contentEditable 
+                suppressContentEditableWarning 
+                onBlur={(e) => handleContentBlur('programsDesc', e)}
+                className="text-xs text-muted-foreground cursor-text hover:outline hover:outline-2 hover:outline-emerald-500/60 rounded px-1"
+              >
+                {settings.programsDesc}
+              </p>
+            </div>
             <AcademicPrograms />
 
-            {/* 6. FEATURES & PILLARS */}
+            {/* FEATURES SECTION HEADER */}
+            <div className="pt-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-1">
+              <h2 
+                contentEditable 
+                suppressContentEditableWarning 
+                onBlur={(e) => handleContentBlur('featuresTitle', e)}
+                className="text-2xl sm:text-3xl font-bold font-headline text-foreground cursor-text hover:outline hover:outline-2 hover:outline-emerald-500/60 rounded px-1"
+              >
+                {settings.featuresTitle}
+              </h2>
+              <p 
+                contentEditable 
+                suppressContentEditableWarning 
+                onBlur={(e) => handleContentBlur('featuresDesc', e)}
+                className="text-xs text-muted-foreground cursor-text hover:outline hover:outline-2 hover:outline-emerald-500/60 rounded px-1"
+              >
+                {settings.featuresDesc}
+              </p>
+            </div>
             <Features />
 
-            {/* 7. ABOUT SECTION (DIRECT CONTENT EDITABLE STORY) */}
+            {/* ABOUT SECTION (DIRECT EDITABLE STORY) */}
             <section className="py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-b border-border/50">
               <div className="bg-card border border-border/80 p-6 md:p-8 rounded-3xl space-y-4 shadow-sm">
                 <div className="flex items-center gap-2">
@@ -446,8 +559,22 @@ export default function RelumeVisualBuilderPage() {
                     <BookOpen className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold font-headline text-foreground">About School & Institutional Mission</h3>
-                    <p className="text-xs text-muted-foreground">Click directly inside the box below to edit your school story.</p>
+                    <h3 
+                      contentEditable
+                      suppressContentEditableWarning
+                      onBlur={(e) => handleContentBlur('aboutTitle', e)}
+                      className="text-xl font-bold font-headline text-foreground cursor-text hover:outline hover:outline-2 hover:outline-emerald-500/60 rounded px-1"
+                    >
+                      {settings.aboutTitle}
+                    </h3>
+                    <p 
+                      contentEditable
+                      suppressContentEditableWarning
+                      onBlur={(e) => handleContentBlur('aboutDesc', e)}
+                      className="text-xs text-muted-foreground cursor-text hover:outline hover:outline-2 hover:outline-emerald-500/60 rounded px-1"
+                    >
+                      {settings.aboutDesc}
+                    </p>
                   </div>
                 </div>
 
@@ -463,20 +590,92 @@ export default function RelumeVisualBuilderPage() {
               </div>
             </section>
 
-            {/* 8. TOPPERS & BOARD ACHIEVERS */}
+            {/* TOPPERS & BOARD ACHIEVERS */}
+            <div className="pt-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-1">
+              <h2 
+                contentEditable 
+                suppressContentEditableWarning 
+                onBlur={(e) => handleContentBlur('toppersTitle', e)}
+                className="text-2xl sm:text-3xl font-bold font-headline text-foreground cursor-text hover:outline hover:outline-2 hover:outline-emerald-500/60 rounded px-1"
+              >
+                {settings.toppersTitle}
+              </h2>
+              <p 
+                contentEditable 
+                suppressContentEditableWarning 
+                onBlur={(e) => handleContentBlur('toppersDesc', e)}
+                className="text-xs text-muted-foreground cursor-text hover:outline hover:outline-2 hover:outline-emerald-500/60 rounded px-1"
+              >
+                {settings.toppersDesc}
+              </p>
+            </div>
             <ToppersSection toppers={toppers} />
             <BoardResultsSection boardStudents={boardStudents} />
 
-            {/* 9. TEACHERS & FACULTY */}
+            {/* TEACHERS & FACULTY */}
+            <div className="pt-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-1">
+              <h2 
+                contentEditable 
+                suppressContentEditableWarning 
+                onBlur={(e) => handleContentBlur('teachersTitle', e)}
+                className="text-2xl sm:text-3xl font-bold font-headline text-foreground cursor-text hover:outline hover:outline-2 hover:outline-emerald-500/60 rounded px-1"
+              >
+                {settings.teachersTitle}
+              </h2>
+              <p 
+                contentEditable 
+                suppressContentEditableWarning 
+                onBlur={(e) => handleContentBlur('teachersDesc', e)}
+                className="text-xs text-muted-foreground cursor-text hover:outline hover:outline-2 hover:outline-emerald-500/60 rounded px-1"
+              >
+                {settings.teachersDesc}
+              </p>
+            </div>
             <TeachersSection teachers={teachers.slice(0, 3)} />
 
-            {/* 10. EVENTS CALENDAR */}
+            {/* EVENTS CALENDAR */}
+            <div className="pt-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-1">
+              <h2 
+                contentEditable 
+                suppressContentEditableWarning 
+                onBlur={(e) => handleContentBlur('eventsTitle', e)}
+                className="text-2xl sm:text-3xl font-bold font-headline text-foreground cursor-text hover:outline hover:outline-2 hover:outline-emerald-500/60 rounded px-1"
+              >
+                {settings.eventsTitle}
+              </h2>
+              <p 
+                contentEditable 
+                suppressContentEditableWarning 
+                onBlur={(e) => handleContentBlur('eventsDesc', e)}
+                className="text-xs text-muted-foreground cursor-text hover:outline hover:outline-2 hover:outline-emerald-500/60 rounded px-1"
+              >
+                {settings.eventsDesc}
+              </p>
+            </div>
             <EventsSection events={events.slice(0, 3)} />
 
-            {/* 11. FAQ SECTION */}
+            {/* FAQ SECTION */}
+            <div className="pt-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-1">
+              <h2 
+                contentEditable 
+                suppressContentEditableWarning 
+                onBlur={(e) => handleContentBlur('faqTitle', e)}
+                className="text-2xl sm:text-3xl font-bold font-headline text-foreground cursor-text hover:outline hover:outline-2 hover:outline-emerald-500/60 rounded px-1"
+              >
+                {settings.faqTitle}
+              </h2>
+              <p 
+                contentEditable 
+                suppressContentEditableWarning 
+                onBlur={(e) => handleContentBlur('faqDesc', e)}
+                className="text-xs text-muted-foreground cursor-text hover:outline hover:outline-2 hover:outline-emerald-500/60 rounded px-1"
+              >
+                {settings.faqDesc}
+              </p>
+            </div>
             <FaqSection faqs={faqs} />
 
-            {/* 12. CONTACT SECTION (DIRECT EDITABLE DETAILS) */}
+            {/* CONTACT SECTION (EDITABLE CONTACT DETAILS) */}
             <section className="py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
               <div className="bg-card border border-border/80 p-6 md:p-8 rounded-3xl space-y-6 shadow-sm">
                 <div className="flex items-center gap-2 border-b border-border/40 pb-4">
@@ -484,34 +683,48 @@ export default function RelumeVisualBuilderPage() {
                     <Phone className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold font-headline text-foreground">Campus Contact & Inquiry Info</h3>
-                    <p className="text-xs text-muted-foreground">Click directly on any contact field to edit.</p>
+                    <h3 
+                      contentEditable
+                      suppressContentEditableWarning
+                      onBlur={(e) => handleContentBlur('contactTitle', e)}
+                      className="text-xl font-bold font-headline text-foreground cursor-text hover:outline hover:outline-2 hover:outline-emerald-500/60 rounded px-1"
+                    >
+                      {settings.contactTitle}
+                    </h3>
+                    <p 
+                      contentEditable
+                      suppressContentEditableWarning
+                      onBlur={(e) => handleContentBlur('contactDesc', e)}
+                      className="text-xs text-muted-foreground cursor-text hover:outline hover:outline-2 hover:outline-emerald-500/60 rounded px-1"
+                    >
+                      {settings.contactDesc}
+                    </p>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                  <div className="p-3 bg-muted/30 rounded-2xl border border-border/60 space-y-1">
+                  <div className="p-3.5 bg-muted/30 rounded-2xl border border-border/60 space-y-1">
                     <p className="font-bold text-muted-foreground text-[10px] uppercase">Contact Phone</p>
                     <p contentEditable suppressContentEditableWarning onBlur={(e) => handleContentBlur('contactPhone', e)} className="font-semibold text-foreground cursor-text">
                       {settings.contactPhone}
                     </p>
                   </div>
 
-                  <div className="p-3 bg-muted/30 rounded-2xl border border-border/60 space-y-1">
+                  <div className="p-3.5 bg-muted/30 rounded-2xl border border-border/60 space-y-1">
                     <p className="font-bold text-muted-foreground text-[10px] uppercase">Official Email</p>
                     <p contentEditable suppressContentEditableWarning onBlur={(e) => handleContentBlur('contactEmail', e)} className="font-semibold text-foreground cursor-text">
                       {settings.contactEmail}
                     </p>
                   </div>
 
-                  <div className="p-3 bg-muted/30 rounded-2xl border border-border/60 space-y-1">
+                  <div className="p-3.5 bg-muted/30 rounded-2xl border border-border/60 space-y-1">
                     <p className="font-bold text-muted-foreground text-[10px] uppercase">Campus Address</p>
                     <p contentEditable suppressContentEditableWarning onBlur={(e) => handleContentBlur('contactAddress', e)} className="font-semibold text-foreground cursor-text">
                       {settings.contactAddress}
                     </p>
                   </div>
 
-                  <div className="p-3 bg-muted/30 rounded-2xl border border-border/60 space-y-1">
+                  <div className="p-3.5 bg-muted/30 rounded-2xl border border-border/60 space-y-1">
                     <p className="font-bold text-muted-foreground text-[10px] uppercase">Office Hours</p>
                     <p contentEditable suppressContentEditableWarning onBlur={(e) => handleContentBlur('officeHours', e)} className="font-semibold text-foreground cursor-text">
                       {settings.officeHours}
