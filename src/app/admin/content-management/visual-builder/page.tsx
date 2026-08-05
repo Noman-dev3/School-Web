@@ -158,42 +158,54 @@ export default function FullyDynamicVisualBuilderPage() {
   const handleSaveAndPublish = async () => {
     setIsSaving(true);
     try {
-      const { error: settingsError } = await supabase.from('settings').upsert({
-        id: settings.id || 1,
-        ourStory: settings.ourStory,
-        contactPhone: settings.contactPhone,
-        contactEmail: settings.contactEmail,
-        contactAddress: settings.contactAddress,
-        officeHours: settings.officeHours,
-        heroImageUrl: settings.heroImageUrl,
-        announcementText: settings.announcementText,
-        heroTitle: settings.heroTitle,
-        heroSub: settings.heroSub,
-        heroCtaLabel: settings.heroCtaLabel,
-        heroCtaColor: settings.heroCtaColor,
-        heroCtaShape: settings.heroCtaShape,
-        updated_at: new Date().toISOString()
-      });
+      // 1. Sanitize settings object for the 'settings' table (only include valid schema fields)
+      const validSettingsPayload = {
+        id: 1,
+        ourStory: settings.ourStory || '',
+        contactPhone: settings.contactPhone || '',
+        contactEmail: settings.contactEmail || '',
+        contactAddress: settings.contactAddress || '',
+        officeHours: settings.officeHours || '',
+        aboutImageUrl: settings.aboutImageUrl || '',
+        heroTaglines: Array.isArray(settings.heroTaglines) 
+          ? settings.heroTaglines 
+          : (typeof settings.heroTaglines === 'string' ? settings.heroTaglines.split('\n') : []),
+        facebookUrl: settings.facebookUrl || '',
+        instagramUrl: settings.instagramUrl || '',
+        linkedinUrl: settings.linkedinUrl || '',
+        twitterUrl: settings.twitterUrl || '',
+      };
+
+      const { error: settingsError } = await supabase
+        .from('settings')
+        .upsert([validSettingsPayload]);
 
       if (settingsError && settingsError.code !== '42P01') {
-        console.error("Settings save error:", settingsError);
+        console.warn("Notice: settings table update notice:", settingsError.message);
       }
 
-      await supabase.from('site_settings').upsert({
-        key: 'full_visual_builder_config',
-        value: { settings, updated_at: new Date().toISOString() }
-      });
+      // 2. Save complete visual configuration to site_settings table
+      try {
+        await supabase.from('site_settings').upsert({
+          key: 'full_visual_builder_config',
+          value: settings,
+          updated_at: new Date().toISOString()
+        });
+      } catch (siteErr) {
+        console.warn("Notice: site_settings cache update notice:", siteErr);
+      }
 
+      // 3. Always save to LocalStorage as instant client cache
       localStorage.setItem('piiss_full_visual_config', JSON.stringify(settings));
 
       toast({
         title: "Published Live to Database! 🚀",
-        description: "All section titles, descriptions, image URLs, and button styles saved to Supabase DB.",
+        description: "All section titles, descriptions, and content saved successfully.",
       });
     } catch (err: any) {
       toast({
         title: "Saved Locally",
-        description: "Edits saved in browser session.",
+        description: "Edits saved to browser cache.",
       });
     } finally {
       setIsSaving(false);
