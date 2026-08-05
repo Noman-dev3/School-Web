@@ -160,7 +160,7 @@ export function AdminSidebar({ isCollapsed = false, onToggleCollapse }: AdminSid
         collapsed ? "justify-center px-2" : "justify-between"
       )}>
         <div className="flex items-center gap-3 overflow-hidden">
-          <div className="bg-blue-600 text-white p-2 rounded-xl shadow-md shadow-blue-900/20 shrink-0">
+          <div className="bg-emerald-600 text-white p-2 rounded-xl shadow-md shadow-emerald-900/20 shrink-0">
             <GraduationCap className="h-5 w-5" />
           </div>
           {!collapsed && (
@@ -169,8 +169,8 @@ export function AdminSidebar({ isCollapsed = false, onToggleCollapse }: AdminSid
                 {header.logo.title}
               </h1>
               <div className="flex items-center gap-1.5 mt-0.5">
-                <span className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse" />
-                <p className="text-[10px] font-semibold text-blue-600 dark:text-blue-400">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <p className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">
                   Admin Suite
                 </p>
               </div>
