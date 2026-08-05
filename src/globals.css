@@ -1,0 +1,251 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 140 15% 98.5%; /* Luxury Ivory Pearl */
+    --foreground: 152 45% 9%; /* Deep Emerald Noir */
+    --card: 0 0% 100%; /* Pure Crisp White */
+    --card-foreground: 152 45% 9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 152 45% 9%;
+    --primary: 150 75% 22%; /* Deep Royal Emerald #0D5C33 */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 150 15% 93%; /* Minimalist Slate Sage */
+    --secondary-foreground: 152 45% 12%;
+    --muted: 140 12% 94%; /* Soft Muted Pearl */
+    --muted-foreground: 150 12% 40%;
+    --accent: 38 45% 92%; /* Refined Warm Champagne */
+    --accent-foreground: 38 60% 20%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 140 12% 89%;
+    --input: 140 12% 89%;
+    --ring: 150 75% 22%;
+    --radius: 0.75rem;
+
+    --custom-primary: 150 75% 22%;
+    --custom-accent: 38 45% 92%;
+    --custom-background: 140 15% 98.5%;
+    --custom-secondary: 150 15% 93%;
+  }
+ 
+  .dark {
+    --background: 152 45% 6%; /* Deep Obsidian Emerald */
+    --foreground: 140 15% 96%;
+    --card: 152 35% 8.5%; /* Rich Dark Forest Surface */
+    --card-foreground: 140 15% 96%;
+    --popover: 152 35% 8.5%;
+    --popover-foreground: 140 15% 96%;
+    --primary: 150 65% 42%; /* Vibrant Luxury Emerald */
+    --primary-foreground: 152 50% 6%;
+    --secondary: 152 25% 13%; /* Dark Muted Slate */
+    --secondary-foreground: 140 15% 96%;
+    --muted: 152 20% 12%;
+    --muted-foreground: 145 10% 62%;
+    --accent: 38 30% 20%; /* Dark Champagne Gold Tint */
+    --accent-foreground: 38 60% 85%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 152 20% 15%;
+    --input: 152 20% 15%;
+    --ring: 150 65% 42%;
+    --radius: 0.75rem;
+  }
+
+  body.gradient {
+    --background: 240 10% 3.9%;
+    --foreground: 210 20% 98%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 210 20% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 210 20% 98%;
+    --primary: 330 89% 65%;
+    --primary-foreground: 210 20% 98%;
+    --secondary: 275 89% 20%;
+    --secondary-foreground: 210 20% 98%;
+    --muted: 275 89% 20%;
+    --muted-foreground: 215 10.2% 65.1%;
+    --accent: 275 89% 25%;
+    --accent-foreground: 210 20% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 20% 98%;
+    --border: 275 89% 25%;
+    --input: 275 89% 25%;
+    --ring: 330 89% 65%;
+    --radius: 0.5rem;
+  }
+
+  body.custom {
+    --background: var(--custom-background);
+    --foreground: 224 71.4% 4.1%;
+    --card: var(--custom-background);
+    --card-foreground: 224 71.4% 4.1%;
+    --popover: var(--custom-background);
+    --popover-foreground: 224 71.4% 4.1%;
+    --primary: var(--custom-primary);
+    --primary-foreground: 224 71.4% 4.1%;
+    --secondary: var(--custom-secondary);
+    --secondary-foreground: 224 71.4% 4.1%;
+    --muted: 210 20% 98%;
+    --muted-foreground: 220 8.9% 46.1%;
+    --accent: var(--custom-accent);
+    --accent-foreground: 224 71.4% 4.1%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 20% 98%;
+    --border: 206 33% 90%;
+    --input: 206 33% 90%;
+    --ring: var(--custom-primary);
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    scroll-behavior: smooth;
+  }
+  section {
+    @apply py-20 lg:py-32;
+  }
+  
+  body.gradient {
+    background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)));
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
+  }
+
+  body.gradient .bg-background {
+    background-color: transparent;
+  }
+  body.gradient .bg-card, body.gradient .bg-popover {
+     background-color: hsl(var(--card) / 0.5);
+     @apply backdrop-blur-lg;
+  }
+  body.gradient .bg-secondary {
+    background-color: hsl(var(--secondary) / 0.5);
+    @apply backdrop-blur-sm;
+  }
+  body.gradient .bg-muted {
+     background-color: hsl(var(--muted) / 0.5);
+  }
+  body.gradient .border {
+      border-color: hsl(var(--border) / 0.3);
+  }
+  body.gradient .ring {
+      --tw-ring-color: hsl(var(--ring) / 0.5);
+  }
+
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: hsl(var(--background));
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--muted-foreground) / 0.5);
+    border-radius: 10px;
+    border: 3px solid hsl(var(--background));
+  }
+  
+  .dark ::-webkit-scrollbar-track {
+    background: hsl(var(--background));
+  }
+
+  .dark ::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--muted-foreground) / 0.5);
+    border-radius: 10px;
+    border: 3px solid hsl(var(--background));
+  }
+
+  body.gradient ::-webkit-scrollbar-thumb {
+     background-color: hsl(var(--muted-foreground) / 0.8);
+     border: 3px solid transparent;
+  }
+}
+
+@layer utilities {
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+  .transform-style-3d {
+    transform-style: preserve-3d;
+  }
+  .rotate-y-10 {
+    transform: rotateY(10deg);
+  }
+   .rotate-y-4 {
+    transform: rotateY(4deg);
+  }
+  .bg-dot-pattern {
+    background-image: radial-gradient(circle, hsl(var(--foreground) / 0.1) 1px, transparent 1px);
+    background-size: 1rem 1rem;
+  }
+  .preloader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: hsl(var(--background));
+    z-index: 9999;
+    flex-direction: column;
+    gap: 1rem;
+    transition: opacity 0.5s ease;
+  }
+  .preloader.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+@keyframes gradientBG {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* New Loader CSS */
+.loader {
+  width: 120px;
+  height: 20px;
+  border-radius: 20px;
+  --c1: hsl(var(--primary));
+  --c2: hsl(var(--accent));
+  --c3: #4ade80; /* green-400 */
+  --c4: #f87171; /* red-400 */
+
+  background:
+   repeating-linear-gradient(135deg,var(--c1) 0 10px,var(--c2) 0 20px) 0/0%   no-repeat,
+   repeating-linear-gradient(135deg,hsl(var(--muted)) 0 10px,hsl(var(--secondary)) 0 20px) 0/100%;
+  animation: l3 8s infinite;
+}
+@keyframes l3 {
+  0%   {background-size:0%   100%; background-image: repeating-linear-gradient(135deg,var(--c1) 0 10px,var(--c2) 0 20px), repeating-linear-gradient(135deg,hsl(var(--muted)) 0 10px,hsl(var(--secondary)) 0 20px)}
+  25%  {background-size:100% 100%; background-image: repeating-linear-gradient(135deg,var(--c1) 0 10px,var(--c2) 0 20px), repeating-linear-gradient(135deg,hsl(var(--muted)) 0 10px,hsl(var(--secondary)) 0 20px)}
+  25.1% {background-size:0%   100%; background-image: repeating-linear-gradient(135deg,var(--c2) 0 10px,var(--c3) 0 20px), repeating-linear-gradient(135deg,hsl(var(--muted)) 0 10px,hsl(var(--secondary)) 0 20px)}
+  50%  {background-size:100% 100%; background-image: repeating-linear-gradient(135deg,var(--c2) 0 10px,var(--c3) 0 20px), repeating-linear-gradient(135deg,hsl(var(--muted)) 0 10px,hsl(var(--secondary)) 0 20px)}
+  50.1% {background-size:0%   100%; background-image: repeating-linear-gradient(135deg,var(--c3) 0 10px,var(--c4) 0 20px), repeating-linear-gradient(135deg,hsl(var(--muted)) 0 10px,hsl(var(--secondary)) 0 20px)}
+  75%  {background-size:100% 100%; background-image: repeating-linear-gradient(135deg,var(--c3) 0 10px,var(--c4) 0 20px), repeating-linear-gradient(135deg,hsl(var(--muted)) 0 10px,hsl(var(--secondary)) 0 20px)}
+  75.1% {background-size:0%   100%; background-image: repeating-linear-gradient(135deg,var(--c4) 0 10px,var(--c1) 0 20px), repeating-linear-gradient(135deg,hsl(var(--muted)) 0 10px,hsl(var(--secondary)) 0 20px)}
+  100% {background-size:100% 100%; background-image: repeating-linear-gradient(135deg,var(--c4) 0 10px,var(--c1) 0 20px), repeating-linear-gradient(135deg,hsl(var(--muted)) 0 10px,hsl(var(--secondary)) 0 20px)}
+}
+

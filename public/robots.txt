@@ -1,0 +1,6 @@
+# Allow all crawlers to access all content
+User-agent: *
+Disallow:
+
+# Point crawlers to the sitemap
+Sitemap: https://piiss.vercel.app/sitemap.xml
