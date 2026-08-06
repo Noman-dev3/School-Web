@@ -486,7 +486,7 @@ export default function StudentsPage() {
               )}
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2 shrink-0">
               <Select value={classFilter} onValueChange={setClassFilter}>
                 <SelectTrigger className="w-36 text-xs h-9 rounded-xl border-border/70 bg-background font-medium">
                   <SelectValue placeholder="All Classes" />
