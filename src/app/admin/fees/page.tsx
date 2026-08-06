@@ -29,6 +29,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
 import { FeeRecord, FeeStructure, DynamicFeeField } from "@/app/admin/data-schemas";
 import { header } from "@/lib/data";
+import { parseExcelFile, executeDualImport, ImportFileSummary } from "@/lib/excel-importer";
 
 const defaultFeeStructuresSeed: FeeStructure[] = [
   { id: "struct-1", class_name: "Playgroup / Nursery", tuition_fee: 3500, admission_fee: 5000, exam_fee: 1000, lab_fee: 0, custom_fields: [], is_public: true, kinship_enabled: true, kinship_discount_percent: 25 },
@@ -195,6 +196,62 @@ export default function AdminFeesPage() {
   const [importColumnMap, setImportColumnMap] = useState<ColumnMap>({});
   const [isImportParsing, setImportParsing] = useState(false);
   const importFileRef = useRef<HTMLInputElement>(null);
+
+  // ── Unified Dual Excel Importer State ──────────────────────────────────────
+  const [dualImportSummaries, setDualImportSummaries] = useState<ImportFileSummary[]>([]);
+  const [isDualImportOpen, setIsDualImportOpen] = useState(false);
+  const [isDualImportProcessing, setIsDualImportProcessing] = useState(false);
+
+  const handleDualExcelFiles = async (files: FileList | File[]) => {
+    try {
+      const summaries: ImportFileSummary[] = [];
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        if (!file.name.match(/\.(xlsx|xls|csv)$/i)) continue;
+        const arrayBuffer = await file.arrayBuffer();
+        const summary = parseExcelFile(arrayBuffer, file.name);
+        summaries.push(summary);
+      }
+
+      if (summaries.length === 0) {
+        toast({ title: "No Valid Excel Files", description: "Please select valid .xls or .xlsx files.", variant: "destructive" });
+        return;
+      }
+
+      setDualImportSummaries(summaries);
+      setIsDualImportOpen(true);
+    } catch (err: any) {
+      toast({ title: "Excel Parse Error", description: err.message, variant: "destructive" });
+    }
+  };
+
+  const handleExecuteDualImport = async () => {
+    if (dualImportSummaries.length === 0) return;
+    setIsDualImportProcessing(true);
+    try {
+      const result = await executeDualImport(dualImportSummaries);
+      
+      toast({
+        title: "Dual Import Successful! 🚀",
+        description: `Imported/Updated ${result.createdStudentsCount} Students, ${result.createdTariffsCount} Class Tariffs, and ${result.createdVouchersCount} Fee Vouchers with Custom Discounts!`,
+      });
+
+      setIsDualImportOpen(false);
+      setDualImportSummaries([]);
+
+      // Refresh Fee Records & Fee Structures
+      const { data: freshFees } = await supabase.from('fees').select('*').order('created_at', { ascending: false });
+      if (freshFees) setFeeRecords(freshFees);
+
+      const { data: freshStructures } = await supabase.from('fee_structures').select('*');
+      if (freshStructures) setFeeStructures(freshStructures);
+
+    } catch (err: any) {
+      toast({ title: "Import Execution Failed", description: err.message, variant: "destructive" });
+    } finally {
+      setIsDualImportProcessing(false);
+    }
+  };
 
   // Checkbox Selection State
   const [selectedRecordIds, setSelectedRecordIds] = useState<string[]>([]);
@@ -1275,34 +1332,42 @@ export default function AdminFeesPage() {
                 {/* Excel Import Card */}
                 <Card className="rounded-2xl border-border/80 shadow-xs p-6 space-y-4">
                   <div className="flex items-center gap-3">
-                    <div className="p-3 rounded-2xl bg-blue-500/15 text-blue-600">
+                    <div className="p-3 rounded-2xl bg-emerald-500/15 text-emerald-600">
                       <FileSpreadsheet className="w-6 h-6" />
                     </div>
                     <div>
-                      <h3 className="text-base font-bold text-foreground">3-Step Excel Import Wizard</h3>
-                      <p className="text-xs text-muted-foreground">Upload bank Excel fee sheets with smart column mapping.</p>
+                      <h3 className="text-base font-bold text-foreground">Unified Dual Excel Import Engine</h3>
+                      <p className="text-xs text-muted-foreground">Auto-imports student profiles, grade fee tariffs, custom discounts & printable vouchers in 1 click.</p>
                     </div>
                   </div>
 
-                  <div className="border-2 border-dashed border-border/60 rounded-2xl p-6 text-center space-y-3 bg-muted/20">
-                    <UploadCloud className="w-10 h-10 text-muted-foreground mx-auto opacity-50" />
+                  <div 
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      if (e.dataTransfer.files) handleDualExcelFiles(e.dataTransfer.files);
+                    }}
+                    className="border-2 border-dashed border-emerald-500/40 rounded-2xl p-6 text-center space-y-3 bg-emerald-500/5 hover:bg-emerald-500/10 transition-colors cursor-pointer"
+                  >
+                    <UploadCloud className="w-10 h-10 text-emerald-600 mx-auto animate-bounce" />
                     <div>
-                      <p className="text-xs font-bold text-foreground">Upload Bank Excel Sheet (.xlsx, .csv)</p>
-                      <p className="text-[10px] text-muted-foreground">Supports automatic column alias detection</p>
+                      <p className="text-xs font-bold text-foreground">Drag & Drop Single or Multiple Excel Files (.xls, .xlsx)</p>
+                      <p className="text-[10px] text-muted-foreground">Supports G-I, G-II, G-III, G-V, G-VII, G-IX, G-X, K.G, P.G, PREP files simultaneously</p>
                     </div>
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => importFileRef.current?.click()}
-                      className="text-xs rounded-xl font-semibold gap-1.5"
+                      className="text-xs rounded-xl font-bold border-emerald-500/40 text-emerald-700 dark:text-emerald-400 gap-1.5"
                     >
-                      <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600" /> Select File
+                      <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600" /> Select Files (Multi-Select Supported)
                     </Button>
                     <input
                       ref={importFileRef}
                       type="file"
+                      multiple
                       accept=".xlsx,.xls,.csv"
-                      onChange={(e) => { const file = e.target.files?.[0]; if (file) handleImportFileDrop(file); }}
+                      onChange={(e) => { if (e.target.files && e.target.files.length > 0) handleDualExcelFiles(e.target.files); }}
                       className="hidden"
                     />
                   </div>
@@ -2454,6 +2519,81 @@ export default function AdminFeesPage() {
               </DialogFooter>
             </form>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Unified Dual Excel Pre-Import Confirmation Modal ────────────────── */}
+      <Dialog open={isDualImportOpen} onOpenChange={setIsDualImportOpen}>
+        <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto rounded-3xl p-6">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-bold flex items-center gap-2 text-foreground font-headline">
+              <FileSpreadsheet className="w-5 h-5 text-emerald-600" />
+              Pre-Import Summary & Auto-Detection Preview
+            </DialogTitle>
+            <DialogDescription className="text-xs text-muted-foreground">
+              Review auto-detected classes, standard tariffs, and individual student custom discounts before importing.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2">
+            <div className="grid grid-cols-3 gap-3 text-center">
+              <div className="p-3 bg-emerald-500/10 rounded-2xl border border-emerald-500/20">
+                <p className="text-xl font-black text-emerald-600 font-mono">{dualImportSummaries.length}</p>
+                <p className="text-[10px] font-bold text-muted-foreground uppercase">Excel Files</p>
+              </div>
+              <div className="p-3 bg-blue-500/10 rounded-2xl border border-blue-500/20">
+                <p className="text-xl font-black text-blue-600 font-mono">
+                  {dualImportSummaries.reduce((sum, f) => sum + f.totalStudents, 0)}
+                </p>
+                <p className="text-[10px] font-bold text-muted-foreground uppercase">Total Students</p>
+              </div>
+              <div className="p-3 bg-amber-500/10 rounded-2xl border border-amber-500/20">
+                <p className="text-xl font-black text-amber-600 font-mono">
+                  {dualImportSummaries.reduce((sum, f) => sum + f.totalDiscountedStudents, 0)}
+                </p>
+                <p className="text-[10px] font-bold text-muted-foreground uppercase">Custom Discounts</p>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              {dualImportSummaries.map((summary, idx) => (
+                <div key={idx} className="p-4 bg-muted/30 border border-border/80 rounded-2xl space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-xs text-foreground truncate max-w-[200px]">{summary.fileName}</span>
+                    <Badge className="bg-emerald-600 text-white text-[10px] font-mono">
+                      {summary.detectedClass} (Sec {summary.detectedSection})
+                    </Badge>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-2 text-[11px] text-muted-foreground pt-1">
+                    <div>Month: <span className="font-bold text-foreground">{summary.detectedMonth}</span></div>
+                    <div>Std Tariff: <span className="font-bold text-emerald-600 font-mono">Rs. {summary.standardTuition.toLocaleString()}</span></div>
+                    <div>Discounts: <span className="font-bold text-amber-600">{summary.totalDiscountedStudents} Students</span></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <DialogFooter className="pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setIsDualImportOpen(false)}
+              className="rounded-xl text-xs h-10"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              onClick={handleExecuteDualImport}
+              disabled={isDualImportProcessing}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs h-10 gap-2 shadow-md px-5"
+            >
+              {isDualImportProcessing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
+              Confirm & Execute Dual Import
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
