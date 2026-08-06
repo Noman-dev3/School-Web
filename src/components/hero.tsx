@@ -1,142 +1,217 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "./ui/button";
-import { hero } from "@/lib/data";
-import TypingAnimation from "./typing-animation";
-import { ArrowRight, ShieldCheck, Award, Sparkles, BookOpen, GraduationCap, CheckCircle2 } from "lucide-react";
+import { 
+  ArrowRight, ChevronLeft, ChevronRight, UserCheck, 
+  BookOpen, Globe, Award, Sparkles, ShieldCheck 
+} from "lucide-react";
 
 interface HeroProps {
-  taglines: string[];
+  taglines?: string[];
+  settings?: any;
 }
 
-export function Hero({ taglines }: HeroProps) {
-  return (
-    <section id="home" className="relative pt-8 pb-16 lg:pt-14 lg:pb-24 overflow-hidden bg-background">
-      {/* Subtle Background Pattern */}
-      <div className="absolute inset-0 bg-radial-[at_top_center] from-primary/5 via-transparent to-transparent pointer-events-none" />
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none" />
+export function Hero({ taglines, settings = {} }: HeroProps) {
+  const [currentSlide, setCurrentSlide] = useState(0);
 
+  // Extract CMS settings with fallback defaults matching template
+  const eyebrow = settings.heroEyebrow || "ABOUT US";
+  const titlePart1 = settings.heroTitlePart1 || "We are the top";
+  const titlePart2 = settings.heroTitlePart2 || "Learning Platform.";
+  const description = settings.heroSub || "Empowering scholars with advanced learning tools, Quranic ethics, and FBISE board distinction merit to redefine education for a brighter future.";
+  const ctaText = settings.heroCtaText || "Register Now";
+  const ctaLink = settings.heroCtaLink || "/admissions";
+  const cta2Text = settings.heroCta2Text || "Learn More";
+  const cta2Link = settings.heroCta2Link || "/#about";
+  const imageUrl = settings.heroImageUrl || "https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&w=1000&q=80";
+
+  const card1Title = settings.heroCard1Title || "Quality Teachers";
+  const card1Desc = settings.heroCard1Desc || "Certified & experienced educators dedicated to individual student growth.";
+  const card2Title = settings.heroCard2Title || "Best Curriculum";
+  const card2Desc = settings.heroCard2Desc || "Balanced FBISE academic rigor integrated with modern STEM robotics.";
+  const card3Title = settings.heroCard3Title || "Global Recognition";
+  const card3Desc = settings.heroCard3Desc || "100% board pass percentage with top positions across Federal Board.";
+
+  const heroImages = [
+    imageUrl,
+    "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1000&q=80",
+    "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=1000&q=80"
+  ];
+
+  const handleNextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % heroImages.length);
+  };
+
+  const handlePrevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + heroImages.length) % heroImages.length);
+  };
+
+  return (
+    <section id="home" className="relative pt-6 lg:pt-10 overflow-hidden bg-background">
+      {/* Container */}
       <div className="container relative z-10 mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
-        <div className="grid lg:grid-cols-12 gap-12 items-center">
+        
+        {/* Main Hero Row */}
+        <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-center pb-12 lg:pb-16">
           
-          {/* Left Hero Content */}
-          <div className="lg:col-span-7 text-left space-y-6">
+          {/* LEFT HERO CONTENT */}
+          <div className="lg:col-span-7 space-y-6">
             
-            {/* Accreditation Badges */}
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-semibold">
-                <ShieldCheck className="w-3.5 h-3.5" />
-                <span>Federal Board FBISE Affiliated</span>
+            {/* Eyebrow + Geometric Accents matching template */}
+            <div className="flex items-center gap-3">
+              <span className="text-amber-500 font-extrabold text-xs tracking-[0.2em] uppercase">
+                {eyebrow}
               </span>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-accent/20 border border-accent/40 text-foreground text-xs font-semibold">
-                <Sparkles className="w-3.5 h-3.5 text-primary" />
-                <span>Est. 2015 • Cambridge & Quranic Standard</span>
-              </span>
+
+              {/* Decorative Geometric Triangles from Template */}
+              <div className="flex items-center gap-1">
+                <div className="w-0 h-0 border-t-[7px] border-t-transparent border-b-[7px] border-b-transparent border-l-[11px] border-l-teal-400 rotate-[180deg]" />
+                <div className="w-0 h-0 border-t-[7px] border-t-transparent border-b-[7px] border-b-transparent border-l-[11px] border-l-amber-400 rotate-[180deg]" />
+                <div className="w-0 h-0 border-t-[7px] border-t-transparent border-b-[7px] border-b-transparent border-l-[11px] border-l-rose-500 rotate-[180deg]" />
+              </div>
             </div>
 
-            {/* Main Headline */}
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-foreground tracking-tight font-headline leading-[1.15]">
-              Pakistan Islamic International <span className="text-primary underline decoration-primary/30 underline-offset-8">School System</span>
+            {/* Dual-Color Punchy Title */}
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-slate-900 dark:text-white font-headline leading-[1.12] tracking-tight">
+              {titlePart1}{" "}
+              <span className="text-amber-500 underline decoration-amber-400/40 decoration-4 underline-offset-8">
+                {titlePart2}
+              </span>
             </h1>
 
-            {/* Subtitle with Typing Animation */}
-            <div className="text-base sm:text-lg lg:text-xl text-muted-foreground font-medium max-w-2xl min-h-[56px] flex items-center">
-              <TypingAnimation titles={taglines} />
-            </div>
+            {/* Subtitle Description */}
+            <p className="text-sm sm:text-base text-muted-foreground font-medium leading-relaxed max-w-xl">
+              {description}
+            </p>
 
-            {/* Key Value Bullets */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-              <div className="flex items-center gap-2 text-xs sm:text-sm font-medium text-foreground/90">
-                <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
-                <span>100% Board Pass & Distinction Merit</span>
-              </div>
-              <div className="flex items-center gap-2 text-xs sm:text-sm font-medium text-foreground/90">
-                <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
-                <span>Balanced Modern STEM & Hifz Program</span>
-              </div>
-              <div className="flex items-center gap-2 text-xs sm:text-sm font-medium text-foreground/90">
-                <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
-                <span>Certified Master&apos;s Qualified Educators</span>
-              </div>
-              <div className="flex items-center gap-2 text-xs sm:text-sm font-medium text-foreground/90">
-                <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
-                <span>State-of-the-Art Science & Tech Labs</span>
-              </div>
-            </div>
+            {/* CTA Pill Buttons matching template */}
+            <div className="flex flex-wrap items-center gap-4 pt-2">
+              <Link href={ctaLink}>
+                <Button 
+                  size="lg" 
+                  className="bg-amber-500 hover:bg-amber-600 text-white font-extrabold rounded-full px-7 py-6 shadow-lg shadow-amber-500/25 transition-all duration-300 hover:scale-105 gap-2 text-sm"
+                >
+                  <span>{ctaText}</span>
+                  <span className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center">
+                    <ArrowRight className="w-3.5 h-3.5 text-white" />
+                  </span>
+                </Button>
+              </Link>
 
-            {/* Action Buttons */}
-            <div className="flex flex-wrap items-center gap-4 pt-4">
-              <Button size="lg" className="rounded-full shadow-md text-sm font-semibold px-7 py-6" asChild>
-                <Link href="/admissions">
-                  <span>Apply for Admission 2026</span>
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Link>
-              </Button>
-
-              <Button size="lg" variant="outline" className="rounded-full text-sm font-semibold px-7 py-6 border-border/80 hover:bg-muted/60" asChild>
-                <Link href="/results">
-                  <Award className="w-4 h-4 mr-2 text-primary" />
-                  <span>View Board Results</span>
-                </Link>
-              </Button>
+              <Link href={cta2Link}>
+                <Button 
+                  size="lg" 
+                  variant="outline" 
+                  className="border-2 border-amber-500/80 text-foreground hover:bg-amber-500/10 font-extrabold rounded-full px-7 py-6 transition-all text-sm"
+                >
+                  <span>{cta2Text}</span>
+                </Button>
+              </Link>
             </div>
           </div>
 
-          {/* Right Hero Visual Showcase */}
+          {/* RIGHT HERO IMAGE SHOWCASE WITH CAROUSEL CONTROLS */}
           <div className="lg:col-span-5 relative">
             <div className="relative mx-auto max-w-md lg:max-w-none">
               
-              {/* Main School Showcase Card */}
-              <div className="relative bg-card rounded-3xl p-3 border border-border/80 shadow-2xl overflow-hidden group">
-                <div className="relative h-80 sm:h-96 rounded-2xl overflow-hidden bg-muted">
-                  <Image
-                    src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1000&q=80"
-                    alt="PIISS Campus & Students"
-                    fill
-                    priority
-                    className="object-cover group-hover:scale-105 transition-transform duration-700"
-                    referrerPolicy="no-referrer"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                  
-                  {/* Overlay Motto */}
-                  <div className="absolute bottom-4 left-4 right-4 text-white">
-                    <p className="text-xs font-semibold text-accent uppercase tracking-wider mb-1">Our Institutional Motto</p>
-                    <p className="text-sm font-semibold leading-snug font-headline">
-                      &quot;Knowledge for divine recognition &amp; empowering young minds with modern intellect.&quot;
-                    </p>
-                  </div>
-                </div>
+              {/* Carousel Left Arrow */}
+              <button
+                onClick={handlePrevSlide}
+                className="absolute -left-4 sm:-left-6 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-slate-900/80 hover:bg-amber-500 text-white flex items-center justify-center shadow-lg transition-all border border-white/20 hover:scale-110"
+                aria-label="Previous Slide"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
 
-                {/* Floating Badge 1: Board Rank Holder */}
-                <div className="absolute top-6 right-6 bg-card/95 backdrop-blur-md p-3 rounded-2xl border border-border/80 shadow-lg flex items-center gap-3">
-                  <div className="p-2.5 rounded-xl bg-primary text-primary-foreground">
-                    <GraduationCap className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <p className="text-xs font-extrabold text-foreground font-headline">1st Position FBISE</p>
-                    <p className="text-[10px] text-muted-foreground font-medium">Federal Board Distinction</p>
-                  </div>
-                </div>
-
-                {/* Floating Badge 2: Islamic & STEM */}
-                <div className="absolute bottom-16 -left-4 hidden sm:flex bg-card/95 backdrop-blur-md px-4 py-2.5 rounded-2xl border border-border/80 shadow-xl items-center gap-2.5">
-                  <div className="p-2 rounded-lg bg-accent/30 text-foreground">
-                    <BookOpen className="w-4 h-4 text-primary" />
-                  </div>
-                  <div>
-                    <p className="text-xs font-bold text-foreground">Integrated Quran & STEM</p>
-                    <p className="text-[10px] text-muted-foreground">Holistic Character Building</p>
-                  </div>
+              {/* Main Image Container */}
+              <div className="relative rounded-3xl overflow-hidden border-4 border-white dark:border-slate-800 shadow-2xl bg-slate-900 group h-80 sm:h-96">
+                <Image
+                  src={heroImages[currentSlide]}
+                  alt="School Campus & Classroom"
+                  fill
+                  priority
+                  className="object-cover transition-all duration-700 group-hover:scale-105"
+                  referrerPolicy="no-referrer"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent" />
+                
+                {/* Dots indicator */}
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-10">
+                  {heroImages.map((_, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setCurrentSlide(idx)}
+                      className={`h-2 rounded-full transition-all ${
+                        currentSlide === idx ? "w-6 bg-amber-400" : "w-2 bg-white/60"
+                      }`}
+                    />
+                  ))}
                 </div>
               </div>
+
+              {/* Carousel Right Arrow */}
+              <button
+                onClick={handleNextSlide}
+                className="absolute -right-4 sm:-right-6 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-slate-900/80 hover:bg-amber-500 text-white flex items-center justify-center shadow-lg transition-all border border-white/20 hover:scale-110"
+                aria-label="Next Slide"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
 
             </div>
           </div>
 
+        </div>
+      </div>
+
+      {/* BOTTOM 3-CARD BANNER FEATURE GRID matching reference template */}
+      <div className="w-full grid grid-cols-1 md:grid-cols-3">
+        {/* Card 1: Pink / Coral Red */}
+        <div className="bg-rose-500 text-white p-6 sm:p-8 flex items-start gap-4 transition-colors hover:bg-rose-600">
+          <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center shrink-0">
+            <UserCheck className="w-6 h-6 text-white" />
+          </div>
+          <div>
+            <h3 className="font-extrabold text-lg sm:text-xl font-headline mb-1">
+              {card1Title}
+            </h3>
+            <p className="text-xs sm:text-sm text-white/90 font-medium leading-relaxed">
+              {card1Desc}
+            </p>
+          </div>
+        </div>
+
+        {/* Card 2: Warm Amber Yellow */}
+        <div className="bg-amber-500 text-white p-6 sm:p-8 flex items-start gap-4 transition-colors hover:bg-amber-600">
+          <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center shrink-0">
+            <BookOpen className="w-6 h-6 text-white" />
+          </div>
+          <div>
+            <h3 className="font-extrabold text-lg sm:text-xl font-headline mb-1">
+              {card2Title}
+            </h3>
+            <p className="text-xs sm:text-sm text-white/90 font-medium leading-relaxed">
+              {card2Desc}
+            </p>
+          </div>
+        </div>
+
+        {/* Card 3: Teal / Emerald Green */}
+        <div className="bg-teal-600 text-white p-6 sm:p-8 flex items-start gap-4 transition-colors hover:bg-teal-700">
+          <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center shrink-0">
+            <Globe className="w-6 h-6 text-white" />
+          </div>
+          <div>
+            <h3 className="font-extrabold text-lg sm:text-xl font-headline mb-1">
+              {card3Title}
+            </h3>
+            <p className="text-xs sm:text-sm text-white/90 font-medium leading-relaxed">
+              {card3Desc}
+            </p>
+          </div>
         </div>
       </div>
     </section>

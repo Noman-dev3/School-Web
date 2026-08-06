@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from "next/link";
@@ -13,11 +12,14 @@ interface FooterProps {
     instagramUrl?: string;
     linkedinUrl?: string;
     twitterUrl?: string;
+    logoUrl?: string;
+    schoolName?: string;
+    ourStory?: string;
   };
 }
 
 const Footer = ({ content }: FooterProps) => {
-    const { user } = useAuth();
+  const { user } = useAuth();
   const currentYear = new Date().getFullYear();
 
   const socialLinks = [
@@ -53,16 +55,22 @@ const Footer = ({ content }: FooterProps) => {
       <div className="container mx-auto px-6 lg:px-8 py-16 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
           <div className="md:col-span-5 lg:col-span-4 space-y-6">
-            <Link href="/" className="flex items-center gap-2">
-                <div className="bg-primary p-2 rounded-md">
-                    <GraduationCap className="h-6 w-6 text-primary-foreground" />
-                </div>
+            <Link href="/" className="flex items-center gap-3">
+                {content.logoUrl ? (
+                  <img src={content.logoUrl} alt="Logo" className="h-9 w-auto object-contain" />
+                ) : (
+                  <div className="bg-primary p-2 rounded-md">
+                      <GraduationCap className="h-6 w-6 text-primary-foreground" />
+                  </div>
+                )}
                 <div>
-                    <h1 className="text-xl font-bold text-foreground font-headline">{header.logo.title}</h1>
+                    <h1 className="text-lg font-bold text-foreground font-headline">
+                      {content.schoolName || header.logo.title}
+                    </h1>
                 </div>
             </Link>
-            <p className="text-muted-foreground max-w-sm">
-              Empowering students with advanced learning tools to improve their educational outcomes and future prospects.
+            <p className="text-muted-foreground max-w-sm text-xs sm:text-sm leading-relaxed">
+              {content.ourStory || "Empowering students with advanced learning tools, Quranic ethics, and Federal Board distinction merit to redefine education for a brighter future."}
             </p>
             <div className="flex space-x-4">
               {socialLinks.map((link, index) =>
@@ -72,7 +80,7 @@ const Footer = ({ content }: FooterProps) => {
                     href={link.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-muted-foreground hover:text-primary transition-colors"
+                    className="text-muted-foreground hover:text-amber-500 transition-colors"
                     aria-label={link.label}
                   >
                     {link.icon}
@@ -87,7 +95,7 @@ const Footer = ({ content }: FooterProps) => {
             <ul className="space-y-3">
               {siteMapLinks.map((link) => (
                 <li key={link.label}>
-                  <Link href={link.href} className="text-muted-foreground hover:text-primary hover:underline underline-offset-4 transition-colors">
+                  <Link href={link.href} className="text-muted-foreground hover:text-amber-500 hover:underline underline-offset-4 transition-colors text-xs sm:text-sm">
                     {link.label}
                   </Link>
                 </li>
@@ -100,7 +108,7 @@ const Footer = ({ content }: FooterProps) => {
             <ul className="space-y-3">
               {legalLinks.map((link) => (
                 <li key={link.label}>
-                  <Link href={link.href} className="text-muted-foreground hover:text-primary hover:underline underline-offset-4 transition-colors">
+                  <Link href={link.href} className="text-muted-foreground hover:text-amber-500 hover:underline underline-offset-4 transition-colors text-xs sm:text-sm">
                     {link.label}
                   </Link>
                 </li>
@@ -108,10 +116,9 @@ const Footer = ({ content }: FooterProps) => {
             </ul>
           </div>
         </div>
-      </div>
-      <div className="bg-background/10 py-4">
-        <div className="container mx-auto px-6 lg:px-8 text-center text-xs text-muted-foreground">
-          <p>Copyright &copy; {currentYear}, PIISS. All Rights Reserved.</p>
+
+        <div className="mt-12 pt-8 border-t border-border/40 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-muted-foreground">
+          <p>© {currentYear} {content.schoolName || header.logo.title}. All rights reserved.</p>
         </div>
       </div>
     </footer>

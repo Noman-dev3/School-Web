@@ -62,6 +62,9 @@ export default async function Home() {
     instagramUrl: settings.instagramUrl,
     linkedinUrl: settings.linkedinUrl,
     twitterUrl: settings.twitterUrl,
+    logoUrl: settings.logoUrl,
+    schoolName: settings.schoolName,
+    ourStory: settings.ourStory,
   };
 
   const heroTaglines = Array.isArray(settings.heroTaglines) && settings.heroTaglines.length > 0 
@@ -82,7 +85,7 @@ export default async function Home() {
 
   // Map section IDs to their corresponding JSX elements
   const sectionMap: Record<string, React.ReactNode> = {
-    hero: <Hero key="hero" taglines={heroTaglines} />,
+    hero: <Hero key="hero" taglines={heroTaglines} settings={settings} />,
     stats: <HeroStats key="stats" />,
     portals: <QuickPortalGrid key="portals" />,
     programs: <AcademicPrograms key="programs" />,
@@ -105,7 +108,7 @@ export default async function Home() {
       <NoticeTicker text={settings.noticeText} link={settings.noticeLink} />
 
       {/* Floating Top Header Navigation */}
-      <Header />
+      <Header settings={settings} />
 
       <div className="flex-grow">
         <main className="flex-1 space-y-12 sm:space-y-16 pb-16">

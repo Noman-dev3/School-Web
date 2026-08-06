@@ -10,27 +10,40 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { navLinks, header } from "@/lib/data";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { supabase } from "@/lib/supabase";
-import Image from "next/image";
 import { AISearchDialog } from "./ai-search-dialog";
 import { FAQ, Teacher, Event, Topper, BoardStudent } from "@/app/admin/data-schemas";
 import { cn } from "@/lib/utils";
 
-export function Header() {
+interface HeaderProps {
+  settings?: any;
+}
+
+export function Header({ settings }: HeaderProps) {
   const [isSheetOpen, setSheetOpen] = useState(false);
-  const [logoUrl, setLogoUrl] = useState("");
+  const [logoUrl, setLogoUrl] = useState(settings?.logoUrl || "");
+  const [schoolName, setSchoolName] = useState(settings?.schoolName || header.logo.title);
+  const [tagline, setTagline] = useState(settings?.tagline || header.logo.description);
   const [isSearchOpen, setSearchOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState("");
   const pathname = usePathname();
 
   const [siteData, setSiteData] = useState({
-    settings: {},
+    settings: settings || {},
     faqs: [] as FAQ[],
     teachers: [] as Teacher[],
     events: [] as Event[],
     toppers: [] as Topper[],
     boardStudents: [] as BoardStudent[],
   });
+
+  useEffect(() => {
+    if (settings) {
+      if (settings.logoUrl) setLogoUrl(settings.logoUrl);
+      if (settings.schoolName) setSchoolName(settings.schoolName);
+      if (settings.tagline) setTagline(settings.tagline);
+    }
+  }, [settings]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -86,11 +99,13 @@ export function Header() {
         ]);
 
         if (settingsData) {
-          setLogoUrl(settingsData.logoUrl || "");
+          if (settingsData.logoUrl) setLogoUrl(settingsData.logoUrl);
+          if (settingsData.schoolName) setSchoolName(settingsData.schoolName);
+          if (settingsData.tagline) setTagline(settingsData.tagline);
         }
 
         setSiteData({
-          settings: settingsData || {},
+          settings: settingsData || settings || {},
           faqs: (faqsData || []) as FAQ[],
           teachers: (teachersData || []) as Teacher[],
           events: (eventsData || []) as Event[],
@@ -103,7 +118,7 @@ export function Header() {
     }
 
     loadData();
-  }, []);
+  }, [settings]);
 
   return (
     <>
@@ -123,10 +138,7 @@ export function Header() {
             isScrolled ? "rounded-full" : "rounded-none"
           )}
         >
-          {/* Subtle liquid glass tint */}
           <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 via-primary/5 to-teal-500/10 dark:from-emerald-900/20 dark:via-primary/10 dark:to-teal-900/20" />
-          
-          {/* Top Edge Specular Reflection Sheen */}
           <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/80 dark:via-white/30 to-transparent" />
         </div>
 
@@ -134,19 +146,21 @@ export function Header() {
         <div className="relative z-10 flex items-center justify-between">
           {/* Logo & Brand Identity */}
           <Link href="/" className="flex items-center gap-3 group shrink-0">
-            <div className="bg-primary text-primary-foreground p-2 rounded-full transition-transform duration-300 group-hover:scale-105 shadow-md shadow-primary/20">
-              {logoUrl ? (
-                <Image src={logoUrl} alt="PIISS Logo" width={20} height={20} className="object-contain" />
-              ) : (
+            {logoUrl ? (
+              <div className="h-9 flex items-center justify-center">
+                <img src={logoUrl} alt="School Logo" className="h-9 w-auto max-h-9 object-contain" />
+              </div>
+            ) : (
+              <div className="bg-primary text-primary-foreground p-2 rounded-full transition-transform duration-300 group-hover:scale-105 shadow-md shadow-primary/20">
                 <GraduationCap className="h-5 w-5" />
-              )}
-            </div>
+              </div>
+            )}
             <div className="flex flex-col">
               <h1 className="text-sm sm:text-base font-bold text-foreground font-headline tracking-tight leading-none">
-                {header.logo.title}
+                {schoolName}
               </h1>
-              <p className="text-[10px] text-muted-foreground font-medium hidden md:block mt-0.5">
-                {header.logo.description}
+              <p className="text-[10px] text-muted-foreground font-medium hidden md:block mt-0.5 max-w-xs truncate">
+                {tagline}
               </p>
             </div>
           </Link>
@@ -166,7 +180,7 @@ export function Header() {
                   className={cn(
                     "text-xs font-semibold px-3.5 py-1.5 rounded-full transition-all duration-300",
                     isActive
-                      ? "bg-emerald-700 text-white shadow-md shadow-emerald-900/20 scale-105 font-bold"
+                      ? "bg-amber-500 text-white shadow-md shadow-amber-500/20 scale-105 font-bold"
                       : "text-foreground/80 hover:text-foreground hover:bg-muted/60"
                   )}
                 >
@@ -203,14 +217,18 @@ export function Header() {
                 <SheetContent side="bottom" className="rounded-t-3xl p-0 max-h-[85vh] bg-background/95 backdrop-blur-2xl border-t border-border/60 flex flex-col">
                   <SheetHeader className="p-6 border-b border-border/40 text-left">
                     <div className="flex items-center gap-4">
-                      <Avatar className="h-12 w-12 border-2 border-primary/60">
-                        <AvatarImage src={header.mobileMenu.user.avatar.src} alt={header.mobileMenu.user.avatar.alt} />
-                        <AvatarFallback>
-                          <User />
-                        </AvatarFallback>
-                      </Avatar>
+                      {logoUrl ? (
+                        <img src={logoUrl} alt="Logo" className="h-10 w-auto object-contain" />
+                      ) : (
+                        <Avatar className="h-12 w-12 border-2 border-primary/60">
+                          <AvatarImage src={header.mobileMenu.user.avatar.src} alt={header.mobileMenu.user.avatar.alt} />
+                          <AvatarFallback>
+                            <User />
+                          </AvatarFallback>
+                        </Avatar>
+                      )}
                       <div>
-                        <h2 className="text-lg font-bold text-foreground font-headline">{header.mobileMenu.user.name}</h2>
+                        <h2 className="text-lg font-bold text-foreground font-headline">{schoolName}</h2>
                         <p className="text-xs text-muted-foreground">{header.mobileMenu.user.welcomeMessage}</p>
                       </div>
                     </div>
@@ -223,7 +241,7 @@ export function Header() {
                         onClick={() => setSheetOpen(false)}
                         className="text-sm font-medium text-foreground/80 hover:text-foreground transition-colors flex items-center gap-4 py-3 px-4 rounded-2xl hover:bg-muted"
                       >
-                        <span className="p-2 rounded-xl bg-muted/60 text-primary">{link.icon}</span>
+                        <span className="p-2 rounded-xl bg-muted/60 text-amber-500">{link.icon}</span>
                         <span>{link.label}</span>
                       </Link>
                     ))}

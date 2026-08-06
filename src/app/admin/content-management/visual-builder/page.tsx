@@ -5,7 +5,7 @@ import {
   Paintbrush, Save, ArrowUp, ArrowDown, Eye, EyeOff, LayoutList, 
   Sparkles, CheckCircle2, Image as ImageIcon, Link as LinkIcon, 
   MessageSquare, Phone, MapPin, Globe, Loader2, Plus, Trash2, Sliders,
-  HelpCircle, Megaphone, Check, ShieldCheck
+  HelpCircle, Megaphone, Check, ShieldCheck, Layers, BookOpen, UserCheck
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,7 +17,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabase';
-import { getSettings, DEFAULT_SECTION_ORDER, DEFAULT_SECTION_VISIBILITY } from '@/lib/data-fetching';
+import { getSettings, DEFAULT_SECTION_ORDER, DEFAULT_SECTION_VISIBILITY, defaultSettings } from '@/lib/data-fetching';
 
 const SECTION_LABELS: Record<string, { title: string; desc: string; icon: string }> = {
   hero: { title: "Hero Main Banner", desc: "Top hero headline, taglines, and call-to-action", icon: "🚀" },
@@ -45,35 +45,7 @@ export default function LandingPageCMSStudio() {
 
   // FULL CMS FORM STATE
   const [config, setConfig] = useState<any>({
-    schoolName: "PAKISTAN ISLAMIC INTERNATIONAL SCHOOL SYSTEM",
-    tagline: "Excellence in Academic Rigor & Timeless Values",
-    ourStory: "",
-    logoUrl: "",
-    contactPhone: "",
-    contactEmail: "",
-    contactAddress: "",
-    officeHours: "",
-    aboutImageUrl: "",
-    contactImageUrl: "",
-    heroTitle: "",
-    heroSub: "",
-    heroCtaText: "",
-    heroCtaLink: "",
-    heroImageUrl: "",
-    heroTaglines: [],
-    noticeText: "",
-    noticeLink: "",
-    adBannerTitle: "",
-    adBannerSubtitle: "",
-    adBannerCtaText: "",
-    adBannerImageUrl: "",
-    facebookUrl: "",
-    instagramUrl: "",
-    linkedinUrl: "",
-    twitterUrl: "",
-    sectionOrder: DEFAULT_SECTION_ORDER,
-    sectionVisibility: DEFAULT_SECTION_VISIBILITY,
-    sectionTitles: {}
+    ...defaultSettings
   });
 
   useEffect(() => {
@@ -100,11 +72,21 @@ export default function LandingPageCMSStudio() {
         sectionVisibility: config.sectionVisibility,
         noticeText: config.noticeText,
         noticeLink: config.noticeLink,
-        heroTitle: config.heroTitle,
+        heroEyebrow: config.heroEyebrow,
+        heroTitlePart1: config.heroTitlePart1,
+        heroTitlePart2: config.heroTitlePart2,
         heroSub: config.heroSub,
         heroCtaText: config.heroCtaText,
         heroCtaLink: config.heroCtaLink,
+        heroCta2Text: config.heroCta2Text,
+        heroCta2Link: config.heroCta2Link,
         heroImageUrl: config.heroImageUrl,
+        heroCard1Title: config.heroCard1Title,
+        heroCard1Desc: config.heroCard1Desc,
+        heroCard2Title: config.heroCard2Title,
+        heroCard2Desc: config.heroCard2Desc,
+        heroCard3Title: config.heroCard3Title,
+        heroCard3Desc: config.heroCard3Desc,
         adBannerTitle: config.adBannerTitle,
         adBannerSubtitle: config.adBannerSubtitle,
         adBannerCtaText: config.adBannerCtaText,
@@ -136,7 +118,7 @@ export default function LandingPageCMSStudio() {
 
       toast({
         title: "Landing Page Updated! 🎉",
-        description: "All section orderings, media pictures, and text changes are live on the website."
+        description: "All section orderings, hero template text, media pictures, and features are live on the website."
       });
     } catch (err: any) {
       toast({
@@ -190,7 +172,7 @@ export default function LandingPageCMSStudio() {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-3">
-        <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
+        <Loader2 className="w-8 h-8 animate-spin text-amber-500" />
         <p className="text-sm font-semibold text-muted-foreground">Loading Landing Page CMS Studio...</p>
       </div>
     );
@@ -201,21 +183,21 @@ export default function LandingPageCMSStudio() {
       {/* Header Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border/50">
         <div>
-          <div className="flex items-center gap-2 text-xs font-semibold text-emerald-600 dark:text-emerald-400 mb-1">
+          <div className="flex items-center gap-2 text-xs font-semibold text-amber-600 dark:text-amber-400 mb-1">
             <Sliders className="w-4 h-4" /> Landing Page CMS Studio
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold font-headline tracking-tight text-foreground">
             Landing Page Manager & Customizer
           </h1>
           <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-            Reorder sections, update pictures, edit headlines, notice bars, and website branding in real-time.
+            Reorder sections, update hero headlines, pictures, notice bars, and website branding in real-time.
           </p>
         </div>
 
         <Button
           onClick={handleSaveCMS}
           disabled={isSaving}
-          className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl h-10 px-5 gap-2 font-bold shadow-md shrink-0"
+          className="bg-amber-500 hover:bg-amber-600 text-white rounded-xl h-10 px-5 gap-2 font-bold shadow-md shrink-0"
         >
           {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
           <span>{isSaving ? "Saving Live Changes..." : "Publish Live Changes"}</span>
@@ -228,11 +210,11 @@ export default function LandingPageCMSStudio() {
           <TabsTrigger value="sections" className="rounded-xl text-xs font-bold gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm">
             <LayoutList className="w-3.5 h-3.5 text-emerald-600" /> Section Order & Visibility
           </TabsTrigger>
+          <TabsTrigger value="hero" className="rounded-xl text-xs font-bold gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm">
+            <Sparkles className="w-3.5 h-3.5 text-amber-500" /> Hero & Template Layout
+          </TabsTrigger>
           <TabsTrigger value="notice" className="rounded-xl text-xs font-bold gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm">
             <Megaphone className="w-3.5 h-3.5 text-blue-600" /> Notice Bar & Header
-          </TabsTrigger>
-          <TabsTrigger value="hero" className="rounded-xl text-xs font-bold gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm">
-            <Sparkles className="w-3.5 h-3.5 text-amber-600" /> Hero & Banner
           </TabsTrigger>
           <TabsTrigger value="media" className="rounded-xl text-xs font-bold gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm">
             <ImageIcon className="w-3.5 h-3.5 text-indigo-600" /> Pictures & Media Studio
@@ -320,7 +302,177 @@ export default function LandingPageCMSStudio() {
           </Card>
         </TabsContent>
 
-        {/* TAB 2: NOTICE BAR & HEADER */}
+        {/* TAB 2: HERO & TEMPLATE CUSTOMIZATION */}
+        <TabsContent value="hero" className="space-y-4">
+          <Card className="rounded-2xl border-border/60 p-6 bg-card space-y-6">
+            <div>
+              <CardTitle className="text-lg font-bold font-headline flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-amber-500" /> Hero Layout Template Customizer
+              </CardTitle>
+              <CardDescription className="text-xs mt-1">
+                Customize the eyebrow badge, dual-color headline, subtitle description, CTA buttons, and bottom 3 feature cards matching the template design.
+              </CardDescription>
+            </div>
+
+            <div className="space-y-4 text-xs">
+              <div className="space-y-1.5">
+                <Label className="font-bold">Eyebrow Badge (e.g. ABOUT US / ACADEMIC EXCELLENCE)</Label>
+                <Input
+                  value={config.heroEyebrow}
+                  onChange={(e) => setConfig({ ...config, heroEyebrow: e.target.value })}
+                  placeholder="ABOUT US"
+                  className="h-9 rounded-xl text-xs"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label className="font-bold">Main Title Part 1 (Navy/Dark Text)</Label>
+                  <Input
+                    value={config.heroTitlePart1}
+                    onChange={(e) => setConfig({ ...config, heroTitlePart1: e.target.value })}
+                    placeholder="We are the top"
+                    className="h-9 rounded-xl text-xs font-bold"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="font-bold">Main Title Part 2 (Golden Yellow Highlight)</Label>
+                  <Input
+                    value={config.heroTitlePart2}
+                    onChange={(e) => setConfig({ ...config, heroTitlePart2: e.target.value })}
+                    placeholder="Learning Platform."
+                    className="h-9 rounded-xl text-xs font-bold text-amber-500"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="font-bold">Hero Subtitle / Description Paragraph</Label>
+                <Textarea
+                  value={config.heroSub}
+                  onChange={(e) => setConfig({ ...config, heroSub: e.target.value })}
+                  rows={3}
+                  className="rounded-xl text-xs leading-relaxed"
+                />
+              </div>
+
+              {/* Action Buttons */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-border/40">
+                <div className="space-y-1.5">
+                  <Label className="font-bold">Primary Button Label (Solid Pill)</Label>
+                  <Input
+                    value={config.heroCtaText}
+                    onChange={(e) => setConfig({ ...config, heroCtaText: e.target.value })}
+                    className="h-9 rounded-xl text-xs"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="font-bold">Primary Button Link</Label>
+                  <Input
+                    value={config.heroCtaLink}
+                    onChange={(e) => setConfig({ ...config, heroCtaLink: e.target.value })}
+                    className="h-9 rounded-xl text-xs font-mono"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label className="font-bold">Secondary Button Label (Outline Pill)</Label>
+                  <Input
+                    value={config.heroCta2Text}
+                    onChange={(e) => setConfig({ ...config, heroCta2Text: e.target.value })}
+                    className="h-9 rounded-xl text-xs"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="font-bold">Secondary Button Link</Label>
+                  <Input
+                    value={config.heroCta2Link}
+                    onChange={(e) => setConfig({ ...config, heroCta2Link: e.target.value })}
+                    className="h-9 rounded-xl text-xs font-mono"
+                  />
+                </div>
+              </div>
+
+              {/* Bottom 3 Feature Cards */}
+              <div className="pt-4 border-t border-border/40 space-y-4">
+                <h4 className="text-sm font-bold font-headline flex items-center gap-2">
+                  <Layers className="w-4 h-4 text-amber-500" /> Bottom 3 Feature Cards (Template Grid)
+                </h4>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* Card 1 */}
+                  <div className="p-4 bg-rose-500/10 rounded-xl border border-rose-500/30 space-y-2">
+                    <p className="font-extrabold text-xs text-rose-600 uppercase">Card 1 (Pink Block)</p>
+                    <div className="space-y-1">
+                      <Label className="text-[11px] font-bold">Title</Label>
+                      <Input
+                        value={config.heroCard1Title}
+                        onChange={(e) => setConfig({ ...config, heroCard1Title: e.target.value })}
+                        className="h-8 text-xs rounded-lg"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-[11px] font-bold">Description</Label>
+                      <Textarea
+                        value={config.heroCard1Desc}
+                        onChange={(e) => setConfig({ ...config, heroCard1Desc: e.target.value })}
+                        rows={2}
+                        className="text-xs rounded-lg"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Card 2 */}
+                  <div className="p-4 bg-amber-500/10 rounded-xl border border-amber-500/30 space-y-2">
+                    <p className="font-extrabold text-xs text-amber-600 uppercase">Card 2 (Amber Block)</p>
+                    <div className="space-y-1">
+                      <Label className="text-[11px] font-bold">Title</Label>
+                      <Input
+                        value={config.heroCard2Title}
+                        onChange={(e) => setConfig({ ...config, heroCard2Title: e.target.value })}
+                        className="h-8 text-xs rounded-lg"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-[11px] font-bold">Description</Label>
+                      <Textarea
+                        value={config.heroCard2Desc}
+                        onChange={(e) => setConfig({ ...config, heroCard2Desc: e.target.value })}
+                        rows={2}
+                        className="text-xs rounded-lg"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Card 3 */}
+                  <div className="p-4 bg-teal-500/10 rounded-xl border border-teal-500/30 space-y-2">
+                    <p className="font-extrabold text-xs text-teal-600 uppercase">Card 3 (Teal Block)</p>
+                    <div className="space-y-1">
+                      <Label className="text-[11px] font-bold">Title</Label>
+                      <Input
+                        value={config.heroCard3Title}
+                        onChange={(e) => setConfig({ ...config, heroCard3Title: e.target.value })}
+                        className="h-8 text-xs rounded-lg"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-[11px] font-bold">Description</Label>
+                      <Textarea
+                        value={config.heroCard3Desc}
+                        onChange={(e) => setConfig({ ...config, heroCard3Desc: e.target.value })}
+                        rows={2}
+                        className="text-xs rounded-lg"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </Card>
+        </TabsContent>
+
+        {/* TAB 3: NOTICE BAR & HEADER */}
         <TabsContent value="notice" className="space-y-4">
           <Card className="rounded-2xl border-border/60 p-6 bg-card space-y-6">
             <div>
@@ -382,85 +534,6 @@ export default function LandingPageCMSStudio() {
           </Card>
         </TabsContent>
 
-        {/* TAB 3: HERO & METRICS */}
-        <TabsContent value="hero" className="space-y-4">
-          <Card className="rounded-2xl border-border/60 p-6 bg-card space-y-6">
-            <div>
-              <CardTitle className="text-lg font-bold font-headline flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-amber-500" /> Main Hero Banner Content
-              </CardTitle>
-              <CardDescription className="text-xs mt-1">
-                Customize the primary headline, rotating taglines, and call-to-action button.
-              </CardDescription>
-            </div>
-
-            <div className="space-y-4 text-xs">
-              <div className="space-y-1.5">
-                <Label className="font-bold">Hero Main Headline</Label>
-                <Input
-                  value={config.heroTitle}
-                  onChange={(e) => setConfig({ ...config, heroTitle: e.target.value })}
-                  placeholder="Main Title"
-                  className="h-9 rounded-xl text-xs"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <Label className="font-bold">Hero Sub-headline / Mission Summary</Label>
-                <Textarea
-                  value={config.heroSub}
-                  onChange={(e) => setConfig({ ...config, heroSub: e.target.value })}
-                  rows={2}
-                  className="rounded-xl text-xs"
-                />
-              </div>
-
-              {/* Dynamic Taglines */}
-              <div className="space-y-2 pt-2 border-t border-border/40">
-                <div className="flex justify-between items-center">
-                  <Label className="font-bold text-xs">Rotating Hero Taglines</Label>
-                  <Button size="sm" variant="outline" onClick={addTagline} className="h-7 text-[10px] gap-1 rounded-lg">
-                    <Plus className="w-3 h-3" /> Add Tagline
-                  </Button>
-                </div>
-
-                {(config.heroTaglines || []).map((tag: string, i: number) => (
-                  <div key={i} className="flex items-center gap-2">
-                    <Input
-                      value={tag}
-                      onChange={(e) => updateTagline(i, e.target.value)}
-                      className="h-8 text-xs rounded-lg flex-1"
-                    />
-                    <Button size="icon" variant="ghost" onClick={() => removeTagline(i)} className="h-8 w-8 text-rose-500 rounded-lg">
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </Button>
-                  </div>
-                ))}
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-border/40">
-                <div className="space-y-1.5">
-                  <Label className="font-bold">Call-to-Action Button Label</Label>
-                  <Input
-                    value={config.heroCtaText}
-                    onChange={(e) => setConfig({ ...config, heroCtaText: e.target.value })}
-                    className="h-9 rounded-xl text-xs"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <Label className="font-bold">CTA Target Link</Label>
-                  <Input
-                    value={config.heroCtaLink}
-                    onChange={(e) => setConfig({ ...config, heroCtaLink: e.target.value })}
-                    className="h-9 rounded-xl text-xs font-mono"
-                  />
-                </div>
-              </div>
-            </div>
-          </Card>
-        </TabsContent>
-
         {/* TAB 4: PICTURES & MEDIA STUDIO */}
         <TabsContent value="media" className="space-y-4">
           <Card className="rounded-2xl border-border/60 p-6 bg-card space-y-6">
@@ -477,7 +550,7 @@ export default function LandingPageCMSStudio() {
               {/* Hero Image Card */}
               <div className="p-4 bg-muted/30 rounded-xl border border-border/60 space-y-3">
                 <p className="font-bold text-xs text-foreground flex items-center gap-2">
-                  <ImageIcon className="w-4 h-4 text-emerald-600" /> Hero Banner Image
+                  <ImageIcon className="w-4 h-4 text-emerald-600" /> Hero Banner Showcase Image
                 </p>
                 {config.heroImageUrl && (
                   <div className="h-36 rounded-lg overflow-hidden border border-border/60 bg-black/10">
