@@ -31,7 +31,7 @@ function AdminShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen bg-slate-100/70 dark:bg-slate-950 flex flex-col sm:flex-row text-foreground overflow-x-hidden">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#09090b] flex flex-col sm:flex-row text-foreground overflow-x-hidden">
       <AdminSidebar isCollapsed={isCollapsed} onToggleCollapse={toggleCollapse} />
       <div 
         className={cn(
@@ -39,7 +39,7 @@ function AdminShell({ children }: { children: React.ReactNode }) {
           isCollapsed ? "sm:ml-20" : "sm:ml-64"
         )}
       >
-        <main className="flex-1 bg-background rounded-tl-2xl p-6 sm:p-8 lg:p-10 shadow-xs min-h-[calc(100vh-0.75rem)] mt-3 space-y-6">
+        <main className="flex-1 bg-white dark:bg-[#121214] rounded-tl-[32px] p-6 sm:p-8 lg:p-10 shadow-sm border-l border-t border-border/20 min-h-[calc(100vh-0.75rem)] mt-3 space-y-6">
           {children}
         </main>
       </div>

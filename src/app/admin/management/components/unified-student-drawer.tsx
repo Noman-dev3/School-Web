@@ -142,9 +142,9 @@ export function UnifiedStudentDrawer({
               </TabsList>
             </div>
 
-            <ScrollArea className="flex-1 px-6 py-4 pb-24">
+            <ScrollArea className="flex-1 px-6">
               {/* Profile Tab */}
-              <TabsContent value="profile" className="m-0 space-y-4">
+              <TabsContent value="profile" className="m-0 space-y-4 pt-4">
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-gradient-to-br from-muted/40 to-muted/10 rounded-2xl p-5 border border-white/10 shadow-sm space-y-4 text-sm backdrop-blur-md">
                   <h4 className="font-bold text-foreground flex items-center gap-2 uppercase tracking-wider text-[11px] text-muted-foreground border-b border-border/50 pb-2">
                     <Phone className="w-4 h-4 text-emerald-600" /> Complete Student Profile Details
@@ -396,33 +396,26 @@ export function UnifiedStudentDrawer({
               </TabsContent>
             </ScrollArea>
 
-            {/* FLOATING QUICK ACTIONS BAR */}
-            <motion.div 
-              initial={{ y: 100 }} 
-              animate={{ y: 0 }} 
-              transition={{ type: "spring", stiffness: 260, damping: 20 }}
-              className="absolute bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-[400px] bg-background/90 backdrop-blur-2xl border border-white/20 p-2 rounded-2xl shadow-[0_20px_40px_-15px_rgba(0,0,0,0.3)] flex justify-between gap-2 z-50"
-            >
+            {/* STICKY QUICK ACTIONS BAR */}
+            <div className="p-4 border-t border-border/50 bg-background/95 backdrop-blur flex justify-between gap-3 shrink-0">
               <Button 
-                variant="ghost"
-                className="flex-1 h-12 rounded-xl font-bold gap-2 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 transition-all flex-col py-1 h-auto"
+                variant="outline"
+                className="flex-1 h-12 rounded-xl font-bold gap-2 text-emerald-600 border-emerald-500/20 hover:text-emerald-700 hover:bg-emerald-50 transition-all shadow-sm"
                 onClick={() => setIsIssueFeeOpen(true)}
               >
-                <div className="bg-emerald-500/10 p-1.5 rounded-lg mb-1"><ReceiptText className="w-4 h-4" /></div>
-                <span className="text-[10px] uppercase tracking-wider">Issue Fee</span>
+                <ReceiptText className="w-4 h-4" />
+                <span className="text-xs uppercase tracking-wider">Issue Fee</span>
               </Button>
-              
-              <div className="w-px bg-border/50 my-2"></div>
               
               <Button 
-                variant="ghost"
-                className="flex-1 h-12 rounded-xl font-bold gap-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 transition-all flex-col py-1 h-auto"
+                variant="outline"
+                className="flex-1 h-12 rounded-xl font-bold gap-2 text-blue-600 border-blue-500/20 hover:text-blue-700 hover:bg-blue-50 transition-all shadow-sm"
                 onClick={() => setIsAddResultOpen(true)}
               >
-                <div className="bg-blue-500/10 p-1.5 rounded-lg mb-1"><Award className="w-4 h-4" /></div>
-                <span className="text-[10px] uppercase tracking-wider">Add Result</span>
+                <Award className="w-4 h-4" />
+                <span className="text-xs uppercase tracking-wider">Add Result</span>
               </Button>
-            </motion.div>
+            </div>
           </Tabs>
         </div>
       </SheetContent>

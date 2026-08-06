@@ -413,7 +413,7 @@ export function AdminSidebar({ isCollapsed = false, onToggleCollapse }: AdminSid
               <span className="sr-only">Toggle navigation menu</span>
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="p-0 w-72 bg-slate-100/70 dark:bg-slate-950 border-none">
+          <SheetContent side="left" className="p-0 w-72 bg-slate-50 dark:bg-[#09090b] border-none">
             <SidebarContent collapsed={false} />
           </SheetContent>
         </Sheet>
@@ -428,7 +428,7 @@ export function AdminSidebar({ isCollapsed = false, onToggleCollapse }: AdminSid
 
       {/* Desktop Fixed Collapsible Sidebar (Border-free) */}
       <aside className={cn(
-        "fixed top-0 left-0 hidden h-full border-none bg-slate-100/70 dark:bg-slate-950 sm:flex flex-col z-40 transition-all duration-300 ease-in-out",
+        "fixed top-0 left-0 hidden h-full border-none bg-transparent sm:flex flex-col z-40 transition-all duration-300 ease-in-out",
         isCollapsed ? "w-20" : "w-64"
       )}>
         <SidebarContent collapsed={isCollapsed} />
