@@ -8,26 +8,55 @@ interface ManagementFeeChartProps {
   feeRecords: FeeRecord[];
 }
 
+export function calculateStudentPendingArrears(vouchers: FeeRecord[]): number {
+  if (!vouchers || vouchers.length === 0) return 0;
+
+  const unpaid = vouchers.filter(v => v.status !== 'paid');
+  if (unpaid.length === 0) return 0;
+
+  const sorted = [...unpaid].sort((a, b) => 
+    new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime()
+  );
+
+  const newest = sorted[0];
+  if (Number(newest.arrears || 0) > 0) {
+    return Math.max(0, Number(newest.total_amount || 0) - Number(newest.amount_paid || 0));
+  }
+
+  return sorted.reduce((sum, r) => sum + Math.max(0, Number(r.total_amount || 0) - Number(r.amount_paid || 0)), 0);
+}
+
 export function ManagementFeeChart({ feeRecords }: ManagementFeeChartProps) {
   const chartData = React.useMemo(() => {
-    const classMap: Record<string, { class: string; paid: number; pending: number }> = {};
+    const classMap: Record<string, { class: string; paid: number; studentVouchers: Record<string, FeeRecord[]> }> = {};
 
     feeRecords.forEach((record) => {
       const className = record.class_name || "Unassigned";
       if (!classMap[className]) {
-        classMap[className] = { class: className, paid: 0, pending: 0 };
+        classMap[className] = { class: className, paid: 0, studentVouchers: {} };
       }
-      const paid = Number(record.amount_paid || 0);
-      const total = Number(record.total_amount || 0);
-      const pending = Math.max(0, total - paid);
 
-      classMap[className].paid += paid;
-      classMap[className].pending += pending;
+      classMap[className].paid += Number(record.amount_paid || 0);
+
+      const stId = String(record.student_id || record.student_name || "unknown");
+      if (!classMap[className].studentVouchers[stId]) {
+        classMap[className].studentVouchers[stId] = [];
+      }
+      classMap[className].studentVouchers[stId].push(record);
     });
 
-    return Object.values(classMap).sort((a, b) =>
-      a.class.localeCompare(b.class, undefined, { numeric: true })
-    );
+    return Object.values(classMap).map((clsData) => {
+      let pendingSum = 0;
+      Object.values(clsData.studentVouchers).forEach((vouchers) => {
+        pendingSum += calculateStudentPendingArrears(vouchers);
+      });
+
+      return {
+        class: clsData.class,
+        paid: clsData.paid,
+        pending: pendingSum,
+      };
+    }).sort((a, b) => a.class.localeCompare(b.class, undefined, { numeric: true }));
   }, [feeRecords]);
 
   if (chartData.length === 0) {

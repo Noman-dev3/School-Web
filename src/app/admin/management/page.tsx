@@ -23,7 +23,7 @@ import { BulkImportDialog } from '../students/components/bulk-import-dialog';
 import { BatchFeeModal } from './components/batch-fee-modal';
 import { ClassTariffsModal } from './components/class-tariffs-modal';
 import { DataWipeDialog } from './components/data-wipe-dialog';
-import { ManagementFeeChart } from './components/management-fee-chart';
+import { ManagementFeeChart, calculateStudentPendingArrears } from './components/management-fee-chart';
 import { ManagementStudentStats } from './components/management-student-stats';
 import { MiniSparklineChart, computeRealTrend } from '@/components/ui/mini-sparkline';
 
@@ -101,19 +101,29 @@ export default function ManagementDashboardPage() {
   }, [students, searchQuery, classFilter]);
 
   const getStudentArrears = (studentId: string) => {
-    const unpaidRecords = feeRecords.filter(r => String(r.student_id) === String(studentId) && r.status !== 'paid');
-    return unpaidRecords.reduce((sum, r) => sum + (Number(r.total_amount || 0) - Number(r.amount_paid || 0)), 0);
+    const studentVouchers = feeRecords.filter(r => String(r.student_id) === String(studentId));
+    return calculateStudentPendingArrears(studentVouchers);
   };
 
   const managementMetrics = useMemo(() => {
     const totalStudentsCount = students.length;
-    const totalArrearsAmount = feeRecords
-      .filter(r => r.status !== 'paid')
-      .reduce((sum, r) => sum + (Number(r.total_amount || 0) - Number(r.amount_paid || 0)), 0);
+
+    // Group vouchers by student to calculate exact total pending arrears without double-counting carried-over balances
+    const vouchersByStudent: Record<string, FeeRecord[]> = {};
+    feeRecords.forEach(r => {
+      const sId = String(r.student_id || r.student_name || "unknown");
+      if (!vouchersByStudent[sId]) vouchersByStudent[sId] = [];
+      vouchersByStudent[sId].push(r);
+    });
+
+    let totalArrearsAmount = 0;
+    Object.values(vouchersByStudent).forEach(vouchers => {
+      totalArrearsAmount += calculateStudentPendingArrears(vouchers);
+    });
 
     const totalBilledAmount = feeRecords.reduce((sum, r) => sum + Number(r.total_amount || 0), 0);
     const totalPaidAmount = feeRecords.reduce((sum, r) => sum + Number(r.amount_paid || 0), 0);
-    const collectionRate = totalBilledAmount > 0 ? Math.round((totalPaidAmount / totalBilledAmount) * 100) : 100;
+    const collectionRate = totalBilledAmount > 0 ? Math.round((totalPaidAmount / totalBilledAmount) * 100) : 0;
     const activeTariffsCount = feeStructures.length;
 
     const studentTrend = computeRealTrend(students);
