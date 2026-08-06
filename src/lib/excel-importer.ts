@@ -246,25 +246,34 @@ export async function executeDualImport(fileSummaries: ImportFileSummary[]) {
             .from('fee_structures')
             .update({
               tuition_fee: summary.standardTuition,
-              is_public: true,
-              updated_at: new Date().toISOString()
-            })
-            .eq('id', existingStruct.id);
-          if (!updateErr) createdTariffsCount++;
-        } else {
-          const { error: insertErr } = await supabase
-            .from('fee_structures')
-            .insert([{
-              id: `struct-${Date.now()}-${Math.floor(100 + Math.random() * 900)}`,
-              class_name: summary.detectedClass,
-              tuition_fee: summary.standardTuition,
               admission_fee: 0,
               exam_fee: 0,
               lab_fee: 0,
               is_public: true,
-              created_at: new Date().toISOString()
-            }]);
+              kinship_enabled: true,
+              kinship_discount_percent: 25
+            })
+            .eq('id', existingStruct.id);
+          if (!updateErr) createdTariffsCount++;
+          else console.error("Tariff update error:", updateErr);
+        } else {
+          const newStruct = {
+            id: `struct-${Date.now()}-${Math.floor(100 + Math.random() * 900)}`,
+            class_name: summary.detectedClass,
+            tuition_fee: summary.standardTuition,
+            admission_fee: 0,
+            exam_fee: 0,
+            lab_fee: 0,
+            custom_fields: [],
+            is_public: true,
+            kinship_enabled: true,
+            kinship_discount_percent: 25
+          };
+          const { error: insertErr } = await supabase
+            .from('fee_structures')
+            .insert([newStruct]);
           if (!insertErr) createdTariffsCount++;
+          else console.error("Tariff insert error:", insertErr);
         }
       } catch (e) {
         console.error("Tariff save error:", e);
@@ -275,6 +284,7 @@ export async function executeDualImport(fileSummaries: ImportFileSummary[]) {
     for (const item of summary.items) {
       let studentId = '';
       try {
+        // Search by Name & Class in students table
         const { data: existingStudent } = await supabase
           .from('students')
           .select('id')
@@ -285,15 +295,17 @@ export async function executeDualImport(fileSummaries: ImportFileSummary[]) {
         if (existingStudent) {
           studentId = String(existingStudent.id);
         } else {
-          const newId = `STU-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+          // DO NOT send custom string `id` because PostgreSQL students.id is a bigint auto-increment sequence!
           const { data: newStudent, error: studErr } = await supabase
             .from('students')
             .insert([{
-              id: newId,
               Name: item.studentName,
               Class: item.className,
               Section: item.section,
               Contact: item.contactNo || '0300 0000000',
+              Date_Added: new Date().toISOString().split('T')[0],
+              Gender: 'Male',
+              Address: 'Swat Valley',
             }])
             .select('*')
             .maybeSingle();
@@ -301,10 +313,7 @@ export async function executeDualImport(fileSummaries: ImportFileSummary[]) {
           if (newStudent) {
             studentId = String(newStudent.id);
             createdStudentsCount++;
-          } else if (!studErr) {
-            studentId = newId;
-            createdStudentsCount++;
-          } else {
+          } else if (studErr) {
             console.error("Student insert error:", studErr);
           }
         }
