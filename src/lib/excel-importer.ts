@@ -27,6 +27,8 @@ export interface ImportFileSummary {
   detectedSection: string;
   detectedMonth: string;
   standardTuition: number;
+  standardExamFee: number;
+  standardCustomFields: DynamicFeeField[];
   totalStudents: number;
   totalDiscountedStudents: number;
   items: ImportPreviewItem[];
@@ -164,9 +166,20 @@ export function parseExcelFile(arrayBuffer: ArrayBuffer, fileName: string): Impo
     });
   });
 
-  // Calculate Standard Class Tuition (Max Base Rate in the class)
   const tuitionList = rawItems.map(i => Number(i.tuitionFee) || 0).filter(t => t > 0);
   const standardTuition = tuitionList.length > 0 ? Math.max(...tuitionList) : 0;
+
+  const examList = rawItems.map(i => Number(i.examFee) || 0).filter(e => e > 0);
+  const standardExamFee = examList.length > 0 ? Math.max(...examList) : 0;
+
+  const standardCustomFields: DynamicFeeField[] = [];
+  if (rawItems.length > 0 && rawItems[0].customFields) {
+    rawItems[0].customFields.forEach((cf: DynamicFeeField) => {
+      const allAmts = rawItems.map(i => i.customFields.find((c: DynamicFeeField) => c.id === cf.id)?.amount || 0).filter(a => a > 0);
+      const standardAmt = allAmts.length > 0 ? Math.max(...allAmts) : 0;
+      standardCustomFields.push({ id: cf.id, name: cf.name, amount: standardAmt });
+    });
+  }
 
   // Normalization & Custom Discount Calculation
   const firstItemClass = rawItems[0]?.rawClass || fileName;
@@ -221,6 +234,8 @@ export function parseExcelFile(arrayBuffer: ArrayBuffer, fileName: string): Impo
     detectedSection,
     detectedMonth: items[0]?.feeMonth || 'August 2026',
     standardTuition,
+    standardExamFee,
+    standardCustomFields,
     totalStudents: items.length,
     totalDiscountedStudents: discountedCount,
     items,
@@ -249,8 +264,9 @@ export async function executeDualImport(fileSummaries: ImportFileSummary[]) {
             .update({
               tuition_fee: summary.standardTuition,
               admission_fee: 0,
-              exam_fee: 0,
+              exam_fee: summary.standardExamFee,
               lab_fee: 0,
+              custom_fields: summary.standardCustomFields,
               is_public: true,
               kinship_enabled: true,
               kinship_discount_percent: 25
@@ -264,9 +280,9 @@ export async function executeDualImport(fileSummaries: ImportFileSummary[]) {
             class_name: summary.detectedClass,
             tuition_fee: summary.standardTuition,
             admission_fee: 0,
-            exam_fee: 0,
+            exam_fee: summary.standardExamFee,
             lab_fee: 0,
-            custom_fields: [],
+            custom_fields: summary.standardCustomFields,
             is_public: true,
             kinship_enabled: true,
             kinship_discount_percent: 25
