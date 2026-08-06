@@ -23,6 +23,8 @@ import { BulkImportDialog } from '../students/components/bulk-import-dialog';
 import { BatchFeeModal } from './components/batch-fee-modal';
 import { ClassTariffsModal } from './components/class-tariffs-modal';
 import { DataWipeDialog } from './components/data-wipe-dialog';
+import { ManagementFeeChart } from './components/management-fee-chart';
+import { ManagementStudentStats } from './components/management-student-stats';
 
 export default function ManagementDashboardPage() {
   const [students, setStudents] = useState<Student[]>([]);
@@ -101,6 +103,27 @@ export default function ManagementDashboardPage() {
     const unpaidRecords = feeRecords.filter(r => String(r.student_id) === String(studentId) && r.status !== 'paid');
     return unpaidRecords.reduce((sum, r) => sum + (Number(r.total_amount || 0) - Number(r.amount_paid || 0)), 0);
   };
+
+  const managementMetrics = useMemo(() => {
+    const totalStudentsCount = students.length;
+    const totalArrearsAmount = feeRecords
+      .filter(r => r.status !== 'paid')
+      .reduce((sum, r) => sum + (Number(r.total_amount || 0) - Number(r.amount_paid || 0)), 0);
+
+    const totalBilledAmount = feeRecords.reduce((sum, r) => sum + Number(r.total_amount || 0), 0);
+    const totalPaidAmount = feeRecords.reduce((sum, r) => sum + Number(r.amount_paid || 0), 0);
+    const collectionRate = totalBilledAmount > 0 ? Math.round((totalPaidAmount / totalBilledAmount) * 100) : 100;
+    const activeTariffsCount = feeStructures.length;
+
+    return {
+      totalStudentsCount,
+      totalArrearsAmount,
+      totalPaidAmount,
+      totalBilledAmount,
+      collectionRate,
+      activeTariffsCount,
+    };
+  }, [students, feeRecords, feeStructures]);
 
   const handleInspectStudent = (student: Student) => {
     setInspectedStudent(student);
@@ -258,6 +281,100 @@ export default function ManagementDashboardPage() {
           <BulkImportDialog />
           <DataWipeDialog onSuccess={loadData} />
         </div>
+      </div>
+
+      {/* KPI STATISTICS SUMMARY CARDS */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {/* Total Active Students */}
+        <Card className="p-4 bg-card/60 dark:bg-card/40 backdrop-blur-xl border-border/50 shadow-xs flex flex-col justify-between">
+          <div>
+            <div className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider flex items-center justify-between">
+              <span>Total Enrolled</span>
+              <Users className="w-4 h-4 text-emerald-500" />
+            </div>
+            <div className="text-3xl font-extrabold font-headline text-foreground mt-2">
+              {managementMetrics.totalStudentsCount}
+            </div>
+          </div>
+          <div className="mt-3 text-[10px] font-semibold text-muted-foreground flex items-center justify-between">
+            <span>Across <strong className="text-foreground">{classList.length}</strong> classes</span>
+            <span className="text-emerald-500 font-bold">Active</span>
+          </div>
+        </Card>
+
+        {/* Total Outstanding Arrears */}
+        <Card className="p-4 bg-card/60 dark:bg-card/40 backdrop-blur-xl border-border/50 shadow-xs flex flex-col justify-between">
+          <div>
+            <div className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider flex items-center justify-between">
+              <span>Pending Arrears</span>
+              <Sparkles className="w-4 h-4 text-rose-500" />
+            </div>
+            <div className="text-2xl font-extrabold font-mono text-rose-600 dark:text-rose-400 mt-2">
+              Rs. {managementMetrics.totalArrearsAmount.toLocaleString()}
+            </div>
+          </div>
+          <div className="mt-3 text-[10px] font-semibold text-muted-foreground flex items-center justify-between">
+            <span>Uncollected vouchers</span>
+            <span className="text-rose-500 font-bold">Unpaid</span>
+          </div>
+        </Card>
+
+        {/* Collection Efficiency Rate */}
+        <Card className="p-4 bg-card/60 dark:bg-card/40 backdrop-blur-xl border-border/50 shadow-xs flex flex-col justify-between">
+          <div>
+            <div className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider flex items-center justify-between">
+              <span>Fee Collection Rate</span>
+              <Calculator className="w-4 h-4 text-blue-500" />
+            </div>
+            <div className="text-3xl font-extrabold font-headline text-foreground mt-2">
+              {managementMetrics.collectionRate}%
+            </div>
+          </div>
+          <div className="mt-3 text-[10px] font-semibold text-muted-foreground flex items-center justify-between">
+            <span>Rs. {managementMetrics.totalPaidAmount.toLocaleString()} collected</span>
+            <span className="text-blue-500 font-bold">Billed</span>
+          </div>
+        </Card>
+
+        {/* Class Tariffs Configured */}
+        <Card className="p-4 bg-card/60 dark:bg-card/40 backdrop-blur-xl border-border/50 shadow-xs flex flex-col justify-between">
+          <div>
+            <div className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider flex items-center justify-between">
+              <span>Class Fee Tariffs</span>
+              <FileSpreadsheet className="w-4 h-4 text-amber-500" />
+            </div>
+            <div className="text-3xl font-extrabold font-headline text-foreground mt-2">
+              {managementMetrics.activeTariffsCount}
+            </div>
+          </div>
+          <div className="mt-3 text-[10px] font-semibold text-muted-foreground flex items-center justify-between">
+            <span>Defined structures</span>
+            <span className="text-amber-500 font-bold">Configured</span>
+          </div>
+        </Card>
+      </div>
+
+      {/* DATA VISUALS & CHARTS GRID */}
+      <div className="grid gap-6 lg:grid-cols-5">
+        <Card className="lg:col-span-3 bg-card/60 dark:bg-card/40 backdrop-blur-xl border-border/60 shadow-xs overflow-hidden">
+          <CardHeader className="border-b border-border/50 pb-3">
+            <CardTitle className="text-sm font-bold font-headline">Fee Collection vs Pending Arrears by Class</CardTitle>
+            <CardDescription className="text-xs">Real-time breakdown of paid revenue against unpaid dues.</CardDescription>
+          </CardHeader>
+          <CardContent className="pt-4">
+            <ManagementFeeChart feeRecords={feeRecords} />
+          </CardContent>
+        </Card>
+
+        <Card className="lg:col-span-2 bg-card/60 dark:bg-card/40 backdrop-blur-xl border-border/60 shadow-xs overflow-hidden">
+          <CardHeader className="border-b border-border/50 pb-3">
+            <CardTitle className="text-sm font-bold font-headline">Enrollment & Academic Pass Rate</CardTitle>
+            <CardDescription className="text-xs">Distribution of students and result statistics.</CardDescription>
+          </CardHeader>
+          <CardContent className="pt-4">
+            <ManagementStudentStats students={students} results={results} />
+          </CardContent>
+        </Card>
       </div>
 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-card p-3 rounded-2xl border border-border/60 shadow-xs">
