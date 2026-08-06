@@ -134,8 +134,10 @@ export function parseExcelFile(arrayBuffer: ArrayBuffer, fileName: string): Impo
     // Dynamic Extra Fields
     const customFields: DynamicFeeField[] = [];
     const addCustom = (name: string, idx: number) => {
-      const amt = Number(row[idx]) || 0;
-      if (amt > 0) customFields.push({ id: name.toLowerCase().replace(/\s+/g, '_'), name, amount: amt });
+      if (idx !== -1) {
+        const amt = Number(row[idx]) || 0;
+        customFields.push({ id: name.toLowerCase().replace(/\s+/g, '_'), name, amount: amt });
+      }
     };
 
     addCustom('CCA', ccaIdx);
@@ -302,10 +304,10 @@ export async function executeDualImport(fileSummaries: ImportFileSummary[]) {
               Name: item.studentName,
               Class: item.className,
               Section: item.section,
-              Contact: item.contactNo || '0300 0000000',
+              Contact: item.contactNo || '',
               Date_Added: new Date().toISOString().split('T')[0],
-              Gender: 'Male',
-              Address: 'Swat Valley',
+              Gender: '',
+              Address: '',
             }])
             .select('*')
             .maybeSingle();

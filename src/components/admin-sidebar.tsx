@@ -104,8 +104,7 @@ export function AdminSidebar({ isCollapsed = false, onToggleCollapse }: AdminSid
           label: 'Admissions',
           badge: pendingAdmissionsCount > 0 ? pendingAdmissionsCount : undefined
         },
-        { href: '/admin/students', icon: <GraduationCap className="h-4 w-4 shrink-0" />, label: 'Students' },
-        { href: '/admin/fees', icon: <Wallet className="h-4 w-4 shrink-0" />, label: 'Fee Management' },
+        { href: '/admin/management', icon: <Layers className="h-4 w-4 shrink-0" />, label: 'Student Management (360)' },
         { href: '/admin/teachers', icon: <Briefcase className="h-4 w-4 shrink-0" />, label: 'Teachers & Staff' },
       ]
     },

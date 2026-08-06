@@ -6,11 +6,11 @@ export const studentSchema = z.object({
   Class: z.string(),
   Contact: z.string(),
   Date_Added: z.string(),
-  Fee_Slip_Path: z.string().optional().or(z.literal('')),
+  Fee_Slip_Path: z.string().nullish().or(z.literal('')),
   Gender: z.string(),
   Section: z.string(),
   Address: z.string(),
-  profilePicture: z.string().url().optional().or(z.literal('')).nullable(),
+  profilePicture: z.string().url().nullish().or(z.literal('')),
 });
 
 export type Student = z.infer<typeof studentSchema>;

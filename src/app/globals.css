@@ -10,23 +10,23 @@
     --card-foreground: 222 47% 11%;
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
-    --primary: 221.2 83.2% 53.3%; /* Deep Royal Blue #2563EB */
+    --primary: 160 84% 39%; /* Emerald 600 */
     --primary-foreground: 210 40% 98%;
     --secondary: 214 32% 95%; /* Soft Ice Gray #F1F5F9 */
     --secondary-foreground: 222 47% 11%;
     --muted: 214 32% 95%;
     --muted-foreground: 215 16% 47%; /* Slate 500 #64748B */
-    --accent: 214 95% 93%; /* Light Royal Tint #DBEAFE */
-    --accent-foreground: 222 47% 11%;
+    --accent: 152 80% 90%; /* Light Emerald Tint */
+    --accent-foreground: 160 84% 39%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
     --border: 214 32% 91%; /* Clean Slate Border #E2E8F0 */
     --input: 214 32% 91%;
-    --ring: 221.2 83.2% 53.3%;
+    --ring: 160 84% 39%;
     --radius: 0.375rem; /* Sleek 6px sharp radius */
 
-    --custom-primary: 221.2 83.2% 53.3%;
-    --custom-accent: 214 95% 93%;
+    --custom-primary: 160 84% 39%;
+    --custom-accent: 152 80% 90%;
     --custom-background: 210 40% 98%;
     --custom-secondary: 214 32% 95%;
   }
@@ -38,19 +38,19 @@
     --card-foreground: 210 40% 98%;
     --popover: 222 47% 10%;
     --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%; /* Electric Royal Blue #3B82F6 */
+    --primary: 152 69% 51%; /* Emerald 500 */
     --primary-foreground: 224 71% 4%;
     --secondary: 217 33% 14%; /* Dark Slate #1E293B */
     --secondary-foreground: 210 40% 98%;
     --muted: 217 33% 14%;
     --muted-foreground: 215 20.2% 65.1%; /* Slate 400 #94A3B8 */
-    --accent: 217 91% 15%; /* Dark Royal Tint */
+    --accent: 160 84% 15%; /* Dark Emerald Tint */
     --accent-foreground: 210 40% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 100%;
     --border: 217 33% 16%;
     --input: 217 33% 16%;
-    --ring: 217.2 91.2% 59.8%;
+    --ring: 152 69% 51%;
     --radius: 0.375rem;
   }
 }
