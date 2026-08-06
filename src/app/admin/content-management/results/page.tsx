@@ -17,6 +17,7 @@ import { getSettings } from '@/lib/data-fetching';
 import { useToast } from '@/hooks/use-toast';
 import { BulkImportDialog } from './components/bulk-import-dialog';
 import { ResultExcelImportDialog } from './components/result-excel-import-dialog';
+import { ResultSettingsDialog } from './components/result-settings-dialog';
 
 export default function ResultsPage() {
   const [results, setResults] = useState<Result[]>([]);
@@ -229,6 +230,7 @@ export default function ResultsPage() {
             <span>Export All ({filteredResults.length}) DOCX (.zip)</span>
           </Button>
 
+          <ResultSettingsDialog onSaved={loadResults} />
           <ResultExcelImportDialog onSuccess={loadResults} />
           <BulkImportDialog />
         </div>
@@ -284,11 +286,12 @@ export default function ResultsPage() {
       {filteredResults.length > 0 ? (
         <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           {filteredResults.map((result) => (
-            <ResultCard
-              key={result.id}
-              result={result}
+            <ResultCard 
+              key={result.id} 
+              result={result} 
               isSelected={selectedIds.has(result.id)}
               onToggleSelect={() => toggleSelectOne(result.id)}
+              onDeleteSuccess={loadResults}
             />
           ))}
         </div>

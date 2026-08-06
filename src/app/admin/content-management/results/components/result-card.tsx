@@ -1,14 +1,16 @@
 "use client";
-import { useState, useRef } from "react";
+
+import { useState } from "react";
 import { Result } from "../data/schema";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { User, Edit, Trash2, Trophy, Percent, ImageDown, Loader2 } from "lucide-react";
+import { User, Edit, Trash2, Trophy, Percent, FileText, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import { generateImageFromNode } from "@/lib/image-generator";
 import { getSettings } from "@/lib/data-fetching";
+import { generateResultDocumentBlob } from "@/lib/docx-generator";
+import { saveAs } from "file-saver";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,25 +25,19 @@ import {
 import { ResultDetailsDialog } from "./result-details-dialog";
 import { EditResultDialog } from "./edit-result-dialog";
 import { supabase } from "@/lib/supabase";
-import { ReportCardTemplate } from "@/components/report-card-template";
 
 interface ResultCardProps {
   result: Result;
   isSelected?: boolean;
   onToggleSelect?: () => void;
+  onDeleteSuccess?: () => void;
 }
 
-export function ResultCard({ result, isSelected = false, onToggleSelect }: ResultCardProps) {
+export function ResultCard({ result, isSelected = false, onToggleSelect, onDeleteSuccess }: ResultCardProps) {
   const { toast } = useToast();
   const [isViewOpen, setViewOpen] = useState(false);
   const [isEditOpen, setEditOpen] = useState(false);
-  const [downloadingImage, setDownloadingImage] = useState(false);
-  const printRef = useRef<HTMLDivElement>(null);
-  const [schoolDetails, setSchoolDetails] = useState({
-    schoolName: "PAKISTAN ISLAMIC INTERNATIONAL SCHOOL SYSTEM",
-    tagline: "Excellence in Education",
-    phone: "", email: "", address: ""
-  });
+  const [downloadingDocx, setDownloadingDocx] = useState(false);
   
   const handleDelete = async () => {
     try {
@@ -49,56 +45,62 @@ export function ResultCard({ result, isSelected = false, onToggleSelect }: Resul
       if (error) throw error;
       toast({
         title: "Result Deleted",
-        description: `Result for ${result.student_name} has been removed.`,
+        description: `Result for ${result.student_name} has been permanently deleted.`,
       });
+      if (onDeleteSuccess) onDeleteSuccess();
     } catch(error) {
       toast({
-        title: "Error",
+        title: "Error Deleting Result",
         description: (error as Error).message,
         variant: "destructive",
       });
     }
   };
 
-  const handleDownloadImage = async (e: React.MouseEvent) => {
+  const handleDownloadDocx = async (e: React.MouseEvent) => {
     e.stopPropagation();
     try {
-      setDownloadingImage(true);
+      setDownloadingDocx(true);
       const settings = await getSettings();
-      setSchoolDetails({
-        schoolName: "PAKISTAN ISLAMIC INTERNATIONAL SCHOOL SYSTEM",
-        tagline: "Excellence in Education",
-        phone: settings.contactPhone,
-        email: settings.contactEmail,
-        address: settings.contactAddress,
-      });
-      
-      setTimeout(async () => {
-          if (printRef.current) {
-            await generateImageFromNode(printRef.current, `Report_Card_${result.class}_${result.student_name}.png`);
-            toast({
-                title: "Official Result Exported",
-                description: `Downloaded PNG result card for ${result.student_name}.`,
-            });
-          }
-          setDownloadingImage(false);
-      }, 500);
+      const schoolInfo = {
+        schoolName: settings.schoolName || "PAKISTAN ISLAMIC INTERNATIONAL SCHOOL SYSTEM",
+        tagline: settings.tagline || "Excellence in Academic Rigor & Timeless Values",
+        address: settings.contactAddress || "Sector H-8/4, Educational Zone, Islamabad, Pakistan",
+        phone: settings.contactPhone || "+92 51 111 222 333",
+        email: settings.contactEmail || "info@piiss.edu.pk",
+        logoUrl: settings.logoUrl || undefined
+      };
 
-    } catch (err) {
-      console.error("Image download error:", err);
+      const blob = await generateResultDocumentBlob(result, schoolInfo);
+      const safeName = result.student_name.replace(/[^a-zA-Z0-9]/g, "_");
+      const safeClass = result.class.replace(/[^a-zA-Z0-9]/g, "_");
+      saveAs(blob, `Report_Card_${safeClass}_${safeName}.docx`);
+      
+      toast({
+        title: "Official DOCX Report Downloaded! 📄",
+        description: `Downloaded Word report card for ${result.student_name}.`,
+      });
+    } catch (err: any) {
+      console.error("DOCX download error:", err);
       toast({
         title: "Export Failed",
-        description: "Could not generate PNG result document.",
+        description: err.message || "Could not generate DOCX report card.",
         variant: "destructive",
       });
-      setDownloadingImage(false);
+    } finally {
+      setDownloadingDocx(false);
     }
   };
+
+  const gradeColor = 
+    result.grade === "A+" || result.grade === "A" ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/30" :
+    result.grade === "B" || result.grade === "C" ? "bg-blue-500/10 text-blue-600 border-blue-500/30" :
+    "bg-rose-500/10 text-rose-600 border-rose-500/30";
 
   return (
     <>
     <div className="group relative">
-      <Card className={`h-full transition-all duration-300 border-border/60 ${
+      <Card className={`h-full transition-all duration-300 border-border/80 ${
         isSelected ? 'ring-2 ring-emerald-500 bg-emerald-500/5 shadow-md' : 'bg-card hover:border-primary/40 shadow-xs'
       }`}>
         {onToggleSelect && (
@@ -110,51 +112,57 @@ export function ResultCard({ result, isSelected = false, onToggleSelect }: Resul
             />
           </div>
         )}
-        <CardHeader className="items-center text-center p-4 pt-5">
-          <CardTitle className="text-base font-bold font-headline text-foreground mt-1 line-clamp-1">
+        <CardHeader className="items-center text-center p-4 pt-5 space-y-1">
+          <CardTitle className="text-base font-bold font-headline text-foreground line-clamp-1">
             {result.student_name}
           </CardTitle>
           <p className="text-xs text-muted-foreground font-mono">Roll No: {result.roll_number}</p>
         </CardHeader>
-        <CardContent className="p-4 pt-0 text-center space-y-2.5">
-          <Badge variant="outline" className="bg-muted/40 text-[11px] font-medium border-border/60">
-            Class: {result.class}
-          </Badge>
-          <div className="flex justify-center items-center gap-4 text-xs">
+        <CardContent className="p-4 pt-0 text-center space-y-3">
+          <div className="flex items-center justify-center gap-2">
+            <Badge variant="outline" className="bg-muted/40 text-[11px] font-medium border-border/60">
+              {result.class}
+            </Badge>
+            <Badge variant="secondary" className="text-[10px] font-semibold">
+              {result.session || "Annual Exam"}
+            </Badge>
+          </div>
+
+          <div className="flex justify-center items-center gap-2 text-xs">
             {result.rank && (
-              <div className="flex items-center gap-1 font-bold text-amber-600 dark:text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-md">
+              <div className="flex items-center gap-1 font-bold text-amber-600 dark:text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-500/20">
                 <Trophy className="h-3.5 w-3.5" />
                 <span>Rank {result.rank}</span>
               </div>
             )}
-            <div className="flex items-center gap-1 font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md">
-              <Trophy className="h-3.5 w-3.5" />
+            <div className={`flex items-center gap-1 font-bold px-2 py-0.5 rounded-md border ${gradeColor}`}>
               <span>Grade {result.grade}</span>
             </div>
-            <div className="flex items-center gap-1 font-bold text-blue-600 dark:text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-md">
+            <div className="flex items-center gap-1 font-bold text-blue-600 dark:text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-md border border-blue-500/20">
               <Percent className="h-3.5 w-3.5" />
               <span>{result.percentage}%</span>
             </div>
           </div>
         </CardContent>
+
         <CardFooter className="flex items-center justify-between gap-1 p-3 pt-0 border-t border-border/40 mt-2">
-          <Button variant="ghost" size="sm" onClick={() => setViewOpen(true)} className="h-8 text-xs px-2 rounded-lg gap-1">
+          <Button variant="ghost" size="sm" onClick={() => setViewOpen(true)} className="h-8 text-xs px-2.5 rounded-lg gap-1 font-semibold">
             <User className="h-3.5 w-3.5" /> View
           </Button>
           <Button
             variant="outline"
             size="sm"
-            onClick={handleDownloadImage}
-            disabled={downloadingImage}
-            title="Download PNG Report"
-            className="h-8 text-xs px-2.5 rounded-lg border-blue-500/30 text-blue-600 dark:text-blue-400 hover:bg-blue-500/10 gap-1 font-semibold"
+            onClick={handleDownloadDocx}
+            disabled={downloadingDocx}
+            title="Download Official DOCX Report"
+            className="h-8 text-xs px-2.5 rounded-lg border-emerald-500/30 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/10 gap-1 font-bold"
           >
-            {downloadingImage ? (
+            {downloadingDocx ? (
               <Loader2 className="h-3.5 w-3.5 animate-spin" />
             ) : (
-              <ImageDown className="h-3.5 w-3.5" />
+              <FileText className="h-3.5 w-3.5 text-emerald-600" />
             )}
-            <span>PNG</span>
+            <span>DOCX</span>
           </Button>
           <div className="flex items-center gap-0.5">
             <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg" onClick={() => setEditOpen(true)}>
@@ -168,15 +176,15 @@ export function ResultCard({ result, isSelected = false, onToggleSelect }: Resul
               </AlertDialogTrigger>
               <AlertDialogContent className="rounded-2xl">
                 <AlertDialogHeader>
-                  <AlertDialogTitle className="text-base font-bold">Are you absolutely sure?</AlertDialogTitle>
+                  <AlertDialogTitle className="text-base font-bold">Delete Result Record?</AlertDialogTitle>
                   <AlertDialogDescription className="text-xs">
-                    This action cannot be undone. This will permanently delete the result for <strong>{result.student_name}</strong>.
+                    This will permanently delete the result for <strong>{result.student_name}</strong> from the database.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel className="rounded-xl text-xs">Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleDelete} className="rounded-xl text-xs bg-rose-600 hover:bg-rose-500">
-                    Confirm Delete
+                  <AlertDialogCancel className="rounded-xl text-xs font-bold">Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleDelete} className="rounded-xl text-xs bg-rose-600 hover:bg-rose-500 font-bold">
+                    Delete Result
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
@@ -185,12 +193,8 @@ export function ResultCard({ result, isSelected = false, onToggleSelect }: Resul
         </CardFooter>
       </Card>
     </div>
-    
-    <div className="absolute top-[-9999px] left-[-9999px]">
-      <ReportCardTemplate ref={printRef} result={result} schoolDetails={schoolDetails} />
-    </div>
 
-    {isViewOpen && <ResultDetailsDialog result={result} isOpen={isViewOpen} onOpenChange={setViewOpen} />}
+    {isViewOpen && <ResultDetailsDialog result={result} isOpen={isViewOpen} onOpenChange={setViewOpen} onDeleteSuccess={onDeleteSuccess} />}
     {isEditOpen && <EditResultDialog result={result} isOpen={isEditOpen} onOpenChange={setEditOpen} />}
     </>
   );

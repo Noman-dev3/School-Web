@@ -16,6 +16,8 @@ import { AddResultModal } from "./add-result-modal";
 import { EditFeeModal } from "./edit-fee-modal";
 import { IssueFeeModal } from "./issue-fee-modal";
 import { supabase } from "@/lib/supabase";
+import { generateResultDocumentBlob } from "@/lib/docx-generator";
+import { saveAs } from "file-saver";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface UnifiedStudentDrawerProps {
@@ -74,18 +76,31 @@ export function UnifiedStudentDrawer({
     }
   };
 
-  const handleDownloadResult = async (resultId: string, session: string) => {
-    const element = document.getElementById(`result-card-${resultId}`);
-    if (!element) return;
+  const handleDownloadResult = async (res: Result) => {
     try {
-      const canvas = await html2canvas(element, { scale: 2, backgroundColor: '#ffffff' });
-      const dataUrl = canvas.toDataURL('image/png');
-      const link = document.createElement('a');
-      link.download = `${student.Name}_${session}_Result.png`;
-      link.href = dataUrl;
-      link.click();
-    } catch (e) {
-      console.error("Failed to download result", e);
+      const schoolInfo = {
+        schoolName: "PAKISTAN ISLAMIC INTERNATIONAL SCHOOL SYSTEM",
+        tagline: "Excellence in Academic Rigor & Timeless Values",
+        address: "Sector H-8/4, Educational Zone, Islamabad, Pakistan",
+        phone: "+92 51 111 222 333",
+        email: "info@piiss.edu.pk",
+      };
+      const blob = await generateResultDocumentBlob(res, schoolInfo);
+      saveAs(blob, `Report_Card_${student.Name}_${res.session}.docx`);
+      toast({ title: "Official DOCX Exported! 📄", description: `Downloaded Word report card for ${student.Name}.` });
+    } catch (e: any) {
+      toast({ title: "Export Error", description: e.message, variant: "destructive" });
+    }
+  };
+
+  const handleDeleteResult = async (resultId: string) => {
+    try {
+      const { error } = await supabase.from('results').delete().eq('id', resultId);
+      if (error) throw error;
+      toast({ title: "Result Deleted", description: "Academic result has been removed." });
+      onDataChange();
+    } catch (e: any) {
+      toast({ title: "Error", description: e.message, variant: "destructive" });
     }
   };
 
@@ -365,9 +380,12 @@ export function UnifiedStudentDrawer({
                           transition={{ delay: idx * 0.1 }}
                           className="rounded-3xl border border-white/10 shadow-sm hover:shadow-md bg-gradient-to-r from-emerald-500/5 to-teal-500/5 backdrop-blur-xl overflow-hidden relative group"
                         >
-                          <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity z-20">
-                            <Button size="sm" variant="secondary" className="h-7 text-[10px] font-bold gap-1 shadow-sm" onClick={() => handleDownloadResult(res.id, res.session)}>
-                                Download
+                          <div className="absolute top-4 right-4 flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity z-20">
+                            <Button size="sm" variant="outline" className="h-7 text-[10px] font-bold gap-1 shadow-sm border-emerald-500/30 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/10" onClick={() => handleDownloadResult(res)}>
+                              <FileText className="w-3 h-3 text-emerald-600" /> DOCX
+                            </Button>
+                            <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-rose-500 hover:bg-rose-500/10 rounded-lg" onClick={() => handleDeleteResult(res.id)}>
+                              <Trash2 className="w-3.5 h-3.5" />
                             </Button>
                           </div>
                           <div className="p-5 flex justify-between items-center relative z-10">
