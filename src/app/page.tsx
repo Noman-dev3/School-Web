@@ -12,7 +12,6 @@ import Footer from "@/components/footer";
 import GallerySection from "@/components/gallery-section";
 import { Header } from "@/components/header";
 import { Hero } from "@/components/hero";
-import { HeroStats } from "@/components/hero-stats";
 import { NoticeTicker } from "@/components/notice-ticker";
 import { QuickPortalGrid } from "@/components/quick-portal-grid";
 import TeachersSection from "@/components/teachers-section";
@@ -75,18 +74,17 @@ export default async function Home() {
         "Empowering Scholars with Modern STEM & Robotics",
       ];
 
-  const sectionOrder: string[] = settings.sectionOrder || [
-    "hero", "stats", "portals", "programs", "features", "adBanner", 
+  const sectionOrder: string[] = (settings.sectionOrder || [
+    "hero", "portals", "programs", "features", "adBanner", 
     "about", "toppers", "boardResults", "teachers", "events", "gallery", 
     "testimonials", "faq", "contact"
-  ];
+  ]).filter((id: string) => id !== 'stats');
 
   const sectionVisibility: Record<string, boolean> = settings.sectionVisibility || {};
 
   // Map section IDs to their corresponding JSX elements
   const sectionMap: Record<string, React.ReactNode> = {
     hero: <Hero key="hero" taglines={heroTaglines} settings={settings} />,
-    stats: <HeroStats key="stats" />,
     portals: <QuickPortalGrid key="portals" />,
     programs: <AcademicPrograms key="programs" />,
     features: <Features key="features" />,
@@ -113,8 +111,8 @@ export default async function Home() {
       <div className="flex-grow">
         <main className="flex-1 space-y-12 sm:space-y-16 pb-16">
           {sectionOrder.map((sectionId) => {
-            // Check if section is visible (default true)
-            const isVisible = sectionVisibility[sectionId] !== false;
+            // Check if section is visible (default true, stats false)
+            const isVisible = sectionId !== 'stats' && sectionVisibility[sectionId] !== false;
             if (!isVisible) return null;
             return sectionMap[sectionId] || null;
           })}

@@ -88,7 +88,6 @@ export const getFeeStructures = () => fetchData<FeeStructure>('fee_structures', 
 
 export const DEFAULT_SECTION_ORDER = [
   "hero",
-  "stats",
   "portals",
   "programs",
   "features",
@@ -106,7 +105,7 @@ export const DEFAULT_SECTION_ORDER = [
 
 export const DEFAULT_SECTION_VISIBILITY = {
   hero: true,
-  stats: true,
+  stats: false, // Stats bar removed per user instruction
   portals: true,
   programs: true,
   features: true,
@@ -211,8 +210,8 @@ export async function getSettings() {
         }
       }
 
-      const sectionOrder = fetchedSettings.sectionOrder || cmsConfig.sectionOrder || DEFAULT_SECTION_ORDER;
-      const sectionVisibility = fetchedSettings.sectionVisibility || cmsConfig.sectionVisibility || DEFAULT_SECTION_VISIBILITY;
+      const sectionOrder = (fetchedSettings.sectionOrder || cmsConfig.sectionOrder || DEFAULT_SECTION_ORDER).filter((s: string) => s !== 'stats');
+      const sectionVisibility = { ...DEFAULT_SECTION_VISIBILITY, ...cmsConfig.sectionVisibility, ...fetchedSettings.sectionVisibility, stats: false };
       const sectionTitles = fetchedSettings.sectionTitles || cmsConfig.sectionTitles || defaultSettings.sectionTitles;
 
       return {
