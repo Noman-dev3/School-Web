@@ -18,6 +18,7 @@ import { IssueFeeModal } from "./issue-fee-modal";
 import { supabase } from "@/lib/supabase";
 import { generateResultDocumentBlob } from "@/lib/docx-generator";
 import { saveAs } from "file-saver";
+import { useToast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface UnifiedStudentDrawerProps {
@@ -38,6 +39,7 @@ export function UnifiedStudentDrawer({
   results,
   onDataChange
 }: UnifiedStudentDrawerProps) {
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<string>("profile");
   const [isAddResultOpen, setIsAddResultOpen] = useState(false);
   const [isEditFeeOpen, setIsEditFeeOpen] = useState(false);
