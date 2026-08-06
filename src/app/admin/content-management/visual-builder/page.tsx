@@ -2,760 +2,693 @@
 
 import React, { useState, useEffect } from 'react';
 import { 
-  Paintbrush, Save, Monitor, Tablet, Smartphone, ArrowRight, 
-  ShieldCheck, Sparkles, CheckCircle2, BookOpen, Phone, Loader2, 
-  Check, Image as ImageIcon, Edit2, Link as LinkIcon
+  Paintbrush, Save, ArrowUp, ArrowDown, Eye, EyeOff, LayoutList, 
+  Sparkles, CheckCircle2, Image as ImageIcon, Link as LinkIcon, 
+  MessageSquare, Phone, MapPin, Globe, Loader2, Plus, Trash2, Sliders,
+  HelpCircle, Megaphone, Check, ShieldCheck
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabase';
-import { 
-  getSettings, getTeachers, getEvents, getGalleryItems, 
-  getTestimonials, getFaqs, getToppers, getBoardStudents 
-} from '@/lib/data-fetching';
+import { getSettings, DEFAULT_SECTION_ORDER, DEFAULT_SECTION_VISIBILITY } from '@/lib/data-fetching';
 
-import { QuickPortalGrid } from "@/components/quick-portal-grid";
-import { AcademicPrograms } from "@/components/academic-programs";
-import { Features } from "@/components/features";
-import ToppersSection from "@/components/toppers-section";
-import BoardResultsSection from "@/components/board-results-section";
-import TeachersSection from "@/components/teachers-section";
-import EventsSection from "@/components/events-section";
-import FaqSection from "@/components/faq-section";
-import Footer from "@/components/footer";
+const SECTION_LABELS: Record<string, { title: string; desc: string; icon: string }> = {
+  hero: { title: "Hero Main Banner", desc: "Top hero headline, taglines, and call-to-action", icon: "🚀" },
+  stats: { title: "Metrics & Statistics Bar", desc: "Key metrics counters (Students, Pass Rate, Educators)", icon: "📊" },
+  portals: { title: "Quick Portals Grid", desc: "Admissions, Results, Fee Vouchers, Events shortcuts", icon: "⚡" },
+  programs: { title: "Academic Programs", desc: "Montessori, Primary, Middle, and High School levels", icon: "🎓" },
+  features: { title: "Core Pillars / Why Choose PIISS", desc: "STEM, Quranic Ethics, Distinction Merit features", icon: "⭐" },
+  adBanner: { title: "Announcement / Ad Banner", desc: "Promotional banner for events or admissions", icon: "📢" },
+  about: { title: "About School & Mission", desc: "Institutional history, story, and vision statement", icon: "🏫" },
+  toppers: { title: "FBISE Board Toppers", desc: "Star students and board position holders", icon: "🏆" },
+  boardResults: { title: "FBISE Board Results Table", desc: "Detailed board pass percentages and breakdown", icon: "📋" },
+  teachers: { title: "Faculty & Educators", desc: "Educators spotlight and master's teachers", icon: "👨‍🏫" },
+  events: { title: "Upcoming Events & Calendar", desc: "School activities, sports galas, and exams", icon: "📅" },
+  gallery: { title: "School Life Gallery", desc: "Campus photos and activity highlights", icon: "🖼️" },
+  testimonials: { title: "Parent Testimonials", desc: "Reviews and feedback from parents & community", icon: "💬" },
+  faq: { title: "Frequently Asked Questions", desc: "Answers to admissions, fees, and campus queries", icon: "❓" },
+  contact: { title: "Campus Contact & Map", desc: "Address, phone numbers, email, and inquiry form", icon: "📍" },
+};
 
-const COLOR_SWATCHES = [
-  { id: 'emerald', bg: 'bg-emerald-600 hover:bg-emerald-700 text-white', hex: '#059669', name: 'Emerald' },
-  { id: 'teal', bg: 'bg-teal-600 hover:bg-teal-700 text-white', hex: '#0d9488', name: 'Teal' },
-  { id: 'green', bg: 'bg-green-700 hover:bg-green-800 text-white', hex: '#15803d', name: 'Forest' },
-  { id: 'amber', bg: 'bg-amber-600 hover:bg-amber-700 text-white', hex: '#d97706', name: 'Amber' },
-  { id: 'blue', bg: 'bg-blue-600 hover:bg-blue-700 text-white', hex: '#2563eb', name: 'Royal Blue' },
-  { id: 'violet', bg: 'bg-violet-600 hover:bg-violet-700 text-white', hex: '#7c3aed', name: 'Violet' },
-  { id: 'dark', bg: 'bg-slate-900 hover:bg-slate-800 text-white', hex: '#0f172a', name: 'Dark' },
-];
-
-export default function FullyDynamicVisualBuilderPage() {
+export default function LandingPageCMSStudio() {
   const { toast } = useToast();
-  const [viewport, setViewport] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [activeTab, setActiveTab] = useState("sections");
 
-  // Active Clicked Element for Floating Formatting Bar
-  const [activeElementId, setActiveElementId] = useState<string | null>(null);
-  const [floatingPos, setFloatingPos] = useState<{ x: number; y: number } | null>(null);
-
-  // FULLY DYNAMIC DATABASE CONTENT STATE
-  const [settings, setSettings] = useState<any>({
-    announcementText: "📢 Admissions Open for Session 2026-2027! Entrance Test Registration ends August 15.",
-    heroTitle: "Pakistan Islamic International School System",
-    heroSub: "Nurturing Academic Excellence & Quranic Ethics with 100% FBISE Distinction Rate",
-    heroCtaLabel: "Apply for Admission 2026",
-    heroCtaColor: "bg-emerald-600 hover:bg-emerald-700 text-white",
-    heroCtaHex: "#059669",
-    heroCtaShape: "rounded-full",
-    heroImageUrl: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1000&q=80",
-    bullet1: "100% Board Pass & Distinction Merit",
-    bullet2: "Balanced Modern STEM & Hifz Program",
-    bullet3: "Certified Master's Qualified Educators",
-    bullet4: "State-of-the-Art Science & Tech Labs",
-    stat1Val: "1,450+", stat1Lbl: "Enrolled Students",
-    stat2Val: "98.8%",  stat2Lbl: "Board Pass Rate",
-    stat3Val: "45+",    stat3Lbl: "Qualified Educators",
-    stat4Val: "100%",   stat4Lbl: "FBISE Distinction",
-    
-    // SECTION NAMES & DESCRIPTIONS (DYNAMIC FROM DB)
-    portalsTitle: "Key Academic Services & Portals",
-    portalsDesc: "Quickly access essential school resources, admission forms, board examination results, and upcoming academic events.",
-    programsTitle: "Academic Programs & Pathways",
-    programsDesc: "Structured Montessori, Primary, and High School Curricula aligned with FBISE.",
-    featuresTitle: "Why Choose PIISS Swat",
-    featuresDesc: "Our core pillars of educational rigor, Quranic values, and modern STEM innovation.",
-    aboutTitle: "About School & Institutional Mission",
-    aboutDesc: "Learn about our founding story, vision, and dedication to Islamic character development.",
-    ourStory: "Pioneer International Islamic School System was founded with a vision to integrate Quranic ethics and FBISE academic rigor.",
-    toppersTitle: "FBISE Board Achievers & Distinction Holders",
-    toppersDesc: "Celebrating outstanding academic merit and board exam toppers.",
-    teachersTitle: "Distinguished Faculty & Educators",
-    teachersDesc: "Experienced educators dedicated to academic excellence and moral leadership.",
-    eventsTitle: "Upcoming School Events & Academic Calendar",
-    eventsDesc: "Important dates for board examinations, sports galas, and Quran exhibitions.",
-    faqTitle: "Frequently Asked Questions",
-    faqDesc: "Clear answers to common questions about admissions, fee vouchers, and campus life.",
-    contactTitle: "Campus Contact & Inquiry Info",
-    contactDesc: "Reach out to our admissions office for enrollment guidelines and campus tours.",
-    
-    contactPhone: "0300 1234567",
-    contactEmail: "info@piiss.edu.pk",
-    contactAddress: "Main Campus, Swat Valley, Khyber Pakhtunkhwa",
-    officeHours: "Mon-Sat: 8:00 AM - 2:00 PM",
+  // FULL CMS FORM STATE
+  const [config, setConfig] = useState<any>({
+    schoolName: "PAKISTAN ISLAMIC INTERNATIONAL SCHOOL SYSTEM",
+    tagline: "Excellence in Academic Rigor & Timeless Values",
+    ourStory: "",
+    logoUrl: "",
+    contactPhone: "",
+    contactEmail: "",
+    contactAddress: "",
+    officeHours: "",
+    aboutImageUrl: "",
+    contactImageUrl: "",
+    heroTitle: "",
+    heroSub: "",
+    heroCtaText: "",
+    heroCtaLink: "",
+    heroImageUrl: "",
+    heroTaglines: [],
+    noticeText: "",
+    noticeLink: "",
+    adBannerTitle: "",
+    adBannerSubtitle: "",
+    adBannerCtaText: "",
+    adBannerImageUrl: "",
+    facebookUrl: "",
+    instagramUrl: "",
+    linkedinUrl: "",
+    twitterUrl: "",
+    sectionOrder: DEFAULT_SECTION_ORDER,
+    sectionVisibility: DEFAULT_SECTION_VISIBILITY,
+    sectionTitles: {}
   });
 
-  const [toppers, setToppers] = useState<any[]>([]);
-  const [boardStudents, setBoardStudents] = useState<any[]>([]);
-  const [teachers, setTeachers] = useState<any[]>([]);
-  const [events, setEvents] = useState<any[]>([]);
-  const [faqs, setFaqs] = useState<any[]>([]);
-
-  // Load Database Content
   useEffect(() => {
-    async function loadData() {
-      setLoading(true);
+    async function loadCMSData() {
       try {
-        const [
-          fetchedSettings, fetchedToppers, fetchedBoard, fetchedTeachers, 
-          fetchedEvents, fetchedFaqs
-        ] = await Promise.all([
-          getSettings(), getToppers(), getBoardStudents(), getTeachers(), 
-          getEvents(), getFaqs()
-        ]);
-
-        if (fetchedSettings) {
-          setSettings((prev: any) => ({ ...prev, ...fetchedSettings }));
-        }
-        if (fetchedToppers && fetchedToppers.length > 0) setToppers(fetchedToppers);
-        if (fetchedBoard && fetchedBoard.length > 0) setBoardStudents(fetchedBoard);
-        if (fetchedTeachers && fetchedTeachers.length > 0) setTeachers(fetchedTeachers);
-        if (fetchedEvents && fetchedEvents.length > 0) setEvents(fetchedEvents);
-        if (fetchedFaqs && fetchedFaqs.length > 0) setFaqs(fetchedFaqs);
-
+        const fetched = await getSettings();
+        setConfig(fetched);
       } catch (err) {
-        console.error("Error loading builder data:", err);
+        console.error("Failed to load CMS settings:", err);
       } finally {
         setLoading(false);
       }
     }
-    loadData();
+    loadCMSData();
   }, []);
 
-  // Prevent any link from navigating away from the builder!
-  const handleCanvasClickCapture = (e: React.MouseEvent) => {
-    const anchor = (e.target as HTMLElement).closest('a');
-    if (anchor) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-  };
-
-  // Handle Element Click for Floating Toolbar Position
-  const handleElementClick = (id: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    setActiveElementId(id);
-    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-    setFloatingPos({
-      x: Math.max(16, rect.left + rect.width / 2 - 140),
-      y: Math.max(70, rect.top - 55)
-    });
-  };
-
-  // Inline ContentEditable Blur Updater
-  const handleContentBlur = (key: string, e: React.FocusEvent<HTMLElement>) => {
-    const text = e.currentTarget.innerText;
-    setSettings((prev: any) => ({ ...prev, [key]: text }));
-  };
-
-  // Save All Changes to Supabase Database
-  const handleSaveAndPublish = async () => {
+  const handleSaveCMS = async () => {
     setIsSaving(true);
     try {
-      // 1. Sanitize settings object for the 'settings' table (only include valid schema fields)
-      const validSettingsPayload = {
-        id: 1,
-        ourStory: settings.ourStory || '',
-        contactPhone: settings.contactPhone || '',
-        contactEmail: settings.contactEmail || '',
-        contactAddress: settings.contactAddress || '',
-        officeHours: settings.officeHours || '',
-        aboutImageUrl: settings.aboutImageUrl || '',
-        heroTaglines: Array.isArray(settings.heroTaglines) 
-          ? settings.heroTaglines 
-          : (typeof settings.heroTaglines === 'string' ? settings.heroTaglines.split('\n') : []),
-        facebookUrl: settings.facebookUrl || '',
-        instagramUrl: settings.instagramUrl || '',
-        linkedinUrl: settings.linkedinUrl || '',
-        twitterUrl: settings.twitterUrl || '',
+      const { data: existing } = await supabase.from('settings').select('id').limit(1).maybeSingle();
+
+      const payload = {
+        schoolName: config.schoolName,
+        tagline: config.tagline,
+        ourStory: config.ourStory,
+        logoUrl: config.logoUrl,
+        contactPhone: config.contactPhone,
+        contactEmail: config.contactEmail,
+        contactAddress: config.contactAddress,
+        officeHours: config.officeHours,
+        aboutImageUrl: config.aboutImageUrl,
+        contactImageUrl: config.contactImageUrl,
+        heroTitle: config.heroTitle,
+        heroSub: config.heroSub,
+        heroCtaText: config.heroCtaText,
+        heroCtaLink: config.heroCtaLink,
+        heroImageUrl: config.heroImageUrl,
+        heroTaglines: config.heroTaglines,
+        noticeText: config.noticeText,
+        noticeLink: config.noticeLink,
+        adBannerTitle: config.adBannerTitle,
+        adBannerSubtitle: config.adBannerSubtitle,
+        adBannerCtaText: config.adBannerCtaText,
+        adBannerImageUrl: config.adBannerImageUrl,
+        facebookUrl: config.facebookUrl,
+        instagramUrl: config.instagramUrl,
+        linkedinUrl: config.linkedinUrl,
+        twitterUrl: config.twitterUrl,
+        sectionOrder: config.sectionOrder,
+        sectionVisibility: config.sectionVisibility,
+        sectionTitles: config.sectionTitles,
       };
 
-      const { error: settingsError } = await supabase
-        .from('settings')
-        .upsert([validSettingsPayload]);
-
-      if (settingsError && settingsError.code !== '42P01') {
-        console.warn("Notice: settings table update notice:", settingsError.message);
+      let error;
+      if (existing?.id) {
+        const res = await supabase.from('settings').update(payload).eq('id', existing.id);
+        error = res.error;
+      } else {
+        const res = await supabase.from('settings').insert([{ id: 1, ...payload }]);
+        error = res.error;
       }
 
-      // 2. Save complete visual configuration to site_settings table
-      try {
-        await supabase.from('site_settings').upsert({
-          key: 'full_visual_builder_config',
-          value: settings,
-          updated_at: new Date().toISOString()
-        });
-      } catch (siteErr) {
-        console.warn("Notice: site_settings cache update notice:", siteErr);
-      }
-
-      // 3. Always save to LocalStorage as instant client cache
-      localStorage.setItem('piiss_full_visual_config', JSON.stringify(settings));
+      if (error) throw error;
 
       toast({
-        title: "Published Live to Database! 🚀",
-        description: "All section titles, descriptions, and content saved successfully.",
+        title: "Landing Page Updated! 🎉",
+        description: "All section orderings, media pictures, and text changes are live on the website."
       });
     } catch (err: any) {
       toast({
-        title: "Saved Locally",
-        description: "Edits saved to browser cache.",
+        title: "Save Failed",
+        description: err.message,
+        variant: "destructive"
       });
     } finally {
       setIsSaving(false);
     }
   };
 
-  const viewportClass = 
-    viewport === 'mobile' ? 'max-w-[375px] shadow-2xl border-8 border-slate-800 rounded-[40px] my-6 mx-auto overflow-hidden' :
-    viewport === 'tablet' ? 'max-w-[768px] shadow-2xl border-4 border-slate-700 rounded-3xl my-6 mx-auto overflow-hidden' :
-    'w-full';
+  // Section Reorder Handlers
+  const moveSection = (index: number, direction: 'up' | 'down') => {
+    const newOrder = [...(config.sectionOrder || DEFAULT_SECTION_ORDER)];
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= newOrder.length) return;
+
+    const temp = newOrder[index];
+    newOrder[index] = newOrder[targetIndex];
+    newOrder[targetIndex] = temp;
+
+    setConfig({ ...config, sectionOrder: newOrder });
+  };
+
+  const toggleSectionVisibility = (sectionId: string) => {
+    const currentVis = { ...(config.sectionVisibility || DEFAULT_SECTION_VISIBILITY) };
+    currentVis[sectionId] = currentVis[sectionId] === false ? true : false;
+    setConfig({ ...config, sectionVisibility: currentVis });
+  };
+
+  // Hero Tagline Handlers
+  const addTagline = () => {
+    setConfig({
+      ...config,
+      heroTaglines: [...(config.heroTaglines || []), "New Inspiring Tagline"]
+    });
+  };
+
+  const updateTagline = (index: number, val: string) => {
+    const updated = [...(config.heroTaglines || [])];
+    updated[index] = val;
+    setConfig({ ...config, heroTaglines: updated });
+  };
+
+  const removeTagline = (index: number) => {
+    const updated = (config.heroTaglines || []).filter((_: any, i: number) => i !== index);
+    setConfig({ ...config, heroTaglines: updated });
+  };
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-3">
+        <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
+        <p className="text-sm font-semibold text-muted-foreground">Loading Landing Page CMS Studio...</p>
+      </div>
+    );
+  }
 
   return (
-    <div 
-      className="flex flex-col h-[calc(100vh-4rem)] overflow-hidden bg-slate-950 text-slate-100 select-none relative" 
-      onClick={() => setActiveElementId(null)}
-    >
-      
-      {/* ═══════════════════════════════════════════════════════════════
-          TOP TOOLBAR: VIEWPORT & PUBLISH CONTROLS
-          ═══════════════════════════════════════════════════════════════ */}
-      <header className="h-14 border-b border-slate-800 bg-slate-900/90 backdrop-blur-md px-6 flex items-center justify-between shrink-0 z-40">
-        
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-xl bg-emerald-600 text-white font-bold shadow-md shadow-emerald-500/20">
-            <Paintbrush className="w-4 h-4" />
+    <div className="space-y-6 pb-16 max-w-7xl mx-auto">
+      {/* Header Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border/50">
+        <div>
+          <div className="flex items-center gap-2 text-xs font-semibold text-emerald-600 dark:text-emerald-400 mb-1">
+            <Sliders className="w-4 h-4" /> Landing Page CMS Studio
           </div>
-          <div>
-            <h1 className="text-sm font-extrabold tracking-tight text-white flex items-center gap-2 font-headline">
-              Fully Editable Visual Builder <Badge variant="outline" className="text-[10px] bg-emerald-500/10 text-emerald-400 border-emerald-500/30 font-mono">100% DB Dynamic</Badge>
-            </h1>
-            <p className="text-[10px] text-slate-400">Click ANY section title, description, or image to edit directly. Links are locked inside builder.</p>
-          </div>
+          <h1 className="text-2xl sm:text-3xl font-extrabold font-headline tracking-tight text-foreground">
+            Landing Page Manager & Customizer
+          </h1>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+            Reorder sections, update pictures, edit headlines, notice bars, and website branding in real-time.
+          </p>
         </div>
 
-        {/* Viewport Switcher */}
-        <div className="flex items-center gap-1 bg-slate-800/80 p-1 rounded-xl border border-slate-700/60">
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={() => setViewport('desktop')}
-            className={`h-7 px-3 rounded-lg text-xs gap-1.5 font-bold ${viewport === 'desktop' ? 'bg-emerald-600 text-white shadow-xs' : 'text-slate-400 hover:text-white'}`}
-          >
-            <Monitor className="w-3.5 h-3.5" /> Desktop
-          </Button>
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={() => setViewport('tablet')}
-            className={`h-7 px-3 rounded-lg text-xs gap-1.5 font-bold ${viewport === 'tablet' ? 'bg-emerald-600 text-white shadow-xs' : 'text-slate-400 hover:text-white'}`}
-          >
-            <Tablet className="w-3.5 h-3.5" /> Tablet
-          </Button>
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={() => setViewport('mobile')}
-            className={`h-7 px-3 rounded-lg text-xs gap-1.5 font-bold ${viewport === 'mobile' ? 'bg-emerald-600 text-white shadow-xs' : 'text-slate-400 hover:text-white'}`}
-          >
-            <Smartphone className="w-3.5 h-3.5" /> Mobile
-          </Button>
-        </div>
-
-        {/* Action Button */}
         <Button
-          size="sm"
-          onClick={handleSaveAndPublish}
+          onClick={handleSaveCMS}
           disabled={isSaving}
-          className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs h-9 rounded-xl gap-1.5 shadow-md shadow-emerald-900/30 px-4"
+          className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl h-10 px-5 gap-2 font-bold shadow-md shrink-0"
         >
-          <Save className="w-3.5 h-3.5" />
-          {isSaving ? "Publishing..." : "Save & Publish DB"}
+          {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+          <span>{isSaving ? "Saving Live Changes..." : "Publish Live Changes"}</span>
         </Button>
-      </header>
+      </div>
 
-      {/* ═══════════════════════════════════════════════════════════════
-          FLOATING FORMATTING TOOLBAR (FOR ACTIVE CLICKED ELEMENT)
-          ═══════════════════════════════════════════════════════════════ */}
-      {activeElementId && floatingPos && (
-        <div 
-          className="fixed z-50 bg-slate-900 border border-slate-700 shadow-2xl rounded-2xl p-2 flex items-center gap-2 text-xs backdrop-blur-xl animate-in fade-in zoom-in-95 duration-150"
-          style={{ left: `${floatingPos.x}px`, top: `${floatingPos.y}px` }}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <Badge className="bg-emerald-500/20 text-emerald-400 font-mono text-[9px]">
-            Editing: {activeElementId.toUpperCase()}
-          </Badge>
+      {/* Main Tabs Navigation */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <TabsList className="bg-muted/40 p-1.5 rounded-2xl border border-border/60 backdrop-blur-md flex flex-wrap gap-1">
+          <TabsTrigger value="sections" className="rounded-xl text-xs font-bold gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm">
+            <LayoutList className="w-3.5 h-3.5 text-emerald-600" /> Section Order & Visibility
+          </TabsTrigger>
+          <TabsTrigger value="notice" className="rounded-xl text-xs font-bold gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm">
+            <Megaphone className="w-3.5 h-3.5 text-blue-600" /> Notice Bar & Header
+          </TabsTrigger>
+          <TabsTrigger value="hero" className="rounded-xl text-xs font-bold gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm">
+            <Sparkles className="w-3.5 h-3.5 text-amber-600" /> Hero & Banner
+          </TabsTrigger>
+          <TabsTrigger value="media" className="rounded-xl text-xs font-bold gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm">
+            <ImageIcon className="w-3.5 h-3.5 text-indigo-600" /> Pictures & Media Studio
+          </TabsTrigger>
+          <TabsTrigger value="headings" className="rounded-xl text-xs font-bold gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm">
+            <MessageSquare className="w-3.5 h-3.5 text-teal-600" /> Section Headings
+          </TabsTrigger>
+          <TabsTrigger value="footer" className="rounded-xl text-xs font-bold gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm">
+            <Globe className="w-3.5 h-3.5 text-violet-600" /> Footer & Contacts
+          </TabsTrigger>
+        </TabsList>
 
-          {/* Color Swatch Picker */}
-          <div className="flex items-center gap-1 pl-2 border-l border-slate-700">
-            {COLOR_SWATCHES.map(c => (
-              <button
-                key={c.id}
-                onClick={() => setSettings((prev: any) => ({ ...prev, heroCtaColor: c.bg, heroCtaHex: c.hex }))}
-                className="w-5 h-5 rounded-full border border-white/20 transition-transform hover:scale-125"
-                style={{ backgroundColor: c.hex }}
-                title={c.name}
-              />
-            ))}
-          </div>
-
-          <button
-            onClick={() => setSettings((prev: any) => ({ ...prev, heroCtaShape: prev.heroCtaShape === 'rounded-full' ? 'rounded-xl' : 'rounded-full' }))}
-            className="px-2 py-0.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-[10px] font-bold"
-          >
-            Toggle Shape
-          </button>
-        </div>
-      )}
-
-      {/* ═══════════════════════════════════════════════════════════════
-          CANVAS WORKSPACE WITH LINK NAVIGATION INHIBITED
-          ═══════════════════════════════════════════════════════════════ */}
-      <main 
-        onClickCapture={handleCanvasClickCapture}
-        className="flex-1 overflow-y-auto bg-slate-950 [scrollbar-width:none]"
-      >
-        {loading ? (
-          <div className="flex flex-col items-center justify-center py-28 text-slate-400 gap-3">
-            <Loader2 className="w-9 h-9 animate-spin text-emerald-500" />
-            <p className="text-xs font-bold">Loading live database content...</p>
-          </div>
-        ) : (
-          <div className={`transition-all duration-300 bg-background text-foreground ${viewportClass}`}>
+        {/* TAB 1: SECTION REORDER & VISIBILITY */}
+        <TabsContent value="sections" className="space-y-4">
+          <Card className="rounded-2xl border-border/60 p-6 bg-card">
+            <CardHeader className="p-0 mb-4">
+              <CardTitle className="text-lg font-bold font-headline flex items-center gap-2">
+                <LayoutList className="w-5 h-5 text-emerald-600" /> Dynamic Section Re-ordering
+              </CardTitle>
+              <CardDescription className="text-xs">
+                Move sections up or down to change their exact position on the home landing page. Use the toggle switch to enable or hide any section.
+              </CardDescription>
+            </CardHeader>
             
-            {/* 1. ANNOUNCEMENT TICKER (CLICK TO EDIT) */}
-            <div className="bg-emerald-700 text-white text-xs font-bold py-2.5 px-4 flex items-center justify-between gap-4 border-b border-emerald-600">
-              <div className="flex items-center gap-2 flex-1">
-                <Sparkles className="w-4 h-4 shrink-0 text-amber-300 animate-pulse" />
-                <span
-                  contentEditable
-                  suppressContentEditableWarning
-                  onBlur={(e) => handleContentBlur('announcementText', e)}
-                  onClick={(e) => handleElementClick('announcement', e)}
-                  className="hover:outline hover:outline-2 hover:outline-amber-300 rounded px-1.5 py-0.5 cursor-text transition-all"
-                >
-                  {settings.announcementText}
-                </span>
-              </div>
-            </div>
+            <div className="space-y-3">
+              {(config.sectionOrder || DEFAULT_SECTION_ORDER).map((secId: string, idx: number) => {
+                const info = SECTION_LABELS[secId] || { title: secId, desc: "Landing Section", icon: "📌" };
+                const isVisible = config.sectionVisibility?.[secId] !== false;
 
-            {/* 2. HERO SECTION (CLICK TO EDIT TITLE, SUBTITLE & IMAGE) */}
-            <section className="relative pt-10 pb-16 lg:pt-16 lg:pb-24 overflow-hidden bg-background border-b border-border/50">
-              <div className="container relative z-10 mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
-                <div className="grid lg:grid-cols-12 gap-10 items-center">
-                  
-                  {/* Left Hero Content */}
-                  <div className="lg:col-span-7 text-left space-y-6">
-                    
-                    {/* Badges */}
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-400 text-xs font-semibold">
-                        <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                        <span>Federal Board FBISE Affiliated</span>
+                return (
+                  <div key={secId} className={`p-4 rounded-xl border transition-all flex items-center justify-between gap-4 ${
+                    isVisible ? 'bg-muted/30 border-border/60' : 'bg-muted/10 border-border/30 opacity-60'
+                  }`}>
+                    <div className="flex items-center gap-3">
+                      <span className="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-600 font-extrabold text-xs flex items-center justify-center shrink-0">
+                        {idx + 1}
                       </span>
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-foreground text-xs font-semibold">
-                        <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-                        <span>Est. 2015 • Cambridge Standard</span>
-                      </span>
+                      <span className="text-lg shrink-0">{info.icon}</span>
+                      <div>
+                        <p className="font-bold text-sm text-foreground flex items-center gap-2">
+                          {info.title}
+                          {!isVisible && <Badge variant="secondary" className="text-[10px] bg-rose-500/10 text-rose-600">Hidden</Badge>}
+                        </p>
+                        <p className="text-xs text-muted-foreground">{info.desc}</p>
+                      </div>
                     </div>
 
-                    {/* Headline */}
-                    <h1 
-                      contentEditable
-                      suppressContentEditableWarning
-                      onBlur={(e) => handleContentBlur('heroTitle', e)}
-                      onClick={(e) => handleElementClick('heroTitle', e)}
-                      className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-foreground tracking-tight font-headline leading-tight hover:outline hover:outline-2 hover:outline-emerald-500/80 rounded-xl p-1 cursor-text transition-all"
-                    >
-                      {settings.heroTitle}
-                    </h1>
-
-                    {/* Subtitle */}
-                    <p 
-                      contentEditable
-                      suppressContentEditableWarning
-                      onBlur={(e) => handleContentBlur('heroSub', e)}
-                      onClick={(e) => handleElementClick('heroSub', e)}
-                      className="text-base sm:text-lg text-muted-foreground font-medium hover:outline hover:outline-2 hover:outline-emerald-500/80 rounded-xl p-1 cursor-text transition-all"
-                    >
-                      {settings.heroSub}
-                    </p>
-
-                    {/* Key Value Bullets */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                      {['bullet1', 'bullet2', 'bullet3', 'bullet4'].map((bKey) => (
-                        <div key={bKey} className="flex items-center gap-2 text-xs sm:text-sm font-medium text-foreground/90">
-                          <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                          <span
-                            contentEditable
-                            suppressContentEditableWarning
-                            onBlur={(e) => handleContentBlur(bKey, e)}
-                            onClick={(e) => handleElementClick(bKey, e)}
-                            className="hover:outline hover:outline-2 hover:outline-emerald-500/60 rounded px-1 cursor-text"
-                          >
-                            {settings[bKey]}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Action Buttons */}
-                    <div className="flex flex-wrap items-center gap-4 pt-4">
-                      <button
-                        onClick={(e) => handleElementClick('ctaButton', e)}
-                        className={`px-7 py-3.5 text-sm font-bold shadow-lg transition-all flex items-center gap-2 ${settings.heroCtaColor || 'bg-emerald-600 text-white'} ${settings.heroCtaShape || 'rounded-full'} hover:scale-105`}
-                      >
-                        <span
-                          contentEditable
-                          suppressContentEditableWarning
-                          onBlur={(e) => handleContentBlur('heroCtaLabel', e)}
-                          className="cursor-text"
+                    <div className="flex items-center gap-3 shrink-0">
+                      <div className="flex items-center gap-1">
+                        <Button 
+                          size="icon" 
+                          variant="outline" 
+                          disabled={idx === 0} 
+                          onClick={() => moveSection(idx, 'up')}
+                          className="h-8 w-8 rounded-lg"
                         >
-                          {settings.heroCtaLabel}
-                        </span>
-                        <ArrowRight className="w-4 h-4" />
-                      </button>
-                    </div>
-
-                  </div>
-
-                  {/* Right Hero Showcase */}
-                  <div className="lg:col-span-5 relative">
-                    <div className="bg-card rounded-3xl p-4 border border-border/80 shadow-2xl space-y-4">
-                      <div className="relative h-72 rounded-2xl overflow-hidden bg-slate-900 text-white p-6 flex flex-col justify-end group">
-                        <img 
-                          src={settings.heroImageUrl || "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1000&q=80"}
-                          alt="Hero Showcase" 
-                          className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-500"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-emerald-950 via-slate-900/60 to-transparent" />
-                        <div className="relative z-10 space-y-1">
-                          <Badge className="bg-amber-400 text-slate-950 font-bold text-[10px]">PIISS Swat Motto</Badge>
-                          <p className="text-xs font-semibold leading-snug">
-                            &quot;Empowering scholars with Quranic ethics, modern STEM intellect & board excellence.&quot;
-                          </p>
-                        </div>
+                          <ArrowUp className="w-3.5 h-3.5" />
+                        </Button>
+                        <Button 
+                          size="icon" 
+                          variant="outline" 
+                          disabled={idx === (config.sectionOrder?.length || 0) - 1} 
+                          onClick={() => moveSection(idx, 'down')}
+                          className="h-8 w-8 rounded-lg"
+                        >
+                          <ArrowDown className="w-3.5 h-3.5" />
+                        </Button>
                       </div>
 
-                      {/* Image URL Editable Field */}
-                      <div className="p-3 bg-muted/40 rounded-2xl border border-border/60 text-xs space-y-1">
-                        <span className="font-bold text-muted-foreground text-[10px] uppercase flex items-center gap-1">
-                          <ImageIcon className="w-3 h-3 text-emerald-600" /> Hero Showcase Image URL (DB)
-                        </span>
-                        <input
-                          value={settings.heroImageUrl || ''}
-                          onChange={(e) => setSettings({ ...settings, heroImageUrl: e.target.value })}
-                          placeholder="Paste image URL..."
-                          className="w-full bg-background border border-border/80 rounded-lg px-2 py-1 text-[11px] font-mono text-foreground"
+                      <div className="flex items-center gap-2 pl-2 border-l border-border/40">
+                        <Label htmlFor={`switch-${secId}`} className="text-xs font-semibold text-muted-foreground cursor-pointer">
+                          {isVisible ? <Eye className="w-4 h-4 text-emerald-600" /> : <EyeOff className="w-4 h-4 text-rose-500" />}
+                        </Label>
+                        <Switch
+                          id={`switch-${secId}`}
+                          checked={isVisible}
+                          onCheckedChange={() => toggleSectionVisibility(secId)}
                         />
                       </div>
                     </div>
                   </div>
+                );
+              })}
+            </div>
+          </Card>
+        </TabsContent>
 
+        {/* TAB 2: NOTICE BAR & HEADER */}
+        <TabsContent value="notice" className="space-y-4">
+          <Card className="rounded-2xl border-border/60 p-6 bg-card space-y-6">
+            <div>
+              <CardTitle className="text-lg font-bold font-headline flex items-center gap-2">
+                <Megaphone className="w-5 h-5 text-blue-600" /> Top Announcement Notice Bar
+              </CardTitle>
+              <CardDescription className="text-xs mt-1">
+                Customize the marquee announcement bar running across the top of the website.
+              </CardDescription>
+            </div>
+
+            <div className="space-y-4 text-xs">
+              <div className="space-y-1.5">
+                <Label className="font-bold">Announcement Ticker Text</Label>
+                <Input
+                  value={config.noticeText}
+                  onChange={(e) => setConfig({ ...config, noticeText: e.target.value })}
+                  placeholder="e.g. Admissions Open for Session 2026-2027!"
+                  className="h-9 rounded-xl text-xs"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="font-bold">Notice Link URL</Label>
+                <Input
+                  value={config.noticeLink}
+                  onChange={(e) => setConfig({ ...config, noticeLink: e.target.value })}
+                  placeholder="/admissions"
+                  className="h-9 rounded-xl text-xs font-mono"
+                />
+              </div>
+            </div>
+
+            <div className="pt-4 border-t border-border/40 space-y-4">
+              <h4 className="text-sm font-bold font-headline flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-emerald-600" /> Header Branding & Logo
+              </h4>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                <div className="space-y-1.5">
+                  <Label className="font-bold">School Name (Header Text)</Label>
+                  <Input
+                    value={config.schoolName}
+                    onChange={(e) => setConfig({ ...config, schoolName: e.target.value })}
+                    className="h-9 rounded-xl text-xs"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label className="font-bold">Tagline / Motto</Label>
+                  <Input
+                    value={config.tagline}
+                    onChange={(e) => setConfig({ ...config, tagline: e.target.value })}
+                    className="h-9 rounded-xl text-xs"
+                  />
                 </div>
               </div>
-            </section>
+            </div>
+          </Card>
+        </TabsContent>
 
-            {/* 3. HERO STATS (EDITABLE NUMBERS & LABELS) */}
-            <section className="py-10 bg-muted/40 border-b border-border/50">
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {[
-                    { valKey: 'stat1Val', lblKey: 'stat1Lbl', color: 'text-emerald-600' },
-                    { valKey: 'stat2Val', lblKey: 'stat2Lbl', color: 'text-blue-600' },
-                    { valKey: 'stat3Val', lblKey: 'stat3Lbl', color: 'text-violet-600' },
-                    { valKey: 'stat4Val', lblKey: 'stat4Lbl', color: 'text-amber-600' },
-                  ].map((stat, idx) => (
-                    <div key={idx} className="bg-card p-5 rounded-2xl border border-border/80 shadow-xs text-center space-y-1 hover:border-emerald-500/60 transition-all">
-                      <p 
-                        contentEditable
-                        suppressContentEditableWarning
-                        onBlur={(e) => handleContentBlur(stat.valKey, e)}
-                        onClick={(e) => handleElementClick(stat.valKey, e)}
-                        className={`text-2xl font-black font-mono cursor-text ${stat.color}`}
-                      >
-                        {settings[stat.valKey]}
-                      </p>
-                      <p 
-                        contentEditable
-                        suppressContentEditableWarning
-                        onBlur={(e) => handleContentBlur(stat.lblKey, e)}
-                        onClick={(e) => handleElementClick(stat.lblKey, e)}
-                        className="text-xs font-semibold text-muted-foreground cursor-text"
-                      >
-                        {settings[stat.lblKey]}
-                      </p>
-                    </div>
-                  ))}
+        {/* TAB 3: HERO & METRICS */}
+        <TabsContent value="hero" className="space-y-4">
+          <Card className="rounded-2xl border-border/60 p-6 bg-card space-y-6">
+            <div>
+              <CardTitle className="text-lg font-bold font-headline flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-amber-500" /> Main Hero Banner Content
+              </CardTitle>
+              <CardDescription className="text-xs mt-1">
+                Customize the primary headline, rotating taglines, and call-to-action button.
+              </CardDescription>
+            </div>
+
+            <div className="space-y-4 text-xs">
+              <div className="space-y-1.5">
+                <Label className="font-bold">Hero Main Headline</Label>
+                <Input
+                  value={config.heroTitle}
+                  onChange={(e) => setConfig({ ...config, heroTitle: e.target.value })}
+                  placeholder="Main Title"
+                  className="h-9 rounded-xl text-xs"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="font-bold">Hero Sub-headline / Mission Summary</Label>
+                <Textarea
+                  value={config.heroSub}
+                  onChange={(e) => setConfig({ ...config, heroSub: e.target.value })}
+                  rows={2}
+                  className="rounded-xl text-xs"
+                />
+              </div>
+
+              {/* Dynamic Taglines */}
+              <div className="space-y-2 pt-2 border-t border-border/40">
+                <div className="flex justify-between items-center">
+                  <Label className="font-bold text-xs">Rotating Hero Taglines</Label>
+                  <Button size="sm" variant="outline" onClick={addTagline} className="h-7 text-[10px] gap-1 rounded-lg">
+                    <Plus className="w-3 h-3" /> Add Tagline
+                  </Button>
+                </div>
+
+                {(config.heroTaglines || []).map((tag: string, i: number) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <Input
+                      value={tag}
+                      onChange={(e) => updateTagline(i, e.target.value)}
+                      className="h-8 text-xs rounded-lg flex-1"
+                    />
+                    <Button size="icon" variant="ghost" onClick={() => removeTagline(i)} className="h-8 w-8 text-rose-500 rounded-lg">
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-border/40">
+                <div className="space-y-1.5">
+                  <Label className="font-bold">Call-to-Action Button Label</Label>
+                  <Input
+                    value={config.heroCtaText}
+                    onChange={(e) => setConfig({ ...config, heroCtaText: e.target.value })}
+                    className="h-9 rounded-xl text-xs"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label className="font-bold">CTA Target Link</Label>
+                  <Input
+                    value={config.heroCtaLink}
+                    onChange={(e) => setConfig({ ...config, heroCtaLink: e.target.value })}
+                    className="h-9 rounded-xl text-xs font-mono"
+                  />
                 </div>
               </div>
-            </section>
-
-            {/* 4. EDITABLE SECTION TITLES & DESCRIPTIONS */}
-
-            {/* PORTALS SECTION HEADER */}
-            <div className="pt-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-1">
-              <h2 
-                contentEditable 
-                suppressContentEditableWarning 
-                onBlur={(e) => handleContentBlur('portalsTitle', e)}
-                className="text-2xl sm:text-3xl font-bold font-headline text-foreground cursor-text hover:outline hover:outline-2 hover:outline-emerald-500/60 rounded px-1"
-              >
-                {settings.portalsTitle}
-              </h2>
-              <p 
-                contentEditable 
-                suppressContentEditableWarning 
-                onBlur={(e) => handleContentBlur('portalsDesc', e)}
-                className="text-xs text-muted-foreground cursor-text hover:outline hover:outline-2 hover:outline-emerald-500/60 rounded px-1"
-              >
-                {settings.portalsDesc}
-              </p>
             </div>
-            <QuickPortalGrid />
+          </Card>
+        </TabsContent>
 
-            {/* PROGRAMS SECTION HEADER */}
-            <div className="pt-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-1">
-              <h2 
-                contentEditable 
-                suppressContentEditableWarning 
-                onBlur={(e) => handleContentBlur('programsTitle', e)}
-                className="text-2xl sm:text-3xl font-bold font-headline text-foreground cursor-text hover:outline hover:outline-2 hover:outline-emerald-500/60 rounded px-1"
-              >
-                {settings.programsTitle}
-              </h2>
-              <p 
-                contentEditable 
-                suppressContentEditableWarning 
-                onBlur={(e) => handleContentBlur('programsDesc', e)}
-                className="text-xs text-muted-foreground cursor-text hover:outline hover:outline-2 hover:outline-emerald-500/60 rounded px-1"
-              >
-                {settings.programsDesc}
-              </p>
+        {/* TAB 4: PICTURES & MEDIA STUDIO */}
+        <TabsContent value="media" className="space-y-4">
+          <Card className="rounded-2xl border-border/60 p-6 bg-card space-y-6">
+            <div>
+              <CardTitle className="text-lg font-bold font-headline flex items-center gap-2">
+                <ImageIcon className="w-5 h-5 text-indigo-600" /> Website Pictures & Visual Media Studio
+              </CardTitle>
+              <CardDescription className="text-xs mt-1">
+                Manage and replace image URLs used across the website with instant thumbnail previews.
+              </CardDescription>
             </div>
-            <AcademicPrograms />
 
-            {/* FEATURES SECTION HEADER */}
-            <div className="pt-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-1">
-              <h2 
-                contentEditable 
-                suppressContentEditableWarning 
-                onBlur={(e) => handleContentBlur('featuresTitle', e)}
-                className="text-2xl sm:text-3xl font-bold font-headline text-foreground cursor-text hover:outline hover:outline-2 hover:outline-emerald-500/60 rounded px-1"
-              >
-                {settings.featuresTitle}
-              </h2>
-              <p 
-                contentEditable 
-                suppressContentEditableWarning 
-                onBlur={(e) => handleContentBlur('featuresDesc', e)}
-                className="text-xs text-muted-foreground cursor-text hover:outline hover:outline-2 hover:outline-emerald-500/60 rounded px-1"
-              >
-                {settings.featuresDesc}
-              </p>
-            </div>
-            <Features />
-
-            {/* ABOUT SECTION (DIRECT EDITABLE STORY) */}
-            <section className="py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-b border-border/50">
-              <div className="bg-card border border-border/80 p-6 md:p-8 rounded-3xl space-y-4 shadow-sm">
-                <div className="flex items-center gap-2">
-                  <div className="p-2 rounded-xl bg-emerald-500/15 text-emerald-600">
-                    <BookOpen className="w-5 h-5" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Hero Image Card */}
+              <div className="p-4 bg-muted/30 rounded-xl border border-border/60 space-y-3">
+                <p className="font-bold text-xs text-foreground flex items-center gap-2">
+                  <ImageIcon className="w-4 h-4 text-emerald-600" /> Hero Banner Image
+                </p>
+                {config.heroImageUrl && (
+                  <div className="h-36 rounded-lg overflow-hidden border border-border/60 bg-black/10">
+                    <img src={config.heroImageUrl} alt="Hero Preview" className="w-full h-full object-cover" />
                   </div>
-                  <div>
-                    <h3 
-                      contentEditable
-                      suppressContentEditableWarning
-                      onBlur={(e) => handleContentBlur('aboutTitle', e)}
-                      className="text-xl font-bold font-headline text-foreground cursor-text hover:outline hover:outline-2 hover:outline-emerald-500/60 rounded px-1"
-                    >
-                      {settings.aboutTitle}
-                    </h3>
-                    <p 
-                      contentEditable
-                      suppressContentEditableWarning
-                      onBlur={(e) => handleContentBlur('aboutDesc', e)}
-                      className="text-xs text-muted-foreground cursor-text hover:outline hover:outline-2 hover:outline-emerald-500/60 rounded px-1"
-                    >
-                      {settings.aboutDesc}
-                    </p>
-                  </div>
-                </div>
-
-                <div
-                  contentEditable
-                  suppressContentEditableWarning
-                  onBlur={(e) => handleContentBlur('ourStory', e)}
-                  onClick={(e) => handleElementClick('ourStory', e)}
-                  className="text-xs text-foreground bg-background rounded-2xl p-4 border border-border/80 leading-relaxed cursor-text hover:border-emerald-500"
-                >
-                  {settings.ourStory}
+                )}
+                <div className="space-y-1">
+                  <Label className="text-[11px] font-bold">Image URL</Label>
+                  <Input
+                    value={config.heroImageUrl}
+                    onChange={(e) => setConfig({ ...config, heroImageUrl: e.target.value })}
+                    className="h-8 text-xs rounded-lg font-mono"
+                  />
                 </div>
               </div>
-            </section>
 
-            {/* TOPPERS & BOARD ACHIEVERS */}
-            <div className="pt-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-1">
-              <h2 
-                contentEditable 
-                suppressContentEditableWarning 
-                onBlur={(e) => handleContentBlur('toppersTitle', e)}
-                className="text-2xl sm:text-3xl font-bold font-headline text-foreground cursor-text hover:outline hover:outline-2 hover:outline-emerald-500/60 rounded px-1"
-              >
-                {settings.toppersTitle}
-              </h2>
-              <p 
-                contentEditable 
-                suppressContentEditableWarning 
-                onBlur={(e) => handleContentBlur('toppersDesc', e)}
-                className="text-xs text-muted-foreground cursor-text hover:outline hover:outline-2 hover:outline-emerald-500/60 rounded px-1"
-              >
-                {settings.toppersDesc}
-              </p>
-            </div>
-            <ToppersSection toppers={toppers} />
-            <BoardResultsSection boardStudents={boardStudents} />
-
-            {/* TEACHERS & FACULTY */}
-            <div className="pt-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-1">
-              <h2 
-                contentEditable 
-                suppressContentEditableWarning 
-                onBlur={(e) => handleContentBlur('teachersTitle', e)}
-                className="text-2xl sm:text-3xl font-bold font-headline text-foreground cursor-text hover:outline hover:outline-2 hover:outline-emerald-500/60 rounded px-1"
-              >
-                {settings.teachersTitle}
-              </h2>
-              <p 
-                contentEditable 
-                suppressContentEditableWarning 
-                onBlur={(e) => handleContentBlur('teachersDesc', e)}
-                className="text-xs text-muted-foreground cursor-text hover:outline hover:outline-2 hover:outline-emerald-500/60 rounded px-1"
-              >
-                {settings.teachersDesc}
-              </p>
-            </div>
-            <TeachersSection teachers={teachers.slice(0, 3)} />
-
-            {/* EVENTS CALENDAR */}
-            <div className="pt-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-1">
-              <h2 
-                contentEditable 
-                suppressContentEditableWarning 
-                onBlur={(e) => handleContentBlur('eventsTitle', e)}
-                className="text-2xl sm:text-3xl font-bold font-headline text-foreground cursor-text hover:outline hover:outline-2 hover:outline-emerald-500/60 rounded px-1"
-              >
-                {settings.eventsTitle}
-              </h2>
-              <p 
-                contentEditable 
-                suppressContentEditableWarning 
-                onBlur={(e) => handleContentBlur('eventsDesc', e)}
-                className="text-xs text-muted-foreground cursor-text hover:outline hover:outline-2 hover:outline-emerald-500/60 rounded px-1"
-              >
-                {settings.eventsDesc}
-              </p>
-            </div>
-            <EventsSection events={events.slice(0, 3)} />
-
-            {/* FAQ SECTION */}
-            <div className="pt-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-1">
-              <h2 
-                contentEditable 
-                suppressContentEditableWarning 
-                onBlur={(e) => handleContentBlur('faqTitle', e)}
-                className="text-2xl sm:text-3xl font-bold font-headline text-foreground cursor-text hover:outline hover:outline-2 hover:outline-emerald-500/60 rounded px-1"
-              >
-                {settings.faqTitle}
-              </h2>
-              <p 
-                contentEditable 
-                suppressContentEditableWarning 
-                onBlur={(e) => handleContentBlur('faqDesc', e)}
-                className="text-xs text-muted-foreground cursor-text hover:outline hover:outline-2 hover:outline-emerald-500/60 rounded px-1"
-              >
-                {settings.faqDesc}
-              </p>
-            </div>
-            <FaqSection faqs={faqs} />
-
-            {/* CONTACT SECTION (EDITABLE CONTACT DETAILS) */}
-            <section className="py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-              <div className="bg-card border border-border/80 p-6 md:p-8 rounded-3xl space-y-6 shadow-sm">
-                <div className="flex items-center gap-2 border-b border-border/40 pb-4">
-                  <div className="p-2 rounded-xl bg-emerald-500/15 text-emerald-600">
-                    <Phone className="w-5 h-5" />
+              {/* About Us Image Card */}
+              <div className="p-4 bg-muted/30 rounded-xl border border-border/60 space-y-3">
+                <p className="font-bold text-xs text-foreground flex items-center gap-2">
+                  <ImageIcon className="w-4 h-4 text-blue-600" /> About School Image
+                </p>
+                {config.aboutImageUrl && (
+                  <div className="h-36 rounded-lg overflow-hidden border border-border/60 bg-black/10">
+                    <img src={config.aboutImageUrl} alt="About Preview" className="w-full h-full object-cover" />
                   </div>
-                  <div>
-                    <h3 
-                      contentEditable
-                      suppressContentEditableWarning
-                      onBlur={(e) => handleContentBlur('contactTitle', e)}
-                      className="text-xl font-bold font-headline text-foreground cursor-text hover:outline hover:outline-2 hover:outline-emerald-500/60 rounded px-1"
-                    >
-                      {settings.contactTitle}
-                    </h3>
-                    <p 
-                      contentEditable
-                      suppressContentEditableWarning
-                      onBlur={(e) => handleContentBlur('contactDesc', e)}
-                      className="text-xs text-muted-foreground cursor-text hover:outline hover:outline-2 hover:outline-emerald-500/60 rounded px-1"
-                    >
-                      {settings.contactDesc}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                  <div className="p-3.5 bg-muted/30 rounded-2xl border border-border/60 space-y-1">
-                    <p className="font-bold text-muted-foreground text-[10px] uppercase">Contact Phone</p>
-                    <p contentEditable suppressContentEditableWarning onBlur={(e) => handleContentBlur('contactPhone', e)} className="font-semibold text-foreground cursor-text">
-                      {settings.contactPhone}
-                    </p>
-                  </div>
-
-                  <div className="p-3.5 bg-muted/30 rounded-2xl border border-border/60 space-y-1">
-                    <p className="font-bold text-muted-foreground text-[10px] uppercase">Official Email</p>
-                    <p contentEditable suppressContentEditableWarning onBlur={(e) => handleContentBlur('contactEmail', e)} className="font-semibold text-foreground cursor-text">
-                      {settings.contactEmail}
-                    </p>
-                  </div>
-
-                  <div className="p-3.5 bg-muted/30 rounded-2xl border border-border/60 space-y-1">
-                    <p className="font-bold text-muted-foreground text-[10px] uppercase">Campus Address</p>
-                    <p contentEditable suppressContentEditableWarning onBlur={(e) => handleContentBlur('contactAddress', e)} className="font-semibold text-foreground cursor-text">
-                      {settings.contactAddress}
-                    </p>
-                  </div>
-
-                  <div className="p-3.5 bg-muted/30 rounded-2xl border border-border/60 space-y-1">
-                    <p className="font-bold text-muted-foreground text-[10px] uppercase">Office Hours</p>
-                    <p contentEditable suppressContentEditableWarning onBlur={(e) => handleContentBlur('officeHours', e)} className="font-semibold text-foreground cursor-text">
-                      {settings.officeHours}
-                    </p>
-                  </div>
+                )}
+                <div className="space-y-1">
+                  <Label className="text-[11px] font-bold">Image URL</Label>
+                  <Input
+                    value={config.aboutImageUrl}
+                    onChange={(e) => setConfig({ ...config, aboutImageUrl: e.target.value })}
+                    className="h-8 text-xs rounded-lg font-mono"
+                  />
                 </div>
               </div>
-            </section>
 
-            <Footer content={{
-              facebookUrl: settings.facebookUrl,
-              instagramUrl: settings.instagramUrl,
-              linkedinUrl: settings.linkedinUrl,
-              twitterUrl: settings.twitterUrl,
-            }} />
-          </div>
-        )}
-      </main>
+              {/* Ad Banner Image Card */}
+              <div className="p-4 bg-muted/30 rounded-xl border border-border/60 space-y-3">
+                <p className="font-bold text-xs text-foreground flex items-center gap-2">
+                  <ImageIcon className="w-4 h-4 text-amber-600" /> Ad Promotional Banner Image
+                </p>
+                {config.adBannerImageUrl && (
+                  <div className="h-36 rounded-lg overflow-hidden border border-border/60 bg-black/10">
+                    <img src={config.adBannerImageUrl} alt="Ad Banner Preview" className="w-full h-full object-cover" />
+                  </div>
+                )}
+                <div className="space-y-1">
+                  <Label className="text-[11px] font-bold">Image URL</Label>
+                  <Input
+                    value={config.adBannerImageUrl}
+                    onChange={(e) => setConfig({ ...config, adBannerImageUrl: e.target.value })}
+                    className="h-8 text-xs rounded-lg font-mono"
+                  />
+                </div>
+              </div>
 
+              {/* School Logo Image Card */}
+              <div className="p-4 bg-muted/30 rounded-xl border border-border/60 space-y-3">
+                <p className="font-bold text-xs text-foreground flex items-center gap-2">
+                  <ImageIcon className="w-4 h-4 text-violet-600" /> Official School Logo URL
+                </p>
+                {config.logoUrl && (
+                  <div className="h-36 rounded-lg overflow-hidden border border-border/60 bg-black/10 flex items-center justify-center p-4">
+                    <img src={config.logoUrl} alt="Logo Preview" className="max-h-full max-w-full object-contain" />
+                  </div>
+                )}
+                <div className="space-y-1">
+                  <Label className="text-[11px] font-bold">Logo URL</Label>
+                  <Input
+                    value={config.logoUrl}
+                    onChange={(e) => setConfig({ ...config, logoUrl: e.target.value })}
+                    className="h-8 text-xs rounded-lg font-mono"
+                  />
+                </div>
+              </div>
+            </div>
+          </Card>
+        </TabsContent>
+
+        {/* TAB 5: SECTION HEADINGS */}
+        <TabsContent value="headings" className="space-y-4">
+          <Card className="rounded-2xl border-border/60 p-6 bg-card space-y-6">
+            <div>
+              <CardTitle className="text-lg font-bold font-headline flex items-center gap-2">
+                <MessageSquare className="w-5 h-5 text-teal-600" /> Custom Section Titles & Descriptions
+              </CardTitle>
+              <CardDescription className="text-xs mt-1">
+                Customize titles and subtitles for every major section on the home landing page.
+              </CardDescription>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
+              {[
+                { titleKey: "portalsTitle", descKey: "portalsDesc", label: "Quick Portals Section" },
+                { titleKey: "programsTitle", descKey: "programsDesc", label: "Academic Programs Section" },
+                { titleKey: "featuresTitle", descKey: "featuresDesc", label: "Core Features Section" },
+                { titleKey: "aboutTitle", descKey: "aboutDesc", label: "About Us Section" },
+                { titleKey: "toppersTitle", descKey: "toppersDesc", label: "Board Toppers Section" },
+                { titleKey: "teachersTitle", descKey: "teachersDesc", label: "Faculty Section" },
+                { titleKey: "eventsTitle", descKey: "eventsDesc", label: "Upcoming Events Section" },
+                { titleKey: "faqTitle", descKey: "faqDesc", label: "FAQ Section" },
+                { titleKey: "contactTitle", descKey: "contactDesc", label: "Contact Section" },
+              ].map((sec, i) => (
+                <div key={i} className="p-4 bg-muted/30 rounded-xl border border-border/60 space-y-2">
+                  <p className="font-bold text-xs text-emerald-600 uppercase tracking-wider">{sec.label}</p>
+                  <div className="space-y-1">
+                    <Label className="text-[11px] font-bold">Section Heading</Label>
+                    <Input
+                      value={config.sectionTitles?.[sec.titleKey] || ""}
+                      onChange={(e) => setConfig({
+                        ...config,
+                        sectionTitles: { ...config.sectionTitles, [sec.titleKey]: e.target.value }
+                      })}
+                      className="h-8 text-xs rounded-lg"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-[11px] font-bold">Section Subtitle / Description</Label>
+                    <Input
+                      value={config.sectionTitles?.[sec.descKey] || ""}
+                      onChange={(e) => setConfig({
+                        ...config,
+                        sectionTitles: { ...config.sectionTitles, [sec.descKey]: e.target.value }
+                      })}
+                      className="h-8 text-xs rounded-lg"
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Card>
+        </TabsContent>
+
+        {/* TAB 6: FOOTER & CONTACT INFO */}
+        <TabsContent value="footer" className="space-y-4">
+          <Card className="rounded-2xl border-border/60 p-6 bg-card space-y-6">
+            <div>
+              <CardTitle className="text-lg font-bold font-headline flex items-center gap-2">
+                <Globe className="w-5 h-5 text-violet-600" /> Footer Links & Contact Details
+              </CardTitle>
+              <CardDescription className="text-xs mt-1">
+                Manage contact numbers, email, campus address, office hours, and social media handles.
+              </CardDescription>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+              <div className="space-y-1.5">
+                <Label className="font-bold flex items-center gap-1.5"><Phone className="w-3.5 h-3.5 text-emerald-600" /> Contact Phone</Label>
+                <Input
+                  value={config.contactPhone}
+                  onChange={(e) => setConfig({ ...config, contactPhone: e.target.value })}
+                  className="h-9 rounded-xl text-xs"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="font-bold flex items-center gap-1.5"><Globe className="w-3.5 h-3.5 text-blue-600" /> Contact Email</Label>
+                <Input
+                  value={config.contactEmail}
+                  onChange={(e) => setConfig({ ...config, contactEmail: e.target.value })}
+                  className="h-9 rounded-xl text-xs"
+                />
+              </div>
+
+              <div className="space-y-1.5 sm:col-span-2">
+                <Label className="font-bold flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 text-rose-500" /> Campus Address</Label>
+                <Input
+                  value={config.contactAddress}
+                  onChange={(e) => setConfig({ ...config, contactAddress: e.target.value })}
+                  className="h-9 rounded-xl text-xs"
+                />
+              </div>
+
+              <div className="space-y-1.5 sm:col-span-2">
+                <Label className="font-bold">Office Hours</Label>
+                <Input
+                  value={config.officeHours}
+                  onChange={(e) => setConfig({ ...config, officeHours: e.target.value })}
+                  className="h-9 rounded-xl text-xs"
+                />
+              </div>
+            </div>
+
+            <div className="pt-4 border-t border-border/40 space-y-4 text-xs">
+              <h4 className="text-sm font-bold font-headline">Social Media Handles</h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label className="font-bold">Facebook URL</Label>
+                  <Input value={config.facebookUrl} onChange={(e) => setConfig({ ...config, facebookUrl: e.target.value })} className="h-9 rounded-xl text-xs font-mono" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="font-bold">Instagram URL</Label>
+                  <Input value={config.instagramUrl} onChange={(e) => setConfig({ ...config, instagramUrl: e.target.value })} className="h-9 rounded-xl text-xs font-mono" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="font-bold">LinkedIn URL</Label>
+                  <Input value={config.linkedinUrl} onChange={(e) => setConfig({ ...config, linkedinUrl: e.target.value })} className="h-9 rounded-xl text-xs font-mono" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="font-bold">Twitter / X URL</Label>
+                  <Input value={config.twitterUrl} onChange={(e) => setConfig({ ...config, twitterUrl: e.target.value })} className="h-9 rounded-xl text-xs font-mono" />
+                </div>
+              </div>
+            </div>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

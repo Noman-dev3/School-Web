@@ -1,3 +1,4 @@
+import React from "react";
 import AboutSection from "@/components/about-section";
 import { AcademicPrograms } from "@/components/academic-programs";
 import { AdBanner } from "@/components/ad-banner";
@@ -17,8 +18,10 @@ import { QuickPortalGrid } from "@/components/quick-portal-grid";
 import TeachersSection from "@/components/teachers-section";
 import TestimonialsSection from "@/components/testimonials-section";
 import ToppersSection from "@/components/toppers-section";
-import { getBoardStudents, getEvents, getFaqs, getGalleryItems, getSettings, getTeachers, getTestimonials, getToppers } from "@/lib/data-fetching";
-import { hero } from "@/lib/data";
+import { 
+  getBoardStudents, getEvents, getFaqs, getGalleryItems, 
+  getSettings, getTeachers, getTestimonials, getToppers 
+} from "@/lib/data-fetching";
 
 export default async function Home() {
   // Fetch all data on the server in parallel
@@ -69,60 +72,49 @@ export default async function Home() {
         "Empowering Scholars with Modern STEM & Robotics",
       ];
 
+  const sectionOrder: string[] = settings.sectionOrder || [
+    "hero", "stats", "portals", "programs", "features", "adBanner", 
+    "about", "toppers", "boardResults", "teachers", "events", "gallery", 
+    "testimonials", "faq", "contact"
+  ];
+
+  const sectionVisibility: Record<string, boolean> = settings.sectionVisibility || {};
+
+  // Map section IDs to their corresponding JSX elements
+  const sectionMap: Record<string, React.ReactNode> = {
+    hero: <Hero key="hero" taglines={heroTaglines} />,
+    stats: <HeroStats key="stats" />,
+    portals: <QuickPortalGrid key="portals" />,
+    programs: <AcademicPrograms key="programs" />,
+    features: <Features key="features" />,
+    adBanner: <AdBanner key="adBanner" />,
+    about: <AboutSection key="about" content={aboutContent} />,
+    toppers: <ToppersSection key="toppers" toppers={toppers} />,
+    boardResults: <BoardResultsSection key="boardResults" boardStudents={boardStudents} />,
+    teachers: <TeachersSection key="teachers" teachers={teachers.slice(0, 3)} />,
+    events: <EventsSection key="events" events={events.slice(0, 3)} />,
+    gallery: <GallerySection key="gallery" galleryItems={galleryItems.slice(0, 4)} />,
+    testimonials: <TestimonialsSection key="testimonials" testimonials={testimonials} />,
+    faq: <FaqSection key="faq" faqs={faqs} />,
+    contact: <ContactSection key="contact" content={contactContent} />,
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground antialiased selection:bg-primary/20">
       {/* Top Admissions & Announcement Notice Bar */}
-      <NoticeTicker />
+      <NoticeTicker text={settings.noticeText} link={settings.noticeLink} />
 
       {/* Floating Top Header Navigation */}
       <Header />
 
       <div className="flex-grow">
         <main className="flex-1 space-y-12 sm:space-y-16 pb-16">
-          {/* Hero Section */}
-          <Hero taglines={heroTaglines} />
-
-          {/* Sleek Metrics & Statistics Overlay */}
-          <HeroStats />
-
-          {/* Quick Services & Portals Grid */}
-          <QuickPortalGrid />
-
-          {/* Educational Levels & Pathways */}
-          <AcademicPrograms />
-
-          {/* Why Choose PIISS - Core Pillars */}
-          <Features />
-
-          {/* Ad Banner for Events/Notices */}
-          <AdBanner />
-
-          {/* School Story & Mission */}
-          <AboutSection content={aboutContent} />
-
-          {/* Board Achievers & Star Toppers */}
-          <ToppersSection toppers={toppers} />
-
-          {/* FBISE Board Results Table */}
-          <BoardResultsSection boardStudents={boardStudents} />
-
-          {/* Faculty & Educators Spotlight */}
-          <TeachersSection teachers={teachers.slice(0, 3)} />
-
-          {/* Upcoming School Events & Activities */}
-          <EventsSection events={events.slice(0, 3)} />
-
-          {/* School Life Gallery */}
-          <GallerySection galleryItems={galleryItems.slice(0, 4)} />
-
-          {/* Parents & Community Testimonials */}
-          <TestimonialsSection testimonials={testimonials} />
-
-          {/* Frequently Asked Questions */}
-          <FaqSection faqs={faqs} />
-
-          {/* Contact & Inquiry Form */}
-          <ContactSection content={contactContent} />
+          {sectionOrder.map((sectionId) => {
+            // Check if section is visible (default true)
+            const isVisible = sectionVisibility[sectionId] !== false;
+            if (!isVisible) return null;
+            return sectionMap[sectionId] || null;
+          })}
         </main>
       </div>
 
