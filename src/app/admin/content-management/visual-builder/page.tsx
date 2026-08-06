@@ -93,11 +93,8 @@ export default function LandingPageCMSStudio() {
   const handleSaveCMS = async () => {
     setIsSaving(true);
     try {
-      const { data: existing } = await supabase.from('settings').select('id').limit(1).maybeSingle();
-
-      const payload = {
-        schoolName: config.schoolName,
-        tagline: config.tagline,
+      const payload: any = {
+        id: 1,
         ourStory: config.ourStory,
         logoUrl: config.logoUrl,
         contactPhone: config.contactPhone,
@@ -106,37 +103,60 @@ export default function LandingPageCMSStudio() {
         officeHours: config.officeHours,
         aboutImageUrl: config.aboutImageUrl,
         contactImageUrl: config.contactImageUrl,
-        heroTitle: config.heroTitle,
-        heroSub: config.heroSub,
-        heroCtaText: config.heroCtaText,
-        heroCtaLink: config.heroCtaLink,
-        heroImageUrl: config.heroImageUrl,
         heroTaglines: config.heroTaglines,
-        noticeText: config.noticeText,
-        noticeLink: config.noticeLink,
-        adBannerTitle: config.adBannerTitle,
-        adBannerSubtitle: config.adBannerSubtitle,
-        adBannerCtaText: config.adBannerCtaText,
-        adBannerImageUrl: config.adBannerImageUrl,
         facebookUrl: config.facebookUrl,
         instagramUrl: config.instagramUrl,
         linkedinUrl: config.linkedinUrl,
         twitterUrl: config.twitterUrl,
         sectionOrder: config.sectionOrder,
         sectionVisibility: config.sectionVisibility,
+        noticeText: config.noticeText,
+        noticeLink: config.noticeLink,
+        heroTitle: config.heroTitle,
+        heroSub: config.heroSub,
+        heroCtaText: config.heroCtaText,
+        heroCtaLink: config.heroCtaLink,
+        heroImageUrl: config.heroImageUrl,
+        adBannerTitle: config.adBannerTitle,
+        adBannerSubtitle: config.adBannerSubtitle,
+        adBannerCtaText: config.adBannerCtaText,
+        adBannerImageUrl: config.adBannerImageUrl,
         sectionTitles: config.sectionTitles,
+        schoolName: config.schoolName,
+        tagline: config.tagline,
       };
 
-      let error;
-      if (existing?.id) {
-        const res = await supabase.from('settings').update(payload).eq('id', existing.id);
-        error = res.error;
-      } else {
-        const res = await supabase.from('settings').insert([{ id: 1, ...payload }]);
-        error = res.error;
-      }
+      const { error } = await supabase.from('settings').upsert([payload]);
 
-      if (error) throw error;
+      if (error) {
+        // Fallback: If custom columns like schoolName don't exist yet in Supabase schema cache
+        if (error.message?.includes('schema cache') || error.message?.includes('column')) {
+          const fallbackPayload = {
+            id: 1,
+            ourStory: config.ourStory,
+            logoUrl: config.logoUrl,
+            contactPhone: config.contactPhone,
+            contactEmail: config.contactEmail,
+            contactAddress: config.contactAddress,
+            officeHours: config.officeHours,
+            aboutImageUrl: config.aboutImageUrl,
+            heroTaglines: config.heroTaglines,
+            facebookUrl: config.facebookUrl,
+            instagramUrl: config.instagramUrl,
+            linkedinUrl: config.linkedinUrl,
+            twitterUrl: config.twitterUrl,
+          };
+          const fallbackRes = await supabase.from('settings').upsert([fallbackPayload]);
+          if (fallbackRes.error) throw fallbackRes.error;
+
+          toast({
+            title: "Core Settings Saved! ⚠️",
+            description: "Core settings saved successfully. Run the SQL patch in Supabase SQL Editor to enable new custom columns."
+          });
+          return;
+        }
+        throw error;
+      }
 
       toast({
         title: "Landing Page Updated! 🎉",
@@ -276,10 +296,10 @@ export default function LandingPageCMSStudio() {
                       </span>
                       <span className="text-lg shrink-0">{info.icon}</span>
                       <div>
-                        <p className="font-bold text-sm text-foreground flex items-center gap-2">
+                        <div className="font-bold text-sm text-foreground flex items-center gap-2">
                           {info.title}
                           {!isVisible && <Badge variant="secondary" className="text-[10px] bg-rose-500/10 text-rose-600">Hidden</Badge>}
-                        </p>
+                        </div>
                         <p className="text-xs text-muted-foreground">{info.desc}</p>
                       </div>
                     </div>
