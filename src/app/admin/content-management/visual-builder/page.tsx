@@ -26,7 +26,7 @@ const SECTION_LABELS: Record<string, { title: string; desc: string; icon: string
   programs: { title: "Academic Programs", desc: "Montessori, Primary, Middle, and High School levels", icon: "🎓" },
   features: { title: "Core Pillars / Why Choose PIISS", desc: "STEM, Quranic Ethics, Distinction Merit features", icon: "⭐" },
   adBanner: { title: "Announcement / Ad Banner", desc: "Promotional banner for events or admissions", icon: "📢" },
-  about: { title: "About School & Mission", desc: "Institutional history, story, principal quote, and vision", icon: "🏫" },
+  about: { title: "About School & Mission", desc: "Institutional history, story, image, and 2x2 stats grid", icon: "🏫" },
   toppers: { title: "FBISE Board Toppers", desc: "Star students and board position holders", icon: "🏆" },
   boardResults: { title: "FBISE Board Results Table", desc: "Detailed board pass percentages and breakdown", icon: "📋" },
   teachers: { title: "Faculty & Educators", desc: "Educators spotlight and master's teachers", icon: "👨‍🏫" },
@@ -89,9 +89,14 @@ export default function LandingPageCMSStudio() {
         heroCard3Desc: config.heroCard3Desc,
         aboutEyebrow: config.aboutEyebrow,
         aboutTitle: config.aboutTitle,
-        principalName: config.principalName,
-        principalRole: config.principalRole,
-        principalMessage: config.principalMessage,
+        aboutStat1Value: config.aboutStat1Value,
+        aboutStat1Label: config.aboutStat1Label,
+        aboutStat2Value: config.aboutStat2Value,
+        aboutStat2Label: config.aboutStat2Label,
+        aboutStat3Value: config.aboutStat3Value,
+        aboutStat3Label: config.aboutStat3Label,
+        aboutStat4Value: config.aboutStat4Value,
+        aboutStat4Label: config.aboutStat4Label,
         adBannerTitle: config.adBannerTitle,
         adBannerSubtitle: config.adBannerSubtitle,
         adBannerCtaText: config.adBannerCtaText,
@@ -123,7 +128,7 @@ export default function LandingPageCMSStudio() {
 
       toast({
         title: "Landing Page Updated! 🎉",
-        description: "All section orderings, about section, hero layout, media pictures, and section titles are live on the website."
+        description: "All section orderings, about section, 2x2 stats, media pictures, and section titles are live on the website."
       });
     } catch (err: any) {
       toast({
@@ -195,7 +200,7 @@ export default function LandingPageCMSStudio() {
             Landing Page Manager & Customizer
           </h1>
           <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-            Reorder sections, update hero layout, about story, principal quotes, notice bars, and website branding in real-time.
+            Reorder sections, update hero layout, about story, 2x2 stats grid, notice bars, and website branding in real-time.
           </p>
         </div>
 
@@ -219,7 +224,7 @@ export default function LandingPageCMSStudio() {
             <Sparkles className="w-3.5 h-3.5 text-amber-500" /> Hero & Template Layout
           </TabsTrigger>
           <TabsTrigger value="about" className="rounded-xl text-xs font-bold gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm">
-            <GraduationCap className="w-3.5 h-3.5 text-rose-500" /> About & Principal Quote
+            <GraduationCap className="w-3.5 h-3.5 text-rose-500" /> About & 2x2 Stats
           </TabsTrigger>
           <TabsTrigger value="notice" className="rounded-xl text-xs font-bold gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm">
             <Megaphone className="w-3.5 h-3.5 text-blue-600" /> Notice Bar & Header
@@ -480,32 +485,32 @@ export default function LandingPageCMSStudio() {
           </Card>
         </TabsContent>
 
-        {/* TAB 3: ABOUT US & PRINCIPAL QUOTE */}
+        {/* TAB 3: ABOUT US & 2X2 STATS */}
         <TabsContent value="about" className="space-y-4">
           <Card className="rounded-2xl border-border/60 p-6 bg-card space-y-6">
             <div>
               <CardTitle className="text-lg font-bold font-headline flex items-center gap-2">
-                <GraduationCap className="w-5 h-5 text-rose-500" /> About Us & Principal Message Studio
+                <GraduationCap className="w-5 h-5 text-rose-500" /> About Us &amp; 2x2 Stats Grid Studio
               </CardTitle>
               <CardDescription className="text-xs mt-1">
-                Customize institutional story, founding history, and the principal's leadership quote card.
+                Customize the eyebrow, headline title, story paragraph, and bottom-right 2x2 minimal stats grid matching the reference template design.
               </CardDescription>
             </div>
 
             <div className="space-y-4 text-xs">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <Label className="font-bold">Eyebrow Tagline</Label>
+                  <Label className="font-bold">Eyebrow Tagline (e.g. How it Started)</Label>
                   <Input
-                    value={config.aboutEyebrow || "OUR HERITAGE & PURPOSE"}
+                    value={config.aboutEyebrow || "How it Started"}
                     onChange={(e) => setConfig({ ...config, aboutEyebrow: e.target.value })}
                     className="h-9 rounded-xl text-xs"
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="font-bold">Main Section Title</Label>
+                  <Label className="font-bold">Main Headline Title</Label>
                   <Input
-                    value={config.aboutTitle || "About Pakistan Islamic International School System"}
+                    value={config.aboutTitle || "Our Dream is Global Educational Transformation"}
                     onChange={(e) => setConfig({ ...config, aboutTitle: e.target.value })}
                     className="h-9 rounded-xl text-xs"
                   />
@@ -513,7 +518,7 @@ export default function LandingPageCMSStudio() {
               </div>
 
               <div className="space-y-1.5">
-                <Label className="font-bold">Institutional History & Story (Our Story)</Label>
+                <Label className="font-bold">Founding History & Story Paragraph (ourStory)</Label>
                 <Textarea
                   value={config.ourStory}
                   onChange={(e) => setConfig({ ...config, ourStory: e.target.value })}
@@ -524,36 +529,85 @@ export default function LandingPageCMSStudio() {
 
               <div className="pt-4 border-t border-border/40 space-y-4">
                 <h4 className="text-sm font-bold font-headline flex items-center gap-2">
-                  <Quote className="w-4 h-4 text-amber-500" /> Principal's Quote Card & Leadership
+                  <Award className="w-4 h-4 text-amber-500" /> Bottom Right 2x2 Stats Grid Customizer
                 </h4>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <Label className="font-bold">Principal Name</Label>
-                    <Input
-                      value={config.principalName || "Prof. Dr. Muhammad Ishaq"}
-                      onChange={(e) => setConfig({ ...config, principalName: e.target.value })}
-                      className="h-9 rounded-xl text-xs"
-                    />
+                  {/* Stat 1 */}
+                  <div className="p-3 bg-muted/40 rounded-xl border border-border/50 space-y-2">
+                    <p className="font-bold text-[11px] text-amber-600">Stat 1</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Input
+                        value={config.aboutStat1Value || "10+"}
+                        onChange={(e) => setConfig({ ...config, aboutStat1Value: e.target.value })}
+                        placeholder="Value (e.g. 10+)"
+                        className="h-8 text-xs rounded-lg font-bold"
+                      />
+                      <Input
+                        value={config.aboutStat1Label || "Years Experience"}
+                        onChange={(e) => setConfig({ ...config, aboutStat1Label: e.target.value })}
+                        placeholder="Label"
+                        className="h-8 text-xs rounded-lg"
+                      />
+                    </div>
                   </div>
-                  <div className="space-y-1.5">
-                    <Label className="font-bold">Principal Role & Title</Label>
-                    <Input
-                      value={config.principalRole || "Principal & Academic Director, PIISS"}
-                      onChange={(e) => setConfig({ ...config, principalRole: e.target.value })}
-                      className="h-9 rounded-xl text-xs"
-                    />
-                  </div>
-                </div>
 
-                <div className="space-y-1.5">
-                  <Label className="font-bold">Principal Leadership Quote</Label>
-                  <Textarea
-                    value={config.principalMessage || "At PIISS, we nurture not just academic scholars, but young believers equipped with moral integrity, scientific intellect, and Quranic ethics."}
-                    onChange={(e) => setConfig({ ...config, principalMessage: e.target.value })}
-                    rows={3}
-                    className="rounded-xl text-xs italic"
-                  />
+                  {/* Stat 2 */}
+                  <div className="p-3 bg-muted/40 rounded-xl border border-border/50 space-y-2">
+                    <p className="font-bold text-[11px] text-amber-600">Stat 2</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Input
+                        value={config.aboutStat2Value || "100%"}
+                        onChange={(e) => setConfig({ ...config, aboutStat2Value: e.target.value })}
+                        placeholder="Value (e.g. 100%)"
+                        className="h-8 text-xs rounded-lg font-bold"
+                      />
+                      <Input
+                        value={config.aboutStat2Label || "FBISE Pass Rate"}
+                        onChange={(e) => setConfig({ ...config, aboutStat2Label: e.target.value })}
+                        placeholder="Label"
+                        className="h-8 text-xs rounded-lg"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Stat 3 */}
+                  <div className="p-3 bg-muted/40 rounded-xl border border-border/50 space-y-2">
+                    <p className="font-bold text-[11px] text-amber-600">Stat 3</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Input
+                        value={config.aboutStat3Value || "2,500+"}
+                        onChange={(e) => setConfig({ ...config, aboutStat3Value: e.target.value })}
+                        placeholder="Value (e.g. 2,500+)"
+                        className="h-8 text-xs rounded-lg font-bold"
+                      />
+                      <Input
+                        value={config.aboutStat3Label || "Enrolled Scholars"}
+                        onChange={(e) => setConfig({ ...config, aboutStat3Label: e.target.value })}
+                        placeholder="Label"
+                        className="h-8 text-xs rounded-lg"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Stat 4 */}
+                  <div className="p-3 bg-muted/40 rounded-xl border border-border/50 space-y-2">
+                    <p className="font-bold text-[11px] text-amber-600">Stat 4</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Input
+                        value={config.aboutStat4Value || "100+"}
+                        onChange={(e) => setConfig({ ...config, aboutStat4Value: e.target.value })}
+                        placeholder="Value (e.g. 100+)"
+                        className="h-8 text-xs rounded-lg font-bold"
+                      />
+                      <Input
+                        value={config.aboutStat4Label || "Certified Faculty"}
+                        onChange={(e) => setConfig({ ...config, aboutStat4Label: e.target.value })}
+                        placeholder="Label"
+                        className="h-8 text-xs rounded-lg"
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -658,7 +712,7 @@ export default function LandingPageCMSStudio() {
               {/* About Us Image Card */}
               <div className="p-4 bg-muted/30 rounded-xl border border-border/60 space-y-3">
                 <p className="font-bold text-xs text-foreground flex items-center gap-2">
-                  <ImageIcon className="w-4 h-4 text-blue-600" /> About School Campus Image
+                  <ImageIcon className="w-4 h-4 text-blue-600" /> About School Showcase Image
                 </p>
                 {config.aboutImageUrl && (
                   <div className="h-36 rounded-lg overflow-hidden border border-border/60 bg-black/10">

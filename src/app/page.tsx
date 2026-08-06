@@ -44,11 +44,6 @@ export default async function Home() {
     getFaqs()
   ]);
 
-  const aboutContent = {
-    description: settings.ourStory,
-    imageUrl: settings.aboutImageUrl,
-  };
-
   const contactContent = {
     address: settings.contactAddress || "",
     phone: settings.contactPhone || "",
@@ -89,7 +84,7 @@ export default async function Home() {
     programs: <AcademicPrograms key="programs" />,
     features: <Features key="features" />,
     adBanner: <AdBanner key="adBanner" />,
-    about: <AboutSection key="about" content={aboutContent} />,
+    about: <AboutSection key="about" content={settings} />,
     toppers: <ToppersSection key="toppers" toppers={toppers} />,
     boardResults: <BoardResultsSection key="boardResults" boardStudents={boardStudents} />,
     teachers: <TeachersSection key="teachers" teachers={teachers.slice(0, 3)} />,
