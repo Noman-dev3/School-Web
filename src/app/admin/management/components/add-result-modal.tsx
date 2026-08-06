@@ -108,7 +108,8 @@ export function AddResultModal({ isOpen, onOpenChange, student, onSuccess }: Add
         total_marks: totalObtained,
       };
 
-      const { error } = await supabase.from('results').insert([newResult]);
+      const { id, ...insertPayload } = newResult;
+      const { error } = await supabase.from('results').insert([insertPayload]);
       if (error) throw error;
 
       toast({ title: "Result Added", description: `Added ${session} result for ${student.Name}.` });

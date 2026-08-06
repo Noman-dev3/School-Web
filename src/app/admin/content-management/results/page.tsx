@@ -16,6 +16,7 @@ import { downloadBatchResultsZip } from '@/lib/docx-generator';
 import { getSettings } from '@/lib/data-fetching';
 import { useToast } from '@/hooks/use-toast';
 import { BulkImportDialog } from './components/bulk-import-dialog';
+import { ResultExcelImportDialog } from './components/result-excel-import-dialog';
 
 export default function ResultsPage() {
   const [results, setResults] = useState<Result[]>([]);
@@ -228,6 +229,7 @@ export default function ResultsPage() {
             <span>Export All ({filteredResults.length}) DOCX (.zip)</span>
           </Button>
 
+          <ResultExcelImportDialog onSuccess={loadResults} />
           <BulkImportDialog />
         </div>
       </div>

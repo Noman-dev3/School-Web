@@ -7,7 +7,7 @@ import { Student } from "../../students/data/schema";
 import { FeeRecord, FeeStructure, Result } from "../../data-schemas";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Phone, MessageCircle, BookOpen, User, CreditCard, Award, Plus, Edit, ReceiptText, Trash2, Calendar, FileText, Loader2 } from "lucide-react";
+import { Phone, MessageCircle, BookOpen, User, CreditCard, Award, Plus, Edit, ReceiptText, Trash2, Calendar, FileText, Loader2, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -44,6 +44,7 @@ export function UnifiedStudentDrawer({
 
   const [feeFilter, setFeeFilter] = useState<'all' | 'paid' | 'pending' | 'overdue'>('all');
   const [isDeletingFee, setIsDeletingFee] = useState<string | null>(null);
+  const [feeToDuplicate, setFeeToDuplicate] = useState<FeeRecord | null>(null);
 
   if (!student) return null;
 
@@ -316,6 +317,14 @@ export function UnifiedStudentDrawer({
                                   Delete
                                 </Button>
                                 <Button 
+                                  variant="outline" 
+                                  size="sm" 
+                                  className="h-9 text-xs rounded-xl font-bold gap-1.5 px-3 border-emerald-500/30 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/10" 
+                                  onClick={() => { setFeeToDuplicate(fee); setIsIssueFeeOpen(true); }}
+                                >
+                                  <Copy className="w-3.5 h-3.5 text-emerald-600" /> Duplicate
+                                </Button>
+                                <Button 
                                   variant="secondary" 
                                   size="sm" 
                                   className="h-9 text-xs rounded-xl font-bold gap-1.5 px-4 shadow-sm border border-border/50 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200 transition-colors" 
@@ -436,8 +445,12 @@ export function UnifiedStudentDrawer({
 
       <IssueFeeModal
         isOpen={isIssueFeeOpen}
-        onOpenChange={setIsIssueFeeOpen}
+        onOpenChange={(open) => {
+          setIsIssueFeeOpen(open);
+          if (!open) setFeeToDuplicate(null);
+        }}
         student={student}
+        initialFeeData={feeToDuplicate}
         onSuccess={onDataChange}
       />
     </Sheet>

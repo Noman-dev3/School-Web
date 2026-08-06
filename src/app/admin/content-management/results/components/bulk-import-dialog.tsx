@@ -65,7 +65,8 @@ export function BulkImportDialog() {
           return
         }
 
-        const { error } = await supabase.from('results').insert(formattedResults)
+        const payload = formattedResults.map(({ id, ...rest }) => rest);
+        const { error } = await supabase.from('results').insert(payload)
 
         if (error) {
           toast({ title: "Import Failed", description: error.message, variant: "destructive" })
