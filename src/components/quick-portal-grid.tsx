@@ -2,9 +2,16 @@
 
 import React from "react";
 import Link from "next/link";
-import { FileText, Trophy, CalendarDays, Compass, ArrowUpRight, ShieldCheck, Sparkles } from "lucide-react";
+import { FileText, Trophy, CalendarDays, Compass, ArrowUpRight, ShieldCheck } from "lucide-react";
 
-export function QuickPortalGrid() {
+interface QuickPortalGridProps {
+  settings?: any;
+}
+
+export function QuickPortalGrid({ settings }: QuickPortalGridProps) {
+  const customTitle = settings?.sectionTitles?.portalsTitle || "Key Academic Services & Portals";
+  const customDesc = settings?.sectionTitles?.portalsDesc || "Quickly access essential school resources, admission forms, board examination results, and upcoming academic events.";
+
   const portals = [
     {
       title: "Online Admission 2026-27",
@@ -46,7 +53,7 @@ export function QuickPortalGrid() {
         <div>
           <div className="inline-flex items-center gap-2 mb-2">
             <span className="text-amber-500 font-extrabold text-xs tracking-[0.2em] uppercase">
-              PORTALS & SERVICES
+              PORTALS &amp; SERVICES
             </span>
             <div className="flex items-center gap-1">
               <div className="w-0 h-0 border-t-[5px] border-t-transparent border-b-[5px] border-b-transparent border-l-[8px] border-l-teal-400 rotate-[180deg]" />
@@ -56,11 +63,11 @@ export function QuickPortalGrid() {
           </div>
 
           <h2 className="text-2xl sm:text-3xl font-black font-headline text-foreground tracking-tight">
-            Key Academic <span className="text-amber-500">Services & Portals</span>
+            {customTitle}
           </h2>
         </div>
         <p className="text-xs sm:text-sm text-muted-foreground max-w-md">
-          Quickly access essential school resources, admission forms, board examination results, and upcoming academic events.
+          {customDesc}
         </p>
       </div>
 

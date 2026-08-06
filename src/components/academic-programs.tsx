@@ -5,7 +5,14 @@ import Link from "next/link";
 import { BookOpen, Sparkles, CheckCircle2, ArrowRight, ShieldCheck, Award } from "lucide-react";
 import { Button } from "./ui/button";
 
-export function AcademicPrograms() {
+interface AcademicProgramsProps {
+  settings?: any;
+}
+
+export function AcademicPrograms({ settings }: AcademicProgramsProps) {
+  const customTitle = settings?.sectionTitles?.programsTitle || "Structured Educational Divisions";
+  const customDesc = settings?.sectionTitles?.programsDesc || "From early childhood character building to pre-university HSSC science streams, our curriculum provides seamless progression and academic distinction.";
+
   const programs = [
     {
       title: "Early Childhood Division",
@@ -61,7 +68,6 @@ export function AcademicPrograms() {
     <section id="programs" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-secondary/40 border-y border-border/50">
       <div className="max-w-7xl mx-auto">
         <div className="text-center max-w-3xl mx-auto mb-16 space-y-3">
-          {/* Eyebrow badge matching Hero style */}
           <div className="inline-flex items-center gap-2">
             <span className="text-amber-500 font-extrabold text-xs tracking-[0.2em] uppercase">
               ACADEMIC PATHWAYS
@@ -74,10 +80,10 @@ export function AcademicPrograms() {
           </div>
 
           <h2 className="text-3xl sm:text-4xl font-black font-headline text-foreground tracking-tight">
-            Structured <span className="text-amber-500">Educational Divisions</span>
+            {customTitle}
           </h2>
           <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
-            From early childhood character building to pre-university HSSC science streams, our curriculum provides seamless progression and academic distinction.
+            {customDesc}
           </p>
         </div>
 
@@ -85,7 +91,7 @@ export function AcademicPrograms() {
           {programs.map((prog, idx) => (
             <div
               key={idx}
-              className="bg-card rounded-2xl p-6 border border-border/80 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between group hover:-translate-y-1"
+              className="bg-card rounded-2xl p-6 border border-border/80 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between group hover:-translate-y-1"
             >
               <div>
                 <div className="flex items-center justify-between mb-3">

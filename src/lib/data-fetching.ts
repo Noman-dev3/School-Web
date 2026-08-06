@@ -167,7 +167,7 @@ export const defaultSettings = {
   aboutStat4Value: "100+",
   aboutStat4Label: "Certified Faculty",
 
-  noticeText: "📢 Admissions Open for Academic Session 2026-2027! Entrance Test Registration ends soon.",
+  noticeText: "Admissions Open for Academic Session 2026-2027! Entrance Test Registration ends soon.",
   noticeLink: "/admissions",
   adBannerTitle: "Grand Annual Quran Recitation & STEM Exhibition 2026",
   adBannerSubtitle: "Join us at the Main Auditorium as our young scholars present cutting-edge robotics projects & Hifz distinctions.",

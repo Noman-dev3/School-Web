@@ -80,9 +80,9 @@ export default async function Home() {
   // Map section IDs to their corresponding JSX elements
   const sectionMap: Record<string, React.ReactNode> = {
     hero: <Hero key="hero" taglines={heroTaglines} settings={settings} />,
-    portals: <QuickPortalGrid key="portals" />,
-    programs: <AcademicPrograms key="programs" />,
-    features: <Features key="features" />,
+    portals: <QuickPortalGrid key="portals" settings={settings} />,
+    programs: <AcademicPrograms key="programs" settings={settings} />,
+    features: <Features key="features" settings={settings} />,
     adBanner: <AdBanner key="adBanner" content={settings} />,
     about: <AboutSection key="about" content={settings} />,
     toppers: <ToppersSection key="toppers" toppers={toppers} />,

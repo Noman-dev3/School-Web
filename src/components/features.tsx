@@ -3,7 +3,14 @@
 import React from "react";
 import { Users, GraduationCap, BookOpen, Trophy, ShieldCheck, Sparkles, Cpu, HeartHandshake } from "lucide-react";
 
-export function Features() {
+interface FeaturesProps {
+  settings?: any;
+}
+
+export function Features({ settings }: FeaturesProps) {
+  const customTitle = settings?.sectionTitles?.featuresTitle || "Why Parents Choose PIISS Swat";
+  const customDesc = settings?.sectionTitles?.featuresDesc || "We blend academic rigor with timeless moral values to build well-rounded scholars who excel in world board exams and lead with integrity.";
+
   const pillars = [
     {
       icon: GraduationCap,
@@ -46,10 +53,10 @@ export function Features() {
         </div>
 
         <h2 className="text-3xl sm:text-4xl font-black font-headline text-foreground tracking-tight">
-          Why Parents Choose <span className="text-amber-500">PIISS Swat</span>
+          {customTitle}
         </h2>
         <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
-          We blend academic rigor with timeless moral values to build well-rounded scholars who excel in world board exams and lead with integrity.
+          {customDesc}
         </p>
       </div>
 

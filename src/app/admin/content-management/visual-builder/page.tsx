@@ -6,7 +6,7 @@ import {
   Sparkles, CheckCircle2, Image as ImageIcon, Link as LinkIcon, 
   MessageSquare, Phone, MapPin, Globe, Loader2, Plus, Trash2, Sliders,
   HelpCircle, Megaphone, Check, ShieldCheck, Layers, BookOpen, UserCheck,
-  Quote, Award, GraduationCap, Compass
+  Quote, Award, GraduationCap, Compass, Trophy, Calendar, FileText, Star
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,21 +20,21 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabase';
 import { getSettings, DEFAULT_SECTION_ORDER, DEFAULT_SECTION_VISIBILITY, defaultSettings } from '@/lib/data-fetching';
 
-const SECTION_LABELS: Record<string, { title: string; desc: string; icon: string }> = {
-  hero: { title: "Hero Main Banner", desc: "Top hero headline, taglines, and call-to-action", icon: "🚀" },
-  portals: { title: "Quick Portals Grid", desc: "Admissions, Results, Fee Vouchers, Events shortcuts", icon: "⚡" },
-  programs: { title: "Academic Programs", desc: "Montessori, Primary, Middle, and High School levels", icon: "🎓" },
-  features: { title: "Core Pillars / Why Choose PIISS", desc: "STEM, Quranic Ethics, Distinction Merit features", icon: "⭐" },
-  adBanner: { title: "Announcement / Ad Banner", desc: "Promotional banner for events or admissions", icon: "📢" },
-  about: { title: "About School & Mission", desc: "Institutional history, story, image, and 2x2 stats grid", icon: "🏫" },
-  toppers: { title: "FBISE Board Toppers", desc: "Star students and board position holders", icon: "🏆" },
-  boardResults: { title: "FBISE Board Results Table", desc: "Detailed board pass percentages and breakdown", icon: "📋" },
-  teachers: { title: "Faculty & Educators", desc: "Educators spotlight and master's teachers", icon: "👨‍🏫" },
-  events: { title: "Upcoming Events & Academic Calendar", desc: "School activities, sports galas, and exams", icon: "📅" },
-  gallery: { title: "School Life Gallery", desc: "Campus photos and activity highlights", icon: "🖼️" },
-  testimonials: { title: "Parent Testimonials", desc: "Reviews and feedback from parents & community", icon: "💬" },
-  faq: { title: "Frequently Asked Questions", desc: "Answers to admissions, fees, and campus queries", icon: "❓" },
-  contact: { title: "Campus Contact & Map", desc: "Address, phone numbers, email, and inquiry form", icon: "📍" },
+const SECTION_LABELS: Record<string, { title: string; desc: string }> = {
+  hero: { title: "Hero Main Banner", desc: "Top hero headline, taglines, and call-to-action" },
+  portals: { title: "Quick Portals Grid", desc: "Admissions, Results, Fee Vouchers, Events shortcuts" },
+  programs: { title: "Academic Programs", desc: "Montessori, Primary, Middle, and High School levels" },
+  features: { title: "Core Pillars / Why Choose PIISS", desc: "STEM, Quranic Ethics, Distinction Merit features" },
+  adBanner: { title: "Announcement / Ad Banner", desc: "Promotional banner for events or admissions" },
+  about: { title: "About School & Mission", desc: "Institutional history, story, image, and 2x2 stats grid" },
+  toppers: { title: "FBISE Board Toppers", desc: "Star students and board position holders" },
+  boardResults: { title: "FBISE Board Results Table", desc: "Detailed board pass percentages and breakdown" },
+  teachers: { title: "Faculty & Educators", desc: "Educators spotlight and master's teachers" },
+  events: { title: "Upcoming Events & Academic Calendar", desc: "School activities, sports galas, and exams" },
+  gallery: { title: "School Life Gallery", desc: "Campus photos and activity highlights" },
+  testimonials: { title: "Parent Testimonials", desc: "Reviews and feedback from parents & community" },
+  faq: { title: "Frequently Asked Questions", desc: "Answers to admissions, fees, and campus queries" },
+  contact: { title: "Campus Contact & Map", desc: "Address, phone numbers, email, and inquiry form" },
 };
 
 export default function LandingPageCMSStudio() {
@@ -127,7 +127,7 @@ export default function LandingPageCMSStudio() {
       if (error) throw error;
 
       toast({
-        title: "Landing Page Updated! 🎉",
+        title: "Landing Page Updated!",
         description: "All section orderings, about section, 2x2 stats, media pictures, and section titles are live on the website."
       });
     } catch (err: any) {
@@ -160,25 +160,6 @@ export default function LandingPageCMSStudio() {
     setConfig({ ...config, sectionVisibility: currentVis });
   };
 
-  // Hero Tagline Handlers
-  const addTagline = () => {
-    setConfig({
-      ...config,
-      heroTaglines: [...(config.heroTaglines || []), "New Inspiring Tagline"]
-    });
-  };
-
-  const updateTagline = (index: number, val: string) => {
-    const updated = [...(config.heroTaglines || [])];
-    updated[index] = val;
-    setConfig({ ...config, heroTaglines: updated });
-  };
-
-  const removeTagline = (index: number) => {
-    const updated = (config.heroTaglines || []).filter((_: any, i: number) => i !== index);
-    setConfig({ ...config, heroTaglines: updated });
-  };
-
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-3">
@@ -197,7 +178,7 @@ export default function LandingPageCMSStudio() {
             <Sliders className="w-4 h-4" /> Landing Page CMS Studio
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold font-headline tracking-tight text-foreground">
-            Landing Page Manager & Customizer
+            Landing Page Manager &amp; Customizer
           </h1>
           <p className="text-xs sm:text-sm text-muted-foreground mt-1">
             Reorder sections, update hero layout, about story, 2x2 stats grid, notice bars, and website branding in real-time.
@@ -218,25 +199,25 @@ export default function LandingPageCMSStudio() {
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className="bg-muted/40 p-1.5 rounded-2xl border border-border/60 backdrop-blur-md flex flex-wrap gap-1">
           <TabsTrigger value="sections" className="rounded-xl text-xs font-bold gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm">
-            <LayoutList className="w-3.5 h-3.5 text-emerald-600" /> Section Order & Visibility
+            <LayoutList className="w-3.5 h-3.5 text-emerald-600" /> Section Order &amp; Visibility
           </TabsTrigger>
           <TabsTrigger value="hero" className="rounded-xl text-xs font-bold gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm">
-            <Sparkles className="w-3.5 h-3.5 text-amber-500" /> Hero & Template Layout
+            <Sparkles className="w-3.5 h-3.5 text-amber-500" /> Hero &amp; Template Layout
           </TabsTrigger>
           <TabsTrigger value="about" className="rounded-xl text-xs font-bold gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm">
-            <GraduationCap className="w-3.5 h-3.5 text-rose-500" /> About & 2x2 Stats
+            <GraduationCap className="w-3.5 h-3.5 text-rose-500" /> About &amp; 2x2 Stats
           </TabsTrigger>
           <TabsTrigger value="notice" className="rounded-xl text-xs font-bold gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm">
-            <Megaphone className="w-3.5 h-3.5 text-blue-600" /> Notice Bar & Header
+            <Megaphone className="w-3.5 h-3.5 text-blue-600" /> Notice Bar &amp; Header
           </TabsTrigger>
           <TabsTrigger value="media" className="rounded-xl text-xs font-bold gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm">
-            <ImageIcon className="w-3.5 h-3.5 text-indigo-600" /> Pictures & Media Studio
+            <ImageIcon className="w-3.5 h-3.5 text-indigo-600" /> Pictures &amp; Media Studio
           </TabsTrigger>
           <TabsTrigger value="headings" className="rounded-xl text-xs font-bold gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm">
             <MessageSquare className="w-3.5 h-3.5 text-teal-600" /> Section Headings
           </TabsTrigger>
           <TabsTrigger value="footer" className="rounded-xl text-xs font-bold gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm">
-            <Globe className="w-3.5 h-3.5 text-violet-600" /> Footer & Contacts
+            <Globe className="w-3.5 h-3.5 text-violet-600" /> Footer &amp; Contacts
           </TabsTrigger>
         </TabsList>
 
@@ -254,7 +235,7 @@ export default function LandingPageCMSStudio() {
             
             <div className="space-y-3">
               {(config.sectionOrder || DEFAULT_SECTION_ORDER).filter((s: string) => s !== 'stats').map((secId: string, idx: number) => {
-                const info = SECTION_LABELS[secId] || { title: secId, desc: "Landing Section", icon: "📌" };
+                const info = SECTION_LABELS[secId] || { title: secId, desc: "Landing Section" };
                 const isVisible = config.sectionVisibility?.[secId] !== false;
 
                 return (
@@ -262,10 +243,9 @@ export default function LandingPageCMSStudio() {
                     isVisible ? 'bg-muted/30 border-border/60' : 'bg-muted/10 border-border/30 opacity-60'
                   }`}>
                     <div className="flex items-center gap-3">
-                      <span className="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-600 font-extrabold text-xs flex items-center justify-center shrink-0">
+                      <span className="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-600 font-extrabold text-xs flex items-center justify-center shrink-0">
                         {idx + 1}
                       </span>
-                      <span className="text-lg shrink-0">{info.icon}</span>
                       <div>
                         <div className="font-bold text-sm text-foreground flex items-center gap-2">
                           {info.title}
@@ -518,7 +498,7 @@ export default function LandingPageCMSStudio() {
               </div>
 
               <div className="space-y-1.5">
-                <Label className="font-bold">Founding History & Story Paragraph (ourStory)</Label>
+                <Label className="font-bold">Founding History &amp; Story Paragraph (ourStory)</Label>
                 <Textarea
                   value={config.ourStory}
                   onChange={(e) => setConfig({ ...config, ourStory: e.target.value })}
@@ -650,7 +630,7 @@ export default function LandingPageCMSStudio() {
 
             <div className="pt-4 border-t border-border/40 space-y-4">
               <h4 className="text-sm font-bold font-headline flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-emerald-600" /> Header Branding & Logo
+                <ShieldCheck className="w-4 h-4 text-emerald-600" /> Header Branding &amp; Logo
               </h4>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
@@ -681,7 +661,7 @@ export default function LandingPageCMSStudio() {
           <Card className="rounded-2xl border-border/60 p-6 bg-card space-y-6">
             <div>
               <CardTitle className="text-lg font-bold font-headline flex items-center gap-2">
-                <ImageIcon className="w-5 h-5 text-indigo-600" /> Website Pictures & Visual Media Studio
+                <ImageIcon className="w-5 h-5 text-indigo-600" /> Website Pictures &amp; Visual Media Studio
               </CardTitle>
               <CardDescription className="text-xs mt-1">
                 Manage and replace image URLs used across the website with instant thumbnail previews.
@@ -777,7 +757,7 @@ export default function LandingPageCMSStudio() {
           <Card className="rounded-2xl border-border/60 p-6 bg-card space-y-6">
             <div>
               <CardTitle className="text-lg font-bold font-headline flex items-center gap-2">
-                <MessageSquare className="w-5 h-5 text-teal-600" /> Custom Section Titles & Descriptions
+                <MessageSquare className="w-5 h-5 text-teal-600" /> Custom Section Titles &amp; Descriptions
               </CardTitle>
               <CardDescription className="text-xs mt-1">
                 Customize titles and subtitles for every major section on the home landing page.
@@ -831,7 +811,7 @@ export default function LandingPageCMSStudio() {
           <Card className="rounded-2xl border-border/60 p-6 bg-card space-y-6">
             <div>
               <CardTitle className="text-lg font-bold font-headline flex items-center gap-2">
-                <Globe className="w-5 h-5 text-violet-600" /> Footer Links & Contact Details
+                <Globe className="w-5 h-5 text-violet-600" /> Footer Links &amp; Contact Details
               </CardTitle>
               <CardDescription className="text-xs mt-1">
                 Manage contact numbers, email, campus address, office hours, and social media handles.
