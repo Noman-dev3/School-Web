@@ -5,7 +5,9 @@ import Image from "next/image";
 
 interface AboutSectionProps {
   content: {
+    ourStory?: string;
     description?: string;
+    aboutImageUrl?: string;
     imageUrl?: string;
     aboutTitle?: string;
     aboutEyebrow?: string;
@@ -22,9 +24,9 @@ interface AboutSectionProps {
 
 export default function AboutSection({ content }: AboutSectionProps) {
   const eyebrow = content.aboutEyebrow || "How it Started";
-  const title = content.aboutTitle || "Our Dream is Global Learning Transformation";
-  const storyText = content.description || "Kawruh was founded by Robert Anderson, a passionate lifelong learner and Maria Sanchez, a visionary educator. Their shared dream was to create a digital haven of knowledge accessible to all. United by their belief in the transformational power of education, they embarked on a journey to build a premier institution.";
-  const imageUrl = content.imageUrl || "https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&w=1000&q=80";
+  const title = content.aboutTitle || "Our Dream is Global Educational Transformation";
+  const storyText = content.ourStory || content.description || "Founded with a pioneering spirit, the Pakistan Islamic International School System (PIISS) embarked on a mission to redefine education with FBISE distinction merit and Quranic ethics.";
+  const imageUrl = content.aboutImageUrl || content.imageUrl || "https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&w=1000&q=80";
 
   const stat1Val = content.aboutStat1Value || "10+";
   const stat1Lbl = content.aboutStat1Label || "Years Experience";

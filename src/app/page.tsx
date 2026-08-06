@@ -83,7 +83,7 @@ export default async function Home() {
     portals: <QuickPortalGrid key="portals" />,
     programs: <AcademicPrograms key="programs" />,
     features: <Features key="features" />,
-    adBanner: <AdBanner key="adBanner" />,
+    adBanner: <AdBanner key="adBanner" content={settings} />,
     about: <AboutSection key="about" content={settings} />,
     toppers: <ToppersSection key="toppers" toppers={toppers} />,
     boardResults: <BoardResultsSection key="boardResults" boardStudents={boardStudents} />,

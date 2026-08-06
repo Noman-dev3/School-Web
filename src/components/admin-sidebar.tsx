@@ -7,7 +7,8 @@ import { useAuth } from '@/context/auth-context';
 import { 
   Home, Building2, UserCheck, GraduationCap, Wallet, Briefcase, 
   FolderKanban, SlidersHorizontal, ChevronDown, ChevronRight, LogOut, 
-  Search, PanelLeftClose, PanelLeftOpen, Menu, Layers
+  Search, PanelLeftClose, PanelLeftOpen, Menu, Layers, Sparkles, Paintbrush,
+  Calendar, Image as ImageIcon, Megaphone, MessageSquare, HelpCircle, Trophy, Award
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -23,6 +24,7 @@ import {
 interface SubNavItem {
   href: string;
   label: string;
+  icon?: React.ReactNode;
 }
 
 interface NavItem {
@@ -91,8 +93,8 @@ export function AdminSidebar({ isCollapsed = false, onToggleCollapse }: AdminSid
     {
       groupName: "Overview",
       items: [
-        { href: '/admin', icon: <Home className="h-4 w-4 shrink-0" />, label: 'Home' },
-        { href: '/admin/school-data', icon: <Building2 className="h-4 w-4 shrink-0" />, label: 'School Data' },
+        { href: '/admin', icon: <Home className="h-4 w-4 shrink-0 text-amber-500" />, label: 'Home Overview' },
+        { href: '/admin/school-data', icon: <Building2 className="h-4 w-4 shrink-0 text-teal-500" />, label: 'School Data Analytics' },
       ]
     },
     {
@@ -100,30 +102,30 @@ export function AdminSidebar({ isCollapsed = false, onToggleCollapse }: AdminSid
       items: [
         { 
           href: '/admin/admissions', 
-          icon: <UserCheck className="h-4 w-4 shrink-0" />, 
+          icon: <UserCheck className="h-4 w-4 shrink-0 text-emerald-500" />, 
           label: 'Admissions',
           badge: pendingAdmissionsCount > 0 ? pendingAdmissionsCount : undefined
         },
-        { href: '/admin/management', icon: <Layers className="h-4 w-4 shrink-0" />, label: 'Student Management (360)' },
-        { href: '/admin/teachers', icon: <Briefcase className="h-4 w-4 shrink-0" />, label: 'Teachers & Staff' },
+        { href: '/admin/management', icon: <Layers className="h-4 w-4 shrink-0 text-indigo-500" />, label: 'Student Management (360)' },
+        { href: '/admin/teachers', icon: <Briefcase className="h-4 w-4 shrink-0 text-violet-500" />, label: 'Teachers & Staff' },
       ]
     },
     {
       groupName: "Portal Content",
       items: [
         {
-          label: 'Content Management',
-          icon: <FolderKanban className="h-4 w-4 shrink-0 text-blue-600 dark:text-blue-400" />,
+          label: 'CMS Content Manager',
+          icon: <FolderKanban className="h-4 w-4 shrink-0 text-rose-500" />,
           subItems: [
-            { href: '/admin/content-management/visual-builder', label: '🎨 Live Visual Builder' },
-            { href: '/admin/content-management/results', label: 'Exam Results' },
-            { href: '/admin/content-management/events', label: 'Events Calendar' },
-            { href: '/admin/content-management/gallery', label: 'Photo Gallery' },
-            { href: '/admin/content-management/announcements', label: 'Announcements' },
-            { href: '/admin/content-management/testimonials', label: 'Testimonials' },
-            { href: '/admin/content-management/faq', label: 'Portal FAQ' },
-            { href: '/admin/content-management/toppers', label: 'Class Toppers' },
-            { href: '/admin/content-management/board-students', label: 'Board Achievers' },
+            { href: '/admin/content-management/visual-builder', label: '🎨 Live CMS Studio', icon: <Paintbrush className="w-3.5 h-3.5 text-amber-500" /> },
+            { href: '/admin/content-management/results', label: 'Exam Results', icon: <Trophy className="w-3.5 h-3.5 text-yellow-500" /> },
+            { href: '/admin/content-management/events', label: 'Events Calendar', icon: <Calendar className="w-3.5 h-3.5 text-blue-500" /> },
+            { href: '/admin/content-management/gallery', label: 'Photo Gallery', icon: <ImageIcon className="w-3.5 h-3.5 text-purple-500" /> },
+            { href: '/admin/content-management/announcements', label: 'Announcements', icon: <Megaphone className="w-3.5 h-3.5 text-teal-500" /> },
+            { href: '/admin/content-management/testimonials', label: 'Testimonials', icon: <MessageSquare className="w-3.5 h-3.5 text-emerald-500" /> },
+            { href: '/admin/content-management/faq', label: 'Portal FAQ', icon: <HelpCircle className="w-3.5 h-3.5 text-indigo-500" /> },
+            { href: '/admin/content-management/toppers', label: 'Class Toppers', icon: <Award className="w-3.5 h-3.5 text-amber-500" /> },
+            { href: '/admin/content-management/board-students', label: 'Board Achievers', icon: <GraduationCap className="w-3.5 h-3.5 text-rose-500" /> },
           ]
         }
       ]
@@ -131,7 +133,7 @@ export function AdminSidebar({ isCollapsed = false, onToggleCollapse }: AdminSid
     {
       groupName: "System",
       items: [
-        { href: '/admin/settings', icon: <SlidersHorizontal className="h-4 w-4 shrink-0" />, label: 'Portal Settings' },
+        { href: '/admin/settings', icon: <SlidersHorizontal className="h-4 w-4 shrink-0 text-amber-500" />, label: 'Portal Settings' },
       ]
     }
   ];
@@ -152,24 +154,24 @@ export function AdminSidebar({ isCollapsed = false, onToggleCollapse }: AdminSid
   };
 
   const SidebarContent = ({ collapsed = false }: { collapsed?: boolean }) => (
-    <div className="flex flex-col h-full select-none">
+    <div className="flex flex-col h-full select-none bg-background/95 backdrop-blur-xl">
       {/* Sidebar Top Brand Header */}
       <div className={cn(
-        "flex items-center h-16 shrink-0 transition-all duration-300 px-4 border-none",
+        "flex items-center h-16 shrink-0 transition-all duration-300 px-4 border-b border-border/40",
         collapsed ? "justify-center px-2" : "justify-between"
       )}>
         <div className="flex items-center gap-3 overflow-hidden">
-          <div className="bg-emerald-600 text-white p-2 rounded-xl shadow-md shadow-emerald-900/20 shrink-0">
+          <div className="bg-amber-500 text-white p-2 rounded-xl shadow-md shadow-amber-500/20 shrink-0">
             <GraduationCap className="h-5 w-5" />
           </div>
           {!collapsed && (
             <div className="flex flex-col overflow-hidden transition-all duration-300">
-              <h1 className="text-sm font-bold text-foreground font-headline truncate leading-tight">
+              <h1 className="text-xs sm:text-sm font-extrabold text-foreground font-headline truncate leading-tight">
                 {header.logo.title}
               </h1>
               <div className="flex items-center gap-1.5 mt-0.5">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                <p className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">
+                <span className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse" />
+                <p className="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider">
                   Admin Suite
                 </p>
               </div>
@@ -183,7 +185,7 @@ export function AdminSidebar({ isCollapsed = false, onToggleCollapse }: AdminSid
             variant="ghost"
             size="icon"
             onClick={() => setOpenCommand(true)}
-            className="h-8 w-8 text-muted-foreground hover:text-foreground rounded-xl transition-colors"
+            className="h-8 w-8 text-muted-foreground hover:text-amber-500 rounded-xl transition-colors"
             title="Open Spotlight Search (⌘K)"
           >
             <Search className="h-4 w-4" />
@@ -195,7 +197,7 @@ export function AdminSidebar({ isCollapsed = false, onToggleCollapse }: AdminSid
               variant="ghost"
               size="icon"
               onClick={onToggleCollapse}
-              className="hidden sm:flex h-8 w-8 text-muted-foreground hover:text-foreground rounded-xl shrink-0"
+              className="hidden sm:flex h-8 w-8 text-muted-foreground hover:text-amber-500 rounded-xl shrink-0"
               title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
             >
               {collapsed ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
@@ -204,10 +206,16 @@ export function AdminSidebar({ isCollapsed = false, onToggleCollapse }: AdminSid
         </div>
       </div>
 
-      {/* Navigation Links List (Border-free & Scrollbar-hidden) */}
-      <div className="flex-1 overflow-y-auto p-2 sm:p-3 space-y-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+      {/* Navigation Links List */}
+      <div className="flex-1 overflow-y-auto p-3 space-y-4 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
         {navGroups.map((group) => (
-          <div key={group.groupName} className="space-y-1">
+          <div key={group.groupName} className="space-y-1.5">
+            {!collapsed && (
+              <p className="text-[10px] font-extrabold uppercase tracking-widest text-muted-foreground px-3 py-1">
+                {group.groupName}
+              </p>
+            )}
+
             <div className="space-y-1">
               {group.items.map((item) => {
                 // If Item Has Sub-Items (Content Management nested dropdown)
@@ -222,7 +230,7 @@ export function AdminSidebar({ isCollapsed = false, onToggleCollapse }: AdminSid
                             className={cn(
                               "flex items-center justify-center p-2.5 rounded-xl transition-all duration-200 w-full",
                               isParentActive
-                                ? 'bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 font-bold shadow-xs'
+                                ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400 font-bold shadow-xs'
                                 : 'text-muted-foreground hover:text-foreground hover:bg-muted/70'
                             )}
                             title={item.label}
@@ -231,12 +239,12 @@ export function AdminSidebar({ isCollapsed = false, onToggleCollapse }: AdminSid
                           </button>
 
                           {/* Hover Popout Submenu when Sidebar is Collapsed */}
-                          <div className="absolute left-full ml-3 top-0 bg-popover/95 backdrop-blur-md border border-border/80 rounded-xl shadow-xl p-3 w-52 opacity-0 pointer-events-none group-hover/item:opacity-100 group-hover/item:pointer-events-auto transition-all z-50 space-y-1.5">
-                            <div className="px-1 py-1 text-[11px] font-bold text-muted-foreground mb-1 flex items-center gap-1.5">
+                          <div className="absolute left-full ml-3 top-0 bg-popover/95 backdrop-blur-md border border-border/80 rounded-xl shadow-xl p-3 w-56 opacity-0 pointer-events-none group-hover/item:opacity-100 group-hover/item:pointer-events-auto transition-all z-50 space-y-1.5">
+                            <div className="px-1 py-1 text-[11px] font-bold text-amber-600 dark:text-amber-400 mb-1 flex items-center gap-1.5">
                               {item.icon}
                               <span>{item.label}</span>
                             </div>
-                            <div className="border-l-2 border-blue-500/60 pl-3 space-y-2">
+                            <div className="border-l-2 border-amber-500/60 pl-3 space-y-2">
                               {item.subItems.map((sub) => {
                                 const subActive = isActive(sub.href);
                                 return (
@@ -245,13 +253,14 @@ export function AdminSidebar({ isCollapsed = false, onToggleCollapse }: AdminSid
                                     href={sub.href}
                                     onClick={handleLinkClick}
                                     className={cn(
-                                      "block text-xs transition-all truncate",
+                                      "flex items-center gap-2 text-xs transition-all truncate py-1",
                                       subActive
-                                        ? 'text-blue-600 dark:text-blue-400 font-bold'
+                                        ? 'text-amber-600 dark:text-amber-400 font-bold'
                                         : 'text-muted-foreground hover:text-foreground font-semibold'
                                     )}
                                   >
-                                    {sub.label}
+                                    {sub.icon}
+                                    <span>{sub.label}</span>
                                   </Link>
                                 );
                               })}
@@ -265,7 +274,7 @@ export function AdminSidebar({ isCollapsed = false, onToggleCollapse }: AdminSid
                             className={cn(
                               "w-full flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-xl transition-all duration-200 select-none",
                               isParentActive
-                                ? 'bg-white dark:bg-slate-800 text-foreground font-bold shadow-xs'
+                                ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400 font-extrabold border-l-4 border-amber-500 pl-2'
                                 : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'
                             )}
                           >
@@ -283,7 +292,7 @@ export function AdminSidebar({ isCollapsed = false, onToggleCollapse }: AdminSid
 
                           {/* Expanded Nested Sub-links Matching Reference Design */}
                           {isCmsOpen && (
-                            <div className="ml-4 pl-4 border-l-2 border-blue-500/60 space-y-2.5 my-2">
+                            <div className="ml-4 pl-3 border-l-2 border-amber-500/40 space-y-1.5 my-1.5">
                               {item.subItems.map((sub) => {
                                 const subActive = isActive(sub.href);
                                 return (
@@ -292,13 +301,14 @@ export function AdminSidebar({ isCollapsed = false, onToggleCollapse }: AdminSid
                                     href={sub.href}
                                     onClick={handleLinkClick}
                                     className={cn(
-                                      "block text-xs transition-all duration-200 truncate",
+                                      "flex items-center gap-2 px-2.5 py-1.5 text-xs rounded-lg transition-all duration-200 truncate",
                                       subActive
-                                        ? 'text-blue-600 dark:text-blue-400 font-bold translate-x-0.5'
-                                        : 'text-foreground/80 hover:text-foreground font-semibold hover:translate-x-0.5'
+                                        ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400 font-bold'
+                                        : 'text-muted-foreground hover:text-foreground font-medium hover:bg-muted/40'
                                     )}
                                   >
-                                    {sub.label}
+                                    {sub.icon}
+                                    <span>{sub.label}</span>
                                   </Link>
                                 );
                               })}
@@ -310,7 +320,7 @@ export function AdminSidebar({ isCollapsed = false, onToggleCollapse }: AdminSid
                   );
                 }
 
-                // Regular Top-Level Link with Sharp Radius (rounded-xl)
+                // Regular Top-Level Link with Warm Accent
                 const active = isActive(item.href);
                 return (
                   <Link
@@ -322,7 +332,7 @@ export function AdminSidebar({ isCollapsed = false, onToggleCollapse }: AdminSid
                       "flex items-center rounded-xl transition-all duration-200 relative group/item",
                       collapsed ? "justify-center p-2.5" : "justify-between px-3 py-2 text-xs font-semibold",
                       active
-                        ? 'bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 font-bold shadow-xs'
+                        ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400 font-extrabold border-l-4 border-amber-500 pl-2'
                         : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'
                     )}
                   >
@@ -336,8 +346,8 @@ export function AdminSidebar({ isCollapsed = false, onToggleCollapse }: AdminSid
                         <span className={cn(
                           "text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0",
                           active 
-                            ? 'bg-blue-500/20 text-blue-600 dark:text-blue-400' 
-                            : 'bg-blue-500/10 text-blue-600 dark:text-blue-400'
+                            ? 'bg-amber-500 text-white' 
+                            : 'bg-amber-500/20 text-amber-600 dark:text-amber-400'
                         )}>
                           {item.badge}
                         </span>
@@ -346,7 +356,7 @@ export function AdminSidebar({ isCollapsed = false, onToggleCollapse }: AdminSid
 
                     {/* Collapsed Badge Dot Indicator */}
                     {collapsed && item.badge ? (
-                      <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-blue-500 ring-2 ring-background" />
+                      <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-amber-500 ring-2 ring-background" />
                     ) : null}
 
                     {/* Hover Floating Tooltip when Collapsed */}
@@ -364,15 +374,15 @@ export function AdminSidebar({ isCollapsed = false, onToggleCollapse }: AdminSid
         ))}
       </div>
 
-      {/* User Profile Footer (Clean profile with capitalized text & borderless theme toggle) */}
-      <div className={cn("mt-auto shrink-0 transition-all duration-300 border-none", collapsed ? "p-2" : "p-3")}>
+      {/* User Profile Footer */}
+      <div className={cn("mt-auto shrink-0 transition-all duration-300 border-t border-border/40", collapsed ? "p-2" : "p-3")}>
         <div className={cn(
           "flex items-center p-2 transition-all duration-300 border-none bg-transparent shadow-none",
           collapsed ? "flex-col gap-2 justify-center" : "gap-2.5 justify-between"
         )}>
           <Avatar className="h-8 w-8 border-none shrink-0">
             <AvatarImage src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80" alt="Admin" />
-            <AvatarFallback className="bg-primary/10 text-primary font-bold text-xs">
+            <AvatarFallback className="bg-amber-500/20 text-amber-600 font-bold text-xs">
               {user?.email?.charAt(0).toUpperCase() || 'A'}
             </AvatarFallback>
           </Avatar>
@@ -382,6 +392,7 @@ export function AdminSidebar({ isCollapsed = false, onToggleCollapse }: AdminSid
               <p className="text-xs font-bold text-foreground truncate capitalize">
                 {user?.email?.split('@')[0] || 'Admin'}
               </p>
+              <p className="text-[10px] text-muted-foreground font-medium truncate">Super Administrator</p>
             </div>
           )}
 
@@ -405,20 +416,20 @@ export function AdminSidebar({ isCollapsed = false, onToggleCollapse }: AdminSid
   return (
     <>
       {/* Mobile Header Bar */}
-      <header className="sticky top-0 z-40 flex h-14 items-center justify-between border-none bg-background px-4 sm:hidden">
+      <header className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-border/40 bg-background px-4 sm:hidden">
         <Sheet open={isSheetOpen} onOpenChange={setSheetOpen}>
           <SheetTrigger asChild>
-            <Button variant="outline" size="icon" className="h-8 w-8 rounded-md border-none">
+            <Button variant="outline" size="icon" className="h-8 w-8 rounded-md border-border/60">
               <Menu className="h-4 w-4" />
               <span className="sr-only">Toggle navigation menu</span>
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="p-0 w-72 bg-slate-50 dark:bg-[#09090b] border-none">
+          <SheetContent side="left" className="p-0 w-72 bg-background border-r border-border/60">
             <SidebarContent collapsed={false} />
           </SheetContent>
         </Sheet>
         <div className="flex items-center gap-2">
-          <div className="bg-blue-600 text-white p-1 rounded-md">
+          <div className="bg-amber-500 text-white p-1 rounded-md">
             <GraduationCap className="h-4 w-4" />
           </div>
           <span className="text-sm font-bold font-headline">{header.logo.title} Admin</span>
@@ -426,9 +437,9 @@ export function AdminSidebar({ isCollapsed = false, onToggleCollapse }: AdminSid
         <div className="w-8" />
       </header>
 
-      {/* Desktop Fixed Collapsible Sidebar (Border-free) */}
+      {/* Desktop Fixed Collapsible Sidebar */}
       <aside className={cn(
-        "fixed top-0 left-0 hidden h-full border-none bg-transparent sm:flex flex-col z-40 transition-all duration-300 ease-in-out",
+        "fixed top-0 left-0 hidden h-full border-r border-border/50 bg-background sm:flex flex-col z-40 transition-all duration-300 ease-in-out",
         isCollapsed ? "w-20" : "w-64"
       )}>
         <SidebarContent collapsed={isCollapsed} />
@@ -454,6 +465,9 @@ export function AdminSidebar({ isCollapsed = false, onToggleCollapse }: AdminSid
             </CommandItem>
             <CommandItem onSelect={() => runCommand(() => router.push('/admin/teachers'))}>
               Faculty & Teachers
+            </CommandItem>
+            <CommandItem onSelect={() => runCommand(() => router.push('/admin/content-management/visual-builder'))}>
+              🎨 Live CMS Studio
             </CommandItem>
             <CommandItem onSelect={() => runCommand(() => router.push('/admin/content-management/results'))}>
               Exam Results Management
