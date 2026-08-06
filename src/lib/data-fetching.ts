@@ -179,31 +179,48 @@ export async function getSettings() {
   try {
     const { data, error } = await supabase.from('settings').select('*').limit(1).single();
     if (!error && data) {
-      const fetchedSettings = data;
-      if (typeof fetchedSettings.heroTaglines === 'string') {
-        fetchedSettings.heroTaglines = fetchedSettings.heroTaglines.split('\n').filter((line: string) => line.trim() !== '');
-      } else if (!Array.isArray(fetchedSettings.heroTaglines) || fetchedSettings.heroTaglines.length === 0) {
-        fetchedSettings.heroTaglines = defaultSettings.heroTaglines;
+      const fetchedSettings = { ...data };
+
+      // Unpack nested CMS config stored inside heroTaglines JSONB payload if present
+      let cmsConfig: any = {};
+      let heroTaglinesArray = defaultSettings.heroTaglines;
+
+      if (fetchedSettings.heroTaglines) {
+        if (typeof fetchedSettings.heroTaglines === 'object' && !Array.isArray(fetchedSettings.heroTaglines)) {
+          cmsConfig = fetchedSettings.heroTaglines;
+          heroTaglinesArray = Array.isArray(cmsConfig.taglines) ? cmsConfig.taglines : defaultSettings.heroTaglines;
+        } else if (Array.isArray(fetchedSettings.heroTaglines)) {
+          heroTaglinesArray = fetchedSettings.heroTaglines;
+        } else if (typeof fetchedSettings.heroTaglines === 'string') {
+          heroTaglinesArray = fetchedSettings.heroTaglines.split('\n').filter((line: string) => line.trim() !== '');
+        }
       }
 
-      const sectionOrder = Array.isArray(fetchedSettings.sectionOrder) && fetchedSettings.sectionOrder.length > 0
-        ? fetchedSettings.sectionOrder
-        : DEFAULT_SECTION_ORDER;
-
-      const sectionVisibility = (typeof fetchedSettings.sectionVisibility === 'object' && fetchedSettings.sectionVisibility !== null)
-        ? { ...DEFAULT_SECTION_VISIBILITY, ...fetchedSettings.sectionVisibility }
-        : DEFAULT_SECTION_VISIBILITY;
-
-      const sectionTitles = (typeof fetchedSettings.sectionTitles === 'object' && fetchedSettings.sectionTitles !== null)
-        ? { ...defaultSettings.sectionTitles, ...fetchedSettings.sectionTitles }
-        : defaultSettings.sectionTitles;
+      const sectionOrder = fetchedSettings.sectionOrder || cmsConfig.sectionOrder || DEFAULT_SECTION_ORDER;
+      const sectionVisibility = fetchedSettings.sectionVisibility || cmsConfig.sectionVisibility || DEFAULT_SECTION_VISIBILITY;
+      const sectionTitles = fetchedSettings.sectionTitles || cmsConfig.sectionTitles || defaultSettings.sectionTitles;
 
       return {
         ...defaultSettings,
+        ...cmsConfig,
         ...fetchedSettings,
+        heroTaglines: heroTaglinesArray,
         sectionOrder,
         sectionVisibility,
-        sectionTitles
+        sectionTitles,
+        schoolName: fetchedSettings.schoolName || cmsConfig.schoolName || defaultSettings.schoolName,
+        tagline: fetchedSettings.tagline || cmsConfig.tagline || defaultSettings.tagline,
+        noticeText: fetchedSettings.noticeText || cmsConfig.noticeText || defaultSettings.noticeText,
+        noticeLink: fetchedSettings.noticeLink || cmsConfig.noticeLink || defaultSettings.noticeLink,
+        heroTitle: fetchedSettings.heroTitle || cmsConfig.heroTitle || defaultSettings.heroTitle,
+        heroSub: fetchedSettings.heroSub || cmsConfig.heroSub || defaultSettings.heroSub,
+        heroCtaText: fetchedSettings.heroCtaText || cmsConfig.heroCtaText || defaultSettings.heroCtaText,
+        heroCtaLink: fetchedSettings.heroCtaLink || cmsConfig.heroCtaLink || defaultSettings.heroCtaLink,
+        heroImageUrl: fetchedSettings.heroImageUrl || cmsConfig.heroImageUrl || defaultSettings.heroImageUrl,
+        adBannerTitle: fetchedSettings.adBannerTitle || cmsConfig.adBannerTitle || defaultSettings.adBannerTitle,
+        adBannerSubtitle: fetchedSettings.adBannerSubtitle || cmsConfig.adBannerSubtitle || defaultSettings.adBannerSubtitle,
+        adBannerCtaText: fetchedSettings.adBannerCtaText || cmsConfig.adBannerCtaText || defaultSettings.adBannerCtaText,
+        adBannerImageUrl: fetchedSettings.adBannerImageUrl || cmsConfig.adBannerImageUrl || defaultSettings.adBannerImageUrl,
       };
     }
   } catch (error) {

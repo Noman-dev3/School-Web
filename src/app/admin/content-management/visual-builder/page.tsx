@@ -30,7 +30,7 @@ const SECTION_LABELS: Record<string, { title: string; desc: string; icon: string
   toppers: { title: "FBISE Board Toppers", desc: "Star students and board position holders", icon: "🏆" },
   boardResults: { title: "FBISE Board Results Table", desc: "Detailed board pass percentages and breakdown", icon: "📋" },
   teachers: { title: "Faculty & Educators", desc: "Educators spotlight and master's teachers", icon: "👨‍🏫" },
-  events: { title: "Upcoming Events & Calendar", desc: "School activities, sports galas, and exams", icon: "📅" },
+  events: { title: "Upcoming Events & Academic Calendar", desc: "School activities, sports galas, and exams", icon: "📅" },
   gallery: { title: "School Life Gallery", desc: "Campus photos and activity highlights", icon: "🖼️" },
   testimonials: { title: "Parent Testimonials", desc: "Reviews and feedback from parents & community", icon: "💬" },
   faq: { title: "Frequently Asked Questions", desc: "Answers to admissions, fees, and campus queries", icon: "❓" },
@@ -93,21 +93,9 @@ export default function LandingPageCMSStudio() {
   const handleSaveCMS = async () => {
     setIsSaving(true);
     try {
-      const payload: any = {
-        id: 1,
-        ourStory: config.ourStory,
-        logoUrl: config.logoUrl,
-        contactPhone: config.contactPhone,
-        contactEmail: config.contactEmail,
-        contactAddress: config.contactAddress,
-        officeHours: config.officeHours,
-        aboutImageUrl: config.aboutImageUrl,
-        contactImageUrl: config.contactImageUrl,
-        heroTaglines: config.heroTaglines,
-        facebookUrl: config.facebookUrl,
-        instagramUrl: config.instagramUrl,
-        linkedinUrl: config.linkedinUrl,
-        twitterUrl: config.twitterUrl,
+      // Store all extended CMS configuration inside heroTaglines JSONB payload for 100% database compatibility
+      const cmsPayload = {
+        taglines: config.heroTaglines,
         sectionOrder: config.sectionOrder,
         sectionVisibility: config.sectionVisibility,
         noticeText: config.noticeText,
@@ -126,37 +114,25 @@ export default function LandingPageCMSStudio() {
         tagline: config.tagline,
       };
 
+      const payload: any = {
+        id: 1,
+        ourStory: config.ourStory,
+        logoUrl: config.logoUrl,
+        contactPhone: config.contactPhone,
+        contactEmail: config.contactEmail,
+        contactAddress: config.contactAddress,
+        officeHours: config.officeHours,
+        aboutImageUrl: config.aboutImageUrl,
+        contactImageUrl: config.contactImageUrl,
+        heroTaglines: cmsPayload,
+        facebookUrl: config.facebookUrl,
+        instagramUrl: config.instagramUrl,
+        linkedinUrl: config.linkedinUrl,
+        twitterUrl: config.twitterUrl,
+      };
+
       const { error } = await supabase.from('settings').upsert([payload]);
-
-      if (error) {
-        // Fallback: If custom columns like schoolName don't exist yet in Supabase schema cache
-        if (error.message?.includes('schema cache') || error.message?.includes('column')) {
-          const fallbackPayload = {
-            id: 1,
-            ourStory: config.ourStory,
-            logoUrl: config.logoUrl,
-            contactPhone: config.contactPhone,
-            contactEmail: config.contactEmail,
-            contactAddress: config.contactAddress,
-            officeHours: config.officeHours,
-            aboutImageUrl: config.aboutImageUrl,
-            heroTaglines: config.heroTaglines,
-            facebookUrl: config.facebookUrl,
-            instagramUrl: config.instagramUrl,
-            linkedinUrl: config.linkedinUrl,
-            twitterUrl: config.twitterUrl,
-          };
-          const fallbackRes = await supabase.from('settings').upsert([fallbackPayload]);
-          if (fallbackRes.error) throw fallbackRes.error;
-
-          toast({
-            title: "Core Settings Saved! ⚠️",
-            description: "Core settings saved successfully. Run the SQL patch in Supabase SQL Editor to enable new custom columns."
-          });
-          return;
-        }
-        throw error;
-      }
+      if (error) throw error;
 
       toast({
         title: "Landing Page Updated! 🎉",
