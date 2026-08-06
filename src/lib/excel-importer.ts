@@ -46,16 +46,16 @@ export function normalizeClassName(rawClass: string): { className: string; secti
   if (str.includes('P.G') || str.includes('PG') || str.includes('PLAY')) return { className: 'Playgroup', section };
   if (str.includes('K.G') || str.includes('KG') || str.includes('NURSERY')) return { className: 'KG', section };
   if (str.includes('PREP')) return { className: 'Prep', section };
-  if (str.includes('G-I') || str.includes('G1') || str.includes('GRADE 1') || str.includes('CLASS 1')) return { className: 'Class 1', section };
-  if (str.includes('G-II') || str.includes('G2') || str.includes('GRADE 2') || str.includes('CLASS 2')) return { className: 'Class 2', section };
-  if (str.includes('G-III') || str.includes('G3') || str.includes('GRADE 3') || str.includes('CLASS 3')) return { className: 'Class 3', section };
-  if (str.includes('G-IV') || str.includes('G4') || str.includes('GRADE 4') || str.includes('CLASS 4')) return { className: 'Class 4', section };
-  if (str.includes('G-V') || str.includes('G5') || str.includes('GRADE 5') || str.includes('CLASS 5')) return { className: 'Class 5', section };
-  if (str.includes('G-VI') || str.includes('G6') || str.includes('GRADE 6') || str.includes('CLASS 6')) return { className: 'Class 6', section };
-  if (str.includes('G-VII') || str.includes('G7') || str.includes('GRADE 7') || str.includes('CLASS 7')) return { className: 'Class 7', section };
-  if (str.includes('G-VIII') || str.includes('G8') || str.includes('GRADE 8') || str.includes('CLASS 8')) return { className: 'Class 8', section };
-  if (str.includes('G-IX') || str.includes('GIX') || str.includes('GRADE 9') || str.includes('CLASS 9')) return { className: 'Class 9', section };
-  if (str.includes('G-X') || str.includes('GX') || str.includes('GRADE 10') || str.includes('CLASS 10')) return { className: 'Class 10', section };
+  if (str.includes('G-X') || str.includes('GX') || str.includes('GRADE 10') || str.includes('CLASS 10') || str.includes('G X')) return { className: 'Class 10', section };
+  if (str.includes('G-IX') || str.includes('GIX') || str.includes('GRADE 9') || str.includes('CLASS 9') || str.includes('G IX')) return { className: 'Class 9', section };
+  if (str.includes('G-VIII') || str.includes('G8') || str.includes('GRADE 8') || str.includes('CLASS 8') || str.includes('G VIII')) return { className: 'Class 8', section };
+  if (str.includes('G-VII') || str.includes('G7') || str.includes('GRADE 7') || str.includes('CLASS 7') || str.includes('G VII')) return { className: 'Class 7', section };
+  if (str.includes('G-VI') || str.includes('G6') || str.includes('GRADE 6') || str.includes('CLASS 6') || str.includes('G VI')) return { className: 'Class 6', section };
+  if (str.includes('G-IV') || str.includes('G4') || str.includes('GRADE 4') || str.includes('CLASS 4') || str.includes('G IV')) return { className: 'Class 4', section };
+  if (str.includes('G-V') || str.includes('G5') || str.includes('GRADE 5') || str.includes('CLASS 5') || str.includes('G V')) return { className: 'Class 5', section };
+  if (str.includes('G-III') || str.includes('G3') || str.includes('GRADE 3') || str.includes('CLASS 3') || str.includes('G III')) return { className: 'Class 3', section };
+  if (str.includes('G-II') || str.includes('G2') || str.includes('GRADE 2') || str.includes('CLASS 2') || str.includes('G II')) return { className: 'Class 2', section };
+  if (str.includes('G-I') || str.includes('G1') || str.includes('GRADE 1') || str.includes('CLASS 1') || str.includes('G I')) return { className: 'Class 1', section };
 
   return { className: str, section };
 }
