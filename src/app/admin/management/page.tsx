@@ -25,6 +25,7 @@ import { ClassTariffsModal } from './components/class-tariffs-modal';
 import { DataWipeDialog } from './components/data-wipe-dialog';
 import { ManagementFeeChart } from './components/management-fee-chart';
 import { ManagementStudentStats } from './components/management-student-stats';
+import { MiniSparklineChart, computeRealTrend } from '@/components/ui/mini-sparkline';
 
 export default function ManagementDashboardPage() {
   const [students, setStudents] = useState<Student[]>([]);
@@ -115,6 +116,11 @@ export default function ManagementDashboardPage() {
     const collectionRate = totalBilledAmount > 0 ? Math.round((totalPaidAmount / totalBilledAmount) * 100) : 100;
     const activeTariffsCount = feeStructures.length;
 
+    const studentTrend = computeRealTrend(students);
+    const arrearsTrend = computeRealTrend(feeRecords.filter(r => r.status !== 'paid'));
+    const feeTrend = computeRealTrend(feeRecords);
+    const tariffsTrend = computeRealTrend(feeStructures);
+
     return {
       totalStudentsCount,
       totalArrearsAmount,
@@ -122,6 +128,10 @@ export default function ManagementDashboardPage() {
       totalBilledAmount,
       collectionRate,
       activeTariffsCount,
+      studentTrend,
+      arrearsTrend,
+      feeTrend,
+      tariffsTrend,
     };
   }, [students, feeRecords, feeStructures]);
 
@@ -283,17 +293,20 @@ export default function ManagementDashboardPage() {
         </div>
       </div>
 
-      {/* KPI STATISTICS SUMMARY CARDS */}
+      {/* KPI STATISTICS SUMMARY CARDS WITH MINI SPARKLINES */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {/* Total Active Students */}
-        <Card className="p-4 bg-card/60 dark:bg-card/40 backdrop-blur-xl border-border/50 shadow-xs flex flex-col justify-between">
+        <Card className="p-4 border border-border/80 dark:border-white/10 bg-background shadow-xs flex flex-col justify-between transition-all hover:border-emerald-500/40">
           <div>
             <div className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider flex items-center justify-between">
               <span>Total Enrolled</span>
               <Users className="w-4 h-4 text-emerald-500" />
             </div>
-            <div className="text-3xl font-extrabold font-headline text-foreground mt-2">
-              {managementMetrics.totalStudentsCount}
+            <div className="flex items-end justify-between mt-2">
+              <div className="text-3xl font-extrabold font-headline text-foreground">
+                {managementMetrics.totalStudentsCount}
+              </div>
+              <MiniSparklineChart data={managementMetrics.studentTrend} color="#10b981" />
             </div>
           </div>
           <div className="mt-3 text-[10px] font-semibold text-muted-foreground flex items-center justify-between">
@@ -303,14 +316,17 @@ export default function ManagementDashboardPage() {
         </Card>
 
         {/* Total Outstanding Arrears */}
-        <Card className="p-4 bg-card/60 dark:bg-card/40 backdrop-blur-xl border-border/50 shadow-xs flex flex-col justify-between">
+        <Card className="p-4 border border-border/80 dark:border-white/10 bg-background shadow-xs flex flex-col justify-between transition-all hover:border-rose-500/40">
           <div>
             <div className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider flex items-center justify-between">
               <span>Pending Arrears</span>
               <Sparkles className="w-4 h-4 text-rose-500" />
             </div>
-            <div className="text-2xl font-extrabold font-mono text-rose-600 dark:text-rose-400 mt-2">
-              Rs. {managementMetrics.totalArrearsAmount.toLocaleString()}
+            <div className="flex items-end justify-between mt-2">
+              <div className="text-2xl font-extrabold font-mono text-rose-600 dark:text-rose-400">
+                Rs. {managementMetrics.totalArrearsAmount.toLocaleString()}
+              </div>
+              <MiniSparklineChart data={managementMetrics.arrearsTrend} color="#f43f5e" />
             </div>
           </div>
           <div className="mt-3 text-[10px] font-semibold text-muted-foreground flex items-center justify-between">
@@ -320,14 +336,17 @@ export default function ManagementDashboardPage() {
         </Card>
 
         {/* Collection Efficiency Rate */}
-        <Card className="p-4 bg-card/60 dark:bg-card/40 backdrop-blur-xl border-border/50 shadow-xs flex flex-col justify-between">
+        <Card className="p-4 border border-border/80 dark:border-white/10 bg-background shadow-xs flex flex-col justify-between transition-all hover:border-blue-500/40">
           <div>
             <div className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider flex items-center justify-between">
               <span>Fee Collection Rate</span>
               <Calculator className="w-4 h-4 text-blue-500" />
             </div>
-            <div className="text-3xl font-extrabold font-headline text-foreground mt-2">
-              {managementMetrics.collectionRate}%
+            <div className="flex items-end justify-between mt-2">
+              <div className="text-3xl font-extrabold font-headline text-foreground">
+                {managementMetrics.collectionRate}%
+              </div>
+              <MiniSparklineChart data={managementMetrics.feeTrend} color="#3b82f6" />
             </div>
           </div>
           <div className="mt-3 text-[10px] font-semibold text-muted-foreground flex items-center justify-between">
@@ -337,14 +356,17 @@ export default function ManagementDashboardPage() {
         </Card>
 
         {/* Class Tariffs Configured */}
-        <Card className="p-4 bg-card/60 dark:bg-card/40 backdrop-blur-xl border-border/50 shadow-xs flex flex-col justify-between">
+        <Card className="p-4 border border-border/80 dark:border-white/10 bg-background shadow-xs flex flex-col justify-between transition-all hover:border-amber-500/40">
           <div>
             <div className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider flex items-center justify-between">
               <span>Class Fee Tariffs</span>
               <FileSpreadsheet className="w-4 h-4 text-amber-500" />
             </div>
-            <div className="text-3xl font-extrabold font-headline text-foreground mt-2">
-              {managementMetrics.activeTariffsCount}
+            <div className="flex items-end justify-between mt-2">
+              <div className="text-3xl font-extrabold font-headline text-foreground">
+                {managementMetrics.activeTariffsCount}
+              </div>
+              <MiniSparklineChart data={managementMetrics.tariffsTrend} color="#f59e0b" />
             </div>
           </div>
           <div className="mt-3 text-[10px] font-semibold text-muted-foreground flex items-center justify-between">
@@ -356,7 +378,7 @@ export default function ManagementDashboardPage() {
 
       {/* DATA VISUALS & CHARTS GRID */}
       <div className="grid gap-6 lg:grid-cols-5">
-        <Card className="lg:col-span-3 bg-card/60 dark:bg-card/40 backdrop-blur-xl border-border/60 shadow-xs overflow-hidden">
+        <Card className="lg:col-span-3 border border-border/80 dark:border-white/10 bg-background shadow-xs overflow-hidden">
           <CardHeader className="border-b border-border/50 pb-3">
             <CardTitle className="text-sm font-bold font-headline">Fee Collection vs Pending Arrears by Class</CardTitle>
             <CardDescription className="text-xs">Real-time breakdown of paid revenue against unpaid dues.</CardDescription>
@@ -366,7 +388,7 @@ export default function ManagementDashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="lg:col-span-2 bg-card/60 dark:bg-card/40 backdrop-blur-xl border-border/60 shadow-xs overflow-hidden">
+        <Card className="lg:col-span-2 border border-border/80 dark:border-white/10 bg-background shadow-xs overflow-hidden">
           <CardHeader className="border-b border-border/50 pb-3">
             <CardTitle className="text-sm font-bold font-headline">Enrollment & Academic Pass Rate</CardTitle>
             <CardDescription className="text-xs">Distribution of students and result statistics.</CardDescription>
