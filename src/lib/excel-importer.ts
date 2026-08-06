@@ -234,80 +234,119 @@ export async function executeDualImport(fileSummaries: ImportFileSummary[]) {
   for (const summary of fileSummaries) {
     // 1. Save or Update Class Fee Structure / Tariff in fee_structures
     if (summary.standardTuition > 0) {
-      const { error: tariffErr } = await supabase.from('fee_structures').upsert({
-        class_name: summary.detectedClass,
-        tuition_fee: summary.standardTuition,
-        admission_fee: 0,
-        exam_fee: 0,
-        lab_fee: 0,
-        is_public: true,
-        updated_at: new Date().toISOString()
-      }, { onConflict: 'class_name' });
+      try {
+        const { data: existingStruct } = await supabase
+          .from('fee_structures')
+          .select('id')
+          .eq('class_name', summary.detectedClass)
+          .maybeSingle();
 
-      if (!tariffErr) createdTariffsCount++;
+        if (existingStruct) {
+          const { error: updateErr } = await supabase
+            .from('fee_structures')
+            .update({
+              tuition_fee: summary.standardTuition,
+              is_public: true,
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', existingStruct.id);
+          if (!updateErr) createdTariffsCount++;
+        } else {
+          const { error: insertErr } = await supabase
+            .from('fee_structures')
+            .insert([{
+              id: `struct-${Date.now()}-${Math.floor(100 + Math.random() * 900)}`,
+              class_name: summary.detectedClass,
+              tuition_fee: summary.standardTuition,
+              admission_fee: 0,
+              exam_fee: 0,
+              lab_fee: 0,
+              is_public: true,
+              created_at: new Date().toISOString()
+            }]);
+          if (!insertErr) createdTariffsCount++;
+        }
+      } catch (e) {
+        console.error("Tariff save error:", e);
+      }
     }
 
     // 2. Process Items: Auto-Create Students and Fee Vouchers
     for (const item of summary.items) {
-      // Upsert Student Profile in 'students' table
       let studentId = '';
-      const { data: existingStudent } = await supabase
-        .from('students')
-        .select('*')
-        .eq('Name', item.studentName)
-        .eq('Class', item.className)
-        .limit(1)
-        .maybeSingle();
-
-      if (existingStudent) {
-        studentId = String(existingStudent.id);
-      } else {
-        const { data: newStudent } = await supabase
+      try {
+        const { data: existingStudent } = await supabase
           .from('students')
-          .insert([{
-            Name: item.studentName,
-            Class: item.className,
-            Section: item.section,
-            Contact: item.contactNo || '0300 0000000',
-            Father_Name: item.parentName || '',
-            Gender: 'Male',
-            Address: 'Swat Valley',
-            Date_Added: new Date().toISOString().split('T')[0]
-          }])
-          .select('*')
-          .single();
+          .select('id')
+          .eq('Name', item.studentName)
+          .eq('Class', item.className)
+          .maybeSingle();
 
-        if (newStudent) {
-          studentId = String(newStudent.id);
-          createdStudentsCount++;
+        if (existingStudent) {
+          studentId = String(existingStudent.id);
+        } else {
+          const newId = `STU-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+          const { data: newStudent, error: studErr } = await supabase
+            .from('students')
+            .insert([{
+              id: newId,
+              Name: item.studentName,
+              Class: item.className,
+              Section: item.section,
+              Contact: item.contactNo || '0300 0000000',
+            }])
+            .select('*')
+            .maybeSingle();
+
+          if (newStudent) {
+            studentId = String(newStudent.id);
+            createdStudentsCount++;
+          } else if (!studErr) {
+            studentId = newId;
+            createdStudentsCount++;
+          } else {
+            console.error("Student insert error:", studErr);
+          }
         }
+      } catch (e) {
+        console.error("Student process error:", e);
       }
 
       // Generate Fee Voucher in 'fees' table
-      const challanNumber = `CHL-${Date.now()}-${Math.floor(100 + Math.random() * 900)}`;
+      try {
+        const challanNumber = `CHS-${new Date().getFullYear()}-${Math.floor(10000 + Math.random() * 90000)}`;
+        const feeId = `fee-${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`;
 
-      const { error: voucherErr } = await supabase
-        .from('fees')
-        .insert([{
-          challan_number: challanNumber,
-          student_id: studentId || item.admNo,
-          student_name: item.studentName,
-          class_name: item.className,
-          section: item.section,
-          month_year: item.feeMonth,
-          tuition_fee: item.tuitionFee,
-          exam_fee: item.examFee,
-          arrears: item.arrears,
-          discount: item.calculatedDiscount,
-          custom_fields: item.customFields,
-          total_amount: item.totalAmount,
-          amount_paid: item.amountPaid,
-          status: item.status,
-          created_at: new Date().toISOString()
-        }]);
+        const { error: voucherErr } = await supabase
+          .from('fees')
+          .insert([{
+            id: feeId,
+            challan_number: challanNumber,
+            student_id: studentId || item.admNo || `STU-${Math.floor(100 + Math.random() * 900)}`,
+            student_name: item.studentName,
+            class_name: item.className,
+            section: item.section,
+            month_year: item.feeMonth,
+            tuition_fee: item.tuitionFee,
+            lab_fee: 0,
+            exam_fee: item.examFee,
+            arrears: item.arrears,
+            discount: item.calculatedDiscount,
+            custom_fields: item.customFields,
+            total_amount: item.totalAmount,
+            amount_paid: item.amountPaid,
+            status: item.status,
+            notes: item.parentName ? `Parent: ${item.parentName}` : '',
+            created_at: new Date().toISOString()
+          }]);
 
-      if (!voucherErr) {
-        createdVouchersCount++;
+        if (!voucherErr) {
+          createdVouchersCount++;
+        } else {
+          console.error("Voucher creation error:", voucherErr);
+        }
+      } catch (e) {
+        console.error("Voucher process error:", e);
       }
     }
   }
