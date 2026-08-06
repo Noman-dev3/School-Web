@@ -99,10 +99,12 @@ function computeRealTrend(items: any[], dateKey = 'created_at') {
 
 export default function StudentsPage() {
   const [students, setStudents] = useState<Student[]>([]);
+  const [results, setResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [classFilter, setClassFilter] = useState("all");
+  const [resultFilter, setResultFilter] = useState("all");
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
   const { toast } = useToast();
 
@@ -138,6 +140,9 @@ export default function StudentsPage() {
       } else {
         setStudents([]);
       }
+
+      const { data: resultsData } = await supabase.from('results').select('*');
+      setResults(resultsData || []);
     } catch (err) {
       console.error("Failed to load students:", err);
     } finally {
@@ -167,6 +172,14 @@ export default function StudentsPage() {
   // Filtered Students
   const filteredStudents = useMemo(() => {
     const query = searchQuery.toLowerCase();
+
+    const studentResultsMap = new Map<string, any>();
+    results.forEach(r => {
+      if (r.student_id) studentResultsMap.set(String(r.student_id).toLowerCase(), r);
+      if (r.roll_number) studentResultsMap.set(String(r.roll_number).toLowerCase(), r);
+      if (r.student_name) studentResultsMap.set(String(r.student_name).toLowerCase(), r);
+    });
+
     return students.filter(student => {
       const matchesSearch = 
         student.Name.toLowerCase().includes(query) || 
@@ -176,9 +189,25 @@ export default function StudentsPage() {
 
       const matchesClass = classFilter === "all" || (student.Class && student.Class === classFilter);
 
-      return matchesSearch && matchesClass;
+      const sId = String(student.id).toLowerCase();
+      const sName = String(student.Name).toLowerCase();
+      const res = studentResultsMap.get(sId) || studentResultsMap.get(sName);
+      const hasResult = Boolean(res);
+
+      let matchesResult = true;
+      if (resultFilter === "has_result") {
+        matchesResult = hasResult;
+      } else if (resultFilter === "no_result") {
+        matchesResult = !hasResult;
+      } else if (resultFilter === "passed") {
+        matchesResult = hasResult && res && res.grade !== "F";
+      } else if (resultFilter === "failed") {
+        matchesResult = hasResult && res && res.grade === "F";
+      }
+
+      return matchesSearch && matchesClass && matchesResult;
     });
-  }, [students, searchQuery, classFilter]);
+  }, [students, results, searchQuery, classFilter, resultFilter]);
 
   // Calculated Stats
   const totalCount = students.length;
@@ -459,7 +488,7 @@ export default function StudentsPage() {
 
             <div className="flex items-center gap-2">
               <Select value={classFilter} onValueChange={setClassFilter}>
-                <SelectTrigger className="w-40 text-xs h-9 rounded-xl border-border/70 bg-background">
+                <SelectTrigger className="w-36 text-xs h-9 rounded-xl border-border/70 bg-background font-medium">
                   <SelectValue placeholder="All Classes" />
                 </SelectTrigger>
                 <SelectContent className="rounded-xl">
@@ -467,6 +496,19 @@ export default function StudentsPage() {
                   {classList.map(cls => (
                     <SelectItem key={cls} value={cls}>{cls}</SelectItem>
                   ))}
+                </SelectContent>
+              </Select>
+
+              <Select value={resultFilter} onValueChange={setResultFilter}>
+                <SelectTrigger className="w-44 text-xs h-9 rounded-xl border-border/70 bg-background font-medium">
+                  <SelectValue placeholder="Result Status" />
+                </SelectTrigger>
+                <SelectContent className="rounded-xl">
+                  <SelectItem value="all">All Result Statuses</SelectItem>
+                  <SelectItem value="has_result">With Result Card 📄</SelectItem>
+                  <SelectItem value="no_result">Without Result Card ⚠️</SelectItem>
+                  <SelectItem value="passed">Passed (A+, A, B, C) 🏅</SelectItem>
+                  <SelectItem value="failed">Failed / Needs Work 🚨</SelectItem>
                 </SelectContent>
               </Select>
 
