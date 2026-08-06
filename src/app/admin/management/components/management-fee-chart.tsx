@@ -6,6 +6,7 @@ import { FeeRecord } from "@/app/admin/data-schemas";
 
 interface ManagementFeeChartProps {
   feeRecords: FeeRecord[];
+  selectedClass?: string;
 }
 
 export function calculateStudentPendingArrears(vouchers: FeeRecord[]): number {
@@ -26,43 +27,49 @@ export function calculateStudentPendingArrears(vouchers: FeeRecord[]): number {
   return sorted.reduce((sum, r) => sum + Math.max(0, Number(r.total_amount || 0) - Number(r.amount_paid || 0)), 0);
 }
 
-export function ManagementFeeChart({ feeRecords }: ManagementFeeChartProps) {
+export function ManagementFeeChart({ feeRecords, selectedClass = "all" }: ManagementFeeChartProps) {
+  const isSingleClass = selectedClass !== "all";
+
   const chartData = React.useMemo(() => {
-    const classMap: Record<string, { class: string; paid: number; studentVouchers: Record<string, FeeRecord[]> }> = {};
+    const groupMap: Record<string, { groupName: string; paid: number; studentVouchers: Record<string, FeeRecord[]> }> = {};
 
     feeRecords.forEach((record) => {
-      const className = record.class_name || "Unassigned";
-      if (!classMap[className]) {
-        classMap[className] = { class: className, paid: 0, studentVouchers: {} };
+      let groupKey = record.class_name || "Unassigned";
+      if (isSingleClass) {
+        groupKey = record.section ? `Section ${record.section}` : (record.student_name ? record.student_name.split(' ')[0] : "Section A");
       }
 
-      classMap[className].paid += Number(record.amount_paid || 0);
+      if (!groupMap[groupKey]) {
+        groupMap[groupKey] = { groupName: groupKey, paid: 0, studentVouchers: {} };
+      }
+
+      groupMap[groupKey].paid += Number(record.amount_paid || 0);
 
       const stId = String(record.student_id || record.student_name || "unknown");
-      if (!classMap[className].studentVouchers[stId]) {
-        classMap[className].studentVouchers[stId] = [];
+      if (!groupMap[groupKey].studentVouchers[stId]) {
+        groupMap[groupKey].studentVouchers[stId] = [];
       }
-      classMap[className].studentVouchers[stId].push(record);
+      groupMap[groupKey].studentVouchers[stId].push(record);
     });
 
-    return Object.values(classMap).map((clsData) => {
+    return Object.values(groupMap).map((grp) => {
       let pendingSum = 0;
-      Object.values(clsData.studentVouchers).forEach((vouchers) => {
+      Object.values(grp.studentVouchers).forEach((vouchers) => {
         pendingSum += calculateStudentPendingArrears(vouchers);
       });
 
       return {
-        class: clsData.class,
-        paid: clsData.paid,
+        class: grp.groupName,
+        paid: grp.paid,
         pending: pendingSum,
       };
     }).sort((a, b) => a.class.localeCompare(b.class, undefined, { numeric: true }));
-  }, [feeRecords]);
+  }, [feeRecords, isSingleClass]);
 
   if (chartData.length === 0) {
     return (
       <div className="flex h-[240px] items-center justify-center text-xs text-muted-foreground italic">
-        No fee records available to visualize.
+        No fee records available to visualize for this selection.
       </div>
     );
   }

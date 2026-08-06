@@ -1,29 +1,34 @@
 "use client";
 
 import * as React from "react";
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { Student } from "@/app/admin/students/data/schema";
 import { Result } from "@/app/admin/data-schemas";
 
 interface ManagementStudentStatsProps {
   students: Student[];
   results: Result[];
+  selectedClass?: string;
 }
 
 const COLORS = ["#10b981", "#3b82f6", "#f59e0b", "#8b5cf6", "#ec4899", "#06b6d4"];
 
-export function ManagementStudentStats({ students, results }: ManagementStudentStatsProps) {
+export function ManagementStudentStats({ students, results, selectedClass = "all" }: ManagementStudentStatsProps) {
+  const isSingleClass = selectedClass !== "all";
+
   const classDistribution = React.useMemo(() => {
     const counts: Record<string, number> = {};
     students.forEach((s) => {
-      const cls = s.Class || "Unassigned";
-      counts[cls] = (counts[cls] || 0) + 1;
+      const label = isSingleClass 
+        ? (s.Section ? `Section ${s.Section}` : "Section A")
+        : (s.Class || "Unassigned");
+      counts[label] = (counts[label] || 0) + 1;
     });
 
     return Object.entries(counts)
       .map(([name, value]) => ({ name, value }))
       .sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
-  }, [students]);
+  }, [students, isSingleClass]);
 
   const resultsSummary = React.useMemo(() => {
     let passCount = 0;
@@ -39,7 +44,7 @@ export function ManagementStudentStats({ students, results }: ManagementStudentS
   if (students.length === 0) {
     return (
       <div className="flex h-[240px] items-center justify-center text-xs text-muted-foreground italic">
-        No student distribution data available.
+        No student distribution data available for this selection.
       </div>
     );
   }
@@ -48,7 +53,7 @@ export function ManagementStudentStats({ students, results }: ManagementStudentS
     <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-2">
       <div className="h-[220px] w-full md:w-1/2">
         <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider text-center mb-1">
-          Class Enrollment Share
+          {isSingleClass ? "Section Breakdown" : "Class Enrollment Share"}
         </p>
         <ResponsiveContainer width="100%" height="90%">
           <PieChart>
@@ -79,7 +84,7 @@ export function ManagementStudentStats({ students, results }: ManagementStudentS
 
       <div className="w-full md:w-1/2 space-y-3 p-3 rounded-xl bg-muted/20 border border-border/40">
         <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-          Academic Overview
+          {isSingleClass ? `${selectedClass} Academic Metrics` : "Academic Overview"}
         </p>
 
         <div className="flex items-center justify-between text-xs">

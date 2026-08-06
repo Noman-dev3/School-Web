@@ -105,12 +105,32 @@ export default function ManagementDashboardPage() {
     return calculateStudentPendingArrears(studentVouchers);
   };
 
+  const classFilteredStudents = useMemo(() => {
+    if (classFilter === "all") return students;
+    return students.filter(s => s.Class === classFilter);
+  }, [students, classFilter]);
+
+  const classFilteredFees = useMemo(() => {
+    if (classFilter === "all") return feeRecords;
+    return feeRecords.filter(r => r.class_name === classFilter);
+  }, [feeRecords, classFilter]);
+
+  const classFilteredResults = useMemo(() => {
+    if (classFilter === "all") return results;
+    return results.filter(r => r.class_name === classFilter);
+  }, [results, classFilter]);
+
+  const classFilteredTariffs = useMemo(() => {
+    if (classFilter === "all") return feeStructures;
+    return feeStructures.filter(t => t.class_name === classFilter);
+  }, [feeStructures, classFilter]);
+
   const managementMetrics = useMemo(() => {
-    const totalStudentsCount = students.length;
+    const totalStudentsCount = classFilteredStudents.length;
 
     // Group vouchers by student to calculate exact total pending arrears without double-counting carried-over balances
     const vouchersByStudent: Record<string, FeeRecord[]> = {};
-    feeRecords.forEach(r => {
+    classFilteredFees.forEach(r => {
       const sId = String(r.student_id || r.student_name || "unknown");
       if (!vouchersByStudent[sId]) vouchersByStudent[sId] = [];
       vouchersByStudent[sId].push(r);
@@ -121,15 +141,15 @@ export default function ManagementDashboardPage() {
       totalArrearsAmount += calculateStudentPendingArrears(vouchers);
     });
 
-    const totalBilledAmount = feeRecords.reduce((sum, r) => sum + Number(r.total_amount || 0), 0);
-    const totalPaidAmount = feeRecords.reduce((sum, r) => sum + Number(r.amount_paid || 0), 0);
+    const totalBilledAmount = classFilteredFees.reduce((sum, r) => sum + Number(r.total_amount || 0), 0);
+    const totalPaidAmount = classFilteredFees.reduce((sum, r) => sum + Number(r.amount_paid || 0), 0);
     const collectionRate = totalBilledAmount > 0 ? Math.round((totalPaidAmount / totalBilledAmount) * 100) : 0;
-    const activeTariffsCount = feeStructures.length;
+    const activeTariffsCount = classFilteredTariffs.length;
 
-    const studentTrend = computeRealTrend(students);
-    const arrearsTrend = computeRealTrend(feeRecords.filter(r => r.status !== 'paid'));
-    const feeTrend = computeRealTrend(feeRecords);
-    const tariffsTrend = computeRealTrend(feeStructures);
+    const studentTrend = computeRealTrend(classFilteredStudents);
+    const arrearsTrend = computeRealTrend(classFilteredFees.filter(r => r.status !== 'paid'));
+    const feeTrend = computeRealTrend(classFilteredFees);
+    const tariffsTrend = computeRealTrend(classFilteredTariffs);
 
     return {
       totalStudentsCount,
@@ -143,7 +163,7 @@ export default function ManagementDashboardPage() {
       feeTrend,
       tariffsTrend,
     };
-  }, [students, feeRecords, feeStructures]);
+  }, [classFilteredStudents, classFilteredFees, classFilteredResults, classFilteredTariffs]);
 
   const handleInspectStudent = (student: Student) => {
     setInspectedStudent(student);
@@ -390,21 +410,25 @@ export default function ManagementDashboardPage() {
       <div className="grid gap-6 lg:grid-cols-5">
         <Card className="lg:col-span-3 border border-border/80 dark:border-white/10 bg-card shadow-xs overflow-hidden">
           <CardHeader className="border-b border-border/50 pb-3">
-            <CardTitle className="text-sm font-bold font-headline">Fee Collection vs Pending Arrears by Class</CardTitle>
+            <CardTitle className="text-sm font-bold font-headline">
+              {classFilter === "all" ? "Fee Collection vs Pending Arrears by Class" : `${classFilter} - Fee Breakdown by Section`}
+            </CardTitle>
             <CardDescription className="text-xs">Real-time breakdown of paid revenue against unpaid dues.</CardDescription>
           </CardHeader>
           <CardContent className="pt-4">
-            <ManagementFeeChart feeRecords={feeRecords} />
+            <ManagementFeeChart feeRecords={classFilteredFees} selectedClass={classFilter} />
           </CardContent>
         </Card>
 
         <Card className="lg:col-span-2 border border-border/80 dark:border-white/10 bg-card shadow-xs overflow-hidden">
           <CardHeader className="border-b border-border/50 pb-3">
-            <CardTitle className="text-sm font-bold font-headline">Enrollment & Academic Pass Rate</CardTitle>
+            <CardTitle className="text-sm font-bold font-headline">
+              {classFilter === "all" ? "Enrollment & Academic Pass Rate" : `${classFilter} - Section & Academic Metrics`}
+            </CardTitle>
             <CardDescription className="text-xs">Distribution of students and result statistics.</CardDescription>
           </CardHeader>
           <CardContent className="pt-4">
-            <ManagementStudentStats students={students} results={results} />
+            <ManagementStudentStats students={classFilteredStudents} results={classFilteredResults} selectedClass={classFilter} />
           </CardContent>
         </Card>
       </div>
