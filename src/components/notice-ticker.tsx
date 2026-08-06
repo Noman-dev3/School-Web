@@ -4,10 +4,18 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { Megaphone, ArrowRight, X, PhoneCall, Sparkles } from "lucide-react";
 
-export function NoticeTicker() {
+interface NoticeTickerProps {
+  text?: string;
+  link?: string;
+}
+
+export function NoticeTicker({ text, link }: NoticeTickerProps) {
   const [isVisible, setIsVisible] = useState(true);
 
   if (!isVisible) return null;
+
+  const displayText = text || "Applications open for Kindergarten to Grade 12 & HSSC (Pre-Medical / Engineering / ICS).";
+  const targetLink = link || "/admissions";
 
   return (
     <div className="bg-gradient-to-r from-primary via-primary/95 to-primary text-primary-foreground py-2 px-4 text-xs sm:text-sm font-medium shadow-sm transition-all relative z-50">
@@ -18,13 +26,13 @@ export function NoticeTicker() {
             Admissions 2026-27
           </span>
           <p className="truncate text-primary-foreground/95">
-            Applications open for Kindergarten to Grade 12 & HSSC (Pre-Medical / Engineering / ICS).
+            {displayText}
           </p>
         </div>
 
         <div className="flex items-center gap-4 shrink-0">
           <Link
-            href="/admissions"
+            href={targetLink}
             className="inline-flex items-center gap-1 font-semibold text-accent hover:underline text-xs sm:text-sm"
           >
             Apply Online <ArrowRight className="w-3.5 h-3.5" />
