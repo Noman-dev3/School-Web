@@ -5,7 +5,7 @@ import { supabase } from "@/lib/supabase";
 import { resultSchema, Result } from './data/schema';
 import { z } from 'zod';
 import { ResultCard } from './components/result-card';
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -29,33 +29,33 @@ export default function ResultsPage() {
 
   const { toast } = useToast();
 
-  useEffect(() => {
-    async function loadResults() {
-      const { data, error } = await supabase.from('results').select('*');
-      if (error) {
-        console.error("Error fetching results:", error);
-        setResults([]);
-      } else if (data) {
-        const resultsArray = data.map((item: any) => ({
-          ...item,
-          id: String(item.id),
-        }));
+  const loadResults = useCallback(async () => {
+    const { data, error } = await supabase.from('results').select('*');
+    if (error) {
+      console.error("Error fetching results:", error);
+      setResults([]);
+    } else if (data) {
+      const resultsArray = data.map((item: any) => ({
+        ...item,
+        id: String(item.id),
+      }));
 
-        const parsedResults = z.array(resultSchema).safeParse(resultsArray);
-        if (parsedResults.success) {
-          setResults(parsedResults.data);
-        } else {
-          const validResults = resultsArray
-            .map(item => resultSchema.safeParse(item))
-            .map(r => r.success ? r.data : null).filter(Boolean) as any;
-          setResults(validResults);
-        }
+      const parsedResults = z.array(resultSchema).safeParse(resultsArray);
+      if (parsedResults.success) {
+        setResults(parsedResults.data);
       } else {
-        setResults([]);
+        const validResults = resultsArray
+          .map(item => resultSchema.safeParse(item))
+          .map(r => r.success ? r.data : null).filter(Boolean) as any;
+        setResults(validResults);
       }
-      setLoading(false);
+    } else {
+      setResults([]);
     }
+    setLoading(false);
+  }, []);
 
+  useEffect(() => {
     loadResults();
 
     const channel = supabase.channel('results-realtime')
@@ -65,7 +65,7 @@ export default function ResultsPage() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [loadResults]);
 
   const uniqueClasses = useMemo(() => {
     const classSet = new Set<string>();
