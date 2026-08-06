@@ -107,9 +107,13 @@ export function parseExcelFile(arrayBuffer: ArrayBuffer, fileName: string): Impo
   dataRows.forEach(row => {
     if (!row || row.length === 0) return;
 
-    const admNo = String(row[admIdx] || '').trim();
     const studentName = String(row[nameIdx] || '').trim();
-    if (!studentName && !admNo) return; // Skip empty rows
+    const admNo = String(row[admIdx] || '').trim();
+
+    // Skip empty template rows or total summary rows
+    if (!studentName || studentName === 'undefined' || studentName.length <= 1) return;
+    const lowerName = studentName.toLowerCase();
+    if (lowerName.includes('total') || lowerName.includes('slc') || lowerName.includes('record')) return;
 
     const parentName = String(row[parentIdx] || '').trim();
     const rawClass = String(row[classIdx] || '').trim();
@@ -143,7 +147,7 @@ export function parseExcelFile(arrayBuffer: ArrayBuffer, fileName: string): Impo
 
     rawItems.push({
       admNo: admNo || `STU-${Math.floor(1000 + Math.random() * 9000)}`,
-      studentName: studentName || 'Unnamed Student',
+      studentName,
       parentName,
       rawClass,
       contactNo,
@@ -158,15 +162,9 @@ export function parseExcelFile(arrayBuffer: ArrayBuffer, fileName: string): Impo
     });
   });
 
-  // Calculate Standard Class Tuition (Mode)
-  let standardTuition = 0;
-  let maxCount = 0;
-  Object.entries(tuitionFeeCounts).forEach(([fee, count]) => {
-    if (count > maxCount) {
-      maxCount = count;
-      standardTuition = Number(fee);
-    }
-  });
+  // Calculate Standard Class Tuition (Max Base Rate in the class)
+  const tuitionList = rawItems.map(i => Number(i.tuitionFee) || 0).filter(t => t > 0);
+  const standardTuition = tuitionList.length > 0 ? Math.max(...tuitionList) : 0;
 
   // Normalization & Custom Discount Calculation
   const firstItemClass = rawItems[0]?.rawClass || fileName;
