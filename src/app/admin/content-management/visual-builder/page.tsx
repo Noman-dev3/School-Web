@@ -5,7 +5,8 @@ import {
   Paintbrush, Save, ArrowUp, ArrowDown, Eye, EyeOff, LayoutList, 
   Sparkles, CheckCircle2, Image as ImageIcon, Link as LinkIcon, 
   MessageSquare, Phone, MapPin, Globe, Loader2, Plus, Trash2, Sliders,
-  HelpCircle, Megaphone, Check, ShieldCheck, Layers, BookOpen, UserCheck
+  HelpCircle, Megaphone, Check, ShieldCheck, Layers, BookOpen, UserCheck,
+  Quote, Award, GraduationCap, Compass
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,12 +22,11 @@ import { getSettings, DEFAULT_SECTION_ORDER, DEFAULT_SECTION_VISIBILITY, default
 
 const SECTION_LABELS: Record<string, { title: string; desc: string; icon: string }> = {
   hero: { title: "Hero Main Banner", desc: "Top hero headline, taglines, and call-to-action", icon: "🚀" },
-  stats: { title: "Metrics & Statistics Bar", desc: "Key metrics counters (Students, Pass Rate, Educators)", icon: "📊" },
   portals: { title: "Quick Portals Grid", desc: "Admissions, Results, Fee Vouchers, Events shortcuts", icon: "⚡" },
   programs: { title: "Academic Programs", desc: "Montessori, Primary, Middle, and High School levels", icon: "🎓" },
   features: { title: "Core Pillars / Why Choose PIISS", desc: "STEM, Quranic Ethics, Distinction Merit features", icon: "⭐" },
   adBanner: { title: "Announcement / Ad Banner", desc: "Promotional banner for events or admissions", icon: "📢" },
-  about: { title: "About School & Mission", desc: "Institutional history, story, and vision statement", icon: "🏫" },
+  about: { title: "About School & Mission", desc: "Institutional history, story, principal quote, and vision", icon: "🏫" },
   toppers: { title: "FBISE Board Toppers", desc: "Star students and board position holders", icon: "🏆" },
   boardResults: { title: "FBISE Board Results Table", desc: "Detailed board pass percentages and breakdown", icon: "📋" },
   teachers: { title: "Faculty & Educators", desc: "Educators spotlight and master's teachers", icon: "👨‍🏫" },
@@ -87,6 +87,11 @@ export default function LandingPageCMSStudio() {
         heroCard2Desc: config.heroCard2Desc,
         heroCard3Title: config.heroCard3Title,
         heroCard3Desc: config.heroCard3Desc,
+        aboutEyebrow: config.aboutEyebrow,
+        aboutTitle: config.aboutTitle,
+        principalName: config.principalName,
+        principalRole: config.principalRole,
+        principalMessage: config.principalMessage,
         adBannerTitle: config.adBannerTitle,
         adBannerSubtitle: config.adBannerSubtitle,
         adBannerCtaText: config.adBannerCtaText,
@@ -118,7 +123,7 @@ export default function LandingPageCMSStudio() {
 
       toast({
         title: "Landing Page Updated! 🎉",
-        description: "All section orderings, hero template text, media pictures, and features are live on the website."
+        description: "All section orderings, about section, hero layout, media pictures, and section titles are live on the website."
       });
     } catch (err: any) {
       toast({
@@ -190,7 +195,7 @@ export default function LandingPageCMSStudio() {
             Landing Page Manager & Customizer
           </h1>
           <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-            Reorder sections, update hero headlines, pictures, notice bars, and website branding in real-time.
+            Reorder sections, update hero layout, about story, principal quotes, notice bars, and website branding in real-time.
           </p>
         </div>
 
@@ -212,6 +217,9 @@ export default function LandingPageCMSStudio() {
           </TabsTrigger>
           <TabsTrigger value="hero" className="rounded-xl text-xs font-bold gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm">
             <Sparkles className="w-3.5 h-3.5 text-amber-500" /> Hero & Template Layout
+          </TabsTrigger>
+          <TabsTrigger value="about" className="rounded-xl text-xs font-bold gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm">
+            <GraduationCap className="w-3.5 h-3.5 text-rose-500" /> About & Principal Quote
           </TabsTrigger>
           <TabsTrigger value="notice" className="rounded-xl text-xs font-bold gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm">
             <Megaphone className="w-3.5 h-3.5 text-blue-600" /> Notice Bar & Header
@@ -240,7 +248,7 @@ export default function LandingPageCMSStudio() {
             </CardHeader>
             
             <div className="space-y-3">
-              {(config.sectionOrder || DEFAULT_SECTION_ORDER).map((secId: string, idx: number) => {
+              {(config.sectionOrder || DEFAULT_SECTION_ORDER).filter((s: string) => s !== 'stats').map((secId: string, idx: number) => {
                 const info = SECTION_LABELS[secId] || { title: secId, desc: "Landing Section", icon: "📌" };
                 const isVisible = config.sectionVisibility?.[secId] !== false;
 
@@ -302,7 +310,7 @@ export default function LandingPageCMSStudio() {
           </Card>
         </TabsContent>
 
-        {/* TAB 2: HERO & TEMPLATE CUSTOMIZATION */}
+        {/* TAB 2: HERO CUSTOMIZATION */}
         <TabsContent value="hero" className="space-y-4">
           <Card className="rounded-2xl border-border/60 p-6 bg-card space-y-6">
             <div>
@@ -472,7 +480,87 @@ export default function LandingPageCMSStudio() {
           </Card>
         </TabsContent>
 
-        {/* TAB 3: NOTICE BAR & HEADER */}
+        {/* TAB 3: ABOUT US & PRINCIPAL QUOTE */}
+        <TabsContent value="about" className="space-y-4">
+          <Card className="rounded-2xl border-border/60 p-6 bg-card space-y-6">
+            <div>
+              <CardTitle className="text-lg font-bold font-headline flex items-center gap-2">
+                <GraduationCap className="w-5 h-5 text-rose-500" /> About Us & Principal Message Studio
+              </CardTitle>
+              <CardDescription className="text-xs mt-1">
+                Customize institutional story, founding history, and the principal's leadership quote card.
+              </CardDescription>
+            </div>
+
+            <div className="space-y-4 text-xs">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label className="font-bold">Eyebrow Tagline</Label>
+                  <Input
+                    value={config.aboutEyebrow || "OUR HERITAGE & PURPOSE"}
+                    onChange={(e) => setConfig({ ...config, aboutEyebrow: e.target.value })}
+                    className="h-9 rounded-xl text-xs"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="font-bold">Main Section Title</Label>
+                  <Input
+                    value={config.aboutTitle || "About Pakistan Islamic International School System"}
+                    onChange={(e) => setConfig({ ...config, aboutTitle: e.target.value })}
+                    className="h-9 rounded-xl text-xs"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="font-bold">Institutional History & Story (Our Story)</Label>
+                <Textarea
+                  value={config.ourStory}
+                  onChange={(e) => setConfig({ ...config, ourStory: e.target.value })}
+                  rows={4}
+                  className="rounded-xl text-xs leading-relaxed"
+                />
+              </div>
+
+              <div className="pt-4 border-t border-border/40 space-y-4">
+                <h4 className="text-sm font-bold font-headline flex items-center gap-2">
+                  <Quote className="w-4 h-4 text-amber-500" /> Principal's Quote Card & Leadership
+                </h4>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <Label className="font-bold">Principal Name</Label>
+                    <Input
+                      value={config.principalName || "Prof. Dr. Muhammad Ishaq"}
+                      onChange={(e) => setConfig({ ...config, principalName: e.target.value })}
+                      className="h-9 rounded-xl text-xs"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="font-bold">Principal Role & Title</Label>
+                    <Input
+                      value={config.principalRole || "Principal & Academic Director, PIISS"}
+                      onChange={(e) => setConfig({ ...config, principalRole: e.target.value })}
+                      className="h-9 rounded-xl text-xs"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label className="font-bold">Principal Leadership Quote</Label>
+                  <Textarea
+                    value={config.principalMessage || "At PIISS, we nurture not just academic scholars, but young believers equipped with moral integrity, scientific intellect, and Quranic ethics."}
+                    onChange={(e) => setConfig({ ...config, principalMessage: e.target.value })}
+                    rows={3}
+                    className="rounded-xl text-xs italic"
+                  />
+                </div>
+              </div>
+            </div>
+          </Card>
+        </TabsContent>
+
+        {/* TAB 4: NOTICE BAR & HEADER */}
         <TabsContent value="notice" className="space-y-4">
           <Card className="rounded-2xl border-border/60 p-6 bg-card space-y-6">
             <div>
@@ -534,7 +622,7 @@ export default function LandingPageCMSStudio() {
           </Card>
         </TabsContent>
 
-        {/* TAB 4: PICTURES & MEDIA STUDIO */}
+        {/* TAB 5: PICTURES & MEDIA STUDIO */}
         <TabsContent value="media" className="space-y-4">
           <Card className="rounded-2xl border-border/60 p-6 bg-card space-y-6">
             <div>
@@ -550,7 +638,7 @@ export default function LandingPageCMSStudio() {
               {/* Hero Image Card */}
               <div className="p-4 bg-muted/30 rounded-xl border border-border/60 space-y-3">
                 <p className="font-bold text-xs text-foreground flex items-center gap-2">
-                  <ImageIcon className="w-4 h-4 text-emerald-600" /> Hero Banner Showcase Image
+                  <ImageIcon className="w-4 h-4 text-amber-500" /> Hero Banner Showcase Image
                 </p>
                 {config.heroImageUrl && (
                   <div className="h-36 rounded-lg overflow-hidden border border-border/60 bg-black/10">
@@ -570,7 +658,7 @@ export default function LandingPageCMSStudio() {
               {/* About Us Image Card */}
               <div className="p-4 bg-muted/30 rounded-xl border border-border/60 space-y-3">
                 <p className="font-bold text-xs text-foreground flex items-center gap-2">
-                  <ImageIcon className="w-4 h-4 text-blue-600" /> About School Image
+                  <ImageIcon className="w-4 h-4 text-blue-600" /> About School Campus Image
                 </p>
                 {config.aboutImageUrl && (
                   <div className="h-36 rounded-lg overflow-hidden border border-border/60 bg-black/10">
@@ -630,7 +718,7 @@ export default function LandingPageCMSStudio() {
           </Card>
         </TabsContent>
 
-        {/* TAB 5: SECTION HEADINGS */}
+        {/* TAB 6: SECTION HEADINGS */}
         <TabsContent value="headings" className="space-y-4">
           <Card className="rounded-2xl border-border/60 p-6 bg-card space-y-6">
             <div>
@@ -655,7 +743,7 @@ export default function LandingPageCMSStudio() {
                 { titleKey: "contactTitle", descKey: "contactDesc", label: "Contact Section" },
               ].map((sec, i) => (
                 <div key={i} className="p-4 bg-muted/30 rounded-xl border border-border/60 space-y-2">
-                  <p className="font-bold text-xs text-emerald-600 uppercase tracking-wider">{sec.label}</p>
+                  <p className="font-bold text-xs text-amber-600 uppercase tracking-wider">{sec.label}</p>
                   <div className="space-y-1">
                     <Label className="text-[11px] font-bold">Section Heading</Label>
                     <Input
@@ -684,7 +772,7 @@ export default function LandingPageCMSStudio() {
           </Card>
         </TabsContent>
 
-        {/* TAB 6: FOOTER & CONTACT INFO */}
+        {/* TAB 7: FOOTER & CONTACT INFO */}
         <TabsContent value="footer" className="space-y-4">
           <Card className="rounded-2xl border-border/60 p-6 bg-card space-y-6">
             <div>
