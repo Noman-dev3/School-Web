@@ -117,7 +117,7 @@ export default function ManagementDashboardPage() {
 
   const classFilteredResults = useMemo(() => {
     if (classFilter === "all") return results;
-    return results.filter(r => r.class_name === classFilter);
+    return results.filter(r => (r.class || (r as any).class_name) === classFilter);
   }, [results, classFilter]);
 
   const classFilteredTariffs = useMemo(() => {
@@ -163,7 +163,7 @@ export default function ManagementDashboardPage() {
       feeTrend,
       tariffsTrend,
     };
-  }, [classFilteredStudents, classFilteredFees, classFilteredResults, classFilteredTariffs]);
+  }, [classFilteredStudents, classFilteredFees, classFilteredTariffs]);
 
   const handleInspectStudent = (student: Student) => {
     setInspectedStudent(student);
