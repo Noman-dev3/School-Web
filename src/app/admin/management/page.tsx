@@ -296,7 +296,7 @@ export default function ManagementDashboardPage() {
       {/* KPI STATISTICS SUMMARY CARDS WITH MINI SPARKLINES */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {/* Total Active Students */}
-        <Card className="p-4 border border-border/80 dark:border-white/10 bg-background shadow-xs flex flex-col justify-between transition-all hover:border-emerald-500/40">
+        <Card className="p-4 border border-border/80 dark:border-white/10 bg-card shadow-xs flex flex-col justify-between transition-all hover:border-emerald-500/40">
           <div>
             <div className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider flex items-center justify-between">
               <span>Total Enrolled</span>
@@ -316,7 +316,7 @@ export default function ManagementDashboardPage() {
         </Card>
 
         {/* Total Outstanding Arrears */}
-        <Card className="p-4 border border-border/80 dark:border-white/10 bg-background shadow-xs flex flex-col justify-between transition-all hover:border-rose-500/40">
+        <Card className="p-4 border border-border/80 dark:border-white/10 bg-card shadow-xs flex flex-col justify-between transition-all hover:border-rose-500/40">
           <div>
             <div className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider flex items-center justify-between">
               <span>Pending Arrears</span>
@@ -336,7 +336,7 @@ export default function ManagementDashboardPage() {
         </Card>
 
         {/* Collection Efficiency Rate */}
-        <Card className="p-4 border border-border/80 dark:border-white/10 bg-background shadow-xs flex flex-col justify-between transition-all hover:border-blue-500/40">
+        <Card className="p-4 border border-border/80 dark:border-white/10 bg-card shadow-xs flex flex-col justify-between transition-all hover:border-blue-500/40">
           <div>
             <div className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider flex items-center justify-between">
               <span>Fee Collection Rate</span>
@@ -356,7 +356,7 @@ export default function ManagementDashboardPage() {
         </Card>
 
         {/* Class Tariffs Configured */}
-        <Card className="p-4 border border-border/80 dark:border-white/10 bg-background shadow-xs flex flex-col justify-between transition-all hover:border-amber-500/40">
+        <Card className="p-4 border border-border/80 dark:border-white/10 bg-card shadow-xs flex flex-col justify-between transition-all hover:border-amber-500/40">
           <div>
             <div className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider flex items-center justify-between">
               <span>Class Fee Tariffs</span>
@@ -378,7 +378,7 @@ export default function ManagementDashboardPage() {
 
       {/* DATA VISUALS & CHARTS GRID */}
       <div className="grid gap-6 lg:grid-cols-5">
-        <Card className="lg:col-span-3 border border-border/80 dark:border-white/10 bg-background shadow-xs overflow-hidden">
+        <Card className="lg:col-span-3 border border-border/80 dark:border-white/10 bg-card shadow-xs overflow-hidden">
           <CardHeader className="border-b border-border/50 pb-3">
             <CardTitle className="text-sm font-bold font-headline">Fee Collection vs Pending Arrears by Class</CardTitle>
             <CardDescription className="text-xs">Real-time breakdown of paid revenue against unpaid dues.</CardDescription>
@@ -388,7 +388,7 @@ export default function ManagementDashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="lg:col-span-2 border border-border/80 dark:border-white/10 bg-background shadow-xs overflow-hidden">
+        <Card className="lg:col-span-2 border border-border/80 dark:border-white/10 bg-card shadow-xs overflow-hidden">
           <CardHeader className="border-b border-border/50 pb-3">
             <CardTitle className="text-sm font-bold font-headline">Enrollment & Academic Pass Rate</CardTitle>
             <CardDescription className="text-xs">Distribution of students and result statistics.</CardDescription>

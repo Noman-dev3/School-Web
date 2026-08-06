@@ -23,7 +23,7 @@
     --border: 214 32% 91%; /* Clean Slate Border #E2E8F0 */
     --input: 214 32% 91%;
     --ring: 160 84% 39%;
-    --radius: 0.375rem; /* Sleek 6px sharp radius */
+    --radius: 0.375rem;
 
     --custom-primary: 160 84% 39%;
     --custom-accent: 152 80% 90%;
@@ -32,24 +32,24 @@
   }
  
   .dark {
-    --background: 224 71% 4%; /* Linear Charcoal Midnight #090D16 */
+    --background: 240 6% 9%; /* Charcoal Midnight Container #141416 */
     --foreground: 210 40% 98%;
-    --card: 224 71% 4%; /* Match main container background */
+    --card: 240 5% 12%; /* Elevated Soft Card Surface #1c1c20 */
     --card-foreground: 210 40% 98%;
-    --popover: 224 71% 4%;
+    --popover: 240 5% 12%;
     --popover-foreground: 210 40% 98%;
     --primary: 152 69% 51%; /* Emerald 500 */
     --primary-foreground: 224 71% 4%;
-    --secondary: 217 33% 14%; /* Dark Slate #1E293B */
+    --secondary: 240 5% 16%;
     --secondary-foreground: 210 40% 98%;
-    --muted: 217 33% 14%;
-    --muted-foreground: 215 20.2% 65.1%; /* Slate 400 #94A3B8 */
-    --accent: 160 84% 15%; /* Dark Emerald Tint */
+    --muted: 240 5% 16%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 160 84% 15%;
     --accent-foreground: 210 40% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 100%;
-    --border: 217 33% 22%; /* Clean contrasting border */
-    --input: 217 33% 22%;
+    --border: 240 5% 22%; /* Crisp Contrasting Border #32323a */
+    --input: 240 5% 22%;
     --ring: 152 69% 51%;
     --radius: 0.375rem;
   }
@@ -60,29 +60,6 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground font-sans;
-    scroll-behavior: smooth;
-  }
-  section {
-    @apply py-20 lg:py-32;
-  }
-
-  /* Custom Scrollbar */
-  ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-
-  ::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background-color: hsl(var(--muted-foreground) / 0.3);
-    border-radius: 9999px;
-  }
-  
-  ::-webkit-scrollbar-thumb:hover {
-    background-color: hsl(var(--muted-foreground) / 0.5);
+    @apply bg-background text-foreground font-sans antialiased;
   }
 }
