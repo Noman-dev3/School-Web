@@ -30,6 +30,7 @@ import { supabase } from "@/lib/supabase";
 import { FeeRecord, FeeStructure, DynamicFeeField } from "@/app/admin/data-schemas";
 import { header } from "@/lib/data";
 import { parseExcelFile, executeDualImport, ImportFileSummary } from "@/lib/excel-importer";
+import { FeeExportModal } from "@/components/fee-export-modal";
 
 const defaultFeeStructuresSeed: FeeStructure[] = [
   { id: "struct-1", class_name: "Playgroup / Nursery", tuition_fee: 3500, admission_fee: 5000, exam_fee: 1000, lab_fee: 0, custom_fields: [], is_public: true, kinship_enabled: true, kinship_discount_percent: 25 },
@@ -824,6 +825,8 @@ export default function AdminFeesPage() {
             <RefreshCw className={`h-3.5 w-3.5 text-muted-foreground ${isRefreshing ? 'animate-spin' : ''}`} />
             <span>Sync Fees</span>
           </Button>
+
+          <FeeExportModal feeRecords={feeRecords} />
         </div>
       </div>
 

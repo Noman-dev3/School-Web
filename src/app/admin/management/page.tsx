@@ -20,6 +20,8 @@ import {
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { BulkImportDialog } from '../students/components/bulk-import-dialog';
+import { AddStudentDialog } from '../students/components/add-student-dialog';
+import { FeeExportModal } from '@/components/fee-export-modal';
 import { BatchFeeModal } from './components/batch-fee-modal';
 import { ClassTariffsModal } from './components/class-tariffs-modal';
 import { DataWipeDialog } from './components/data-wipe-dialog';
@@ -318,6 +320,8 @@ export default function ManagementDashboardPage() {
             <span>Class Tariffs</span>
           </Button>
 
+          <AddStudentDialog onSuccess={loadData} />
+          <FeeExportModal feeRecords={feeRecords} />
           <BulkImportDialog />
           <DataWipeDialog onSuccess={loadData} />
         </div>

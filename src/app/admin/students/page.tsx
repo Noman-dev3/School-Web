@@ -321,7 +321,7 @@ export default function StudentsPage() {
           </Button>
 
           <BulkImportDialog />
-          <AddStudentDialog />
+          <AddStudentDialog onSuccess={loadStudents} />
         </div>
       </div>
 
