@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Badge } from "@/components/ui/badge";
@@ -13,9 +12,12 @@ import React from "react";
 
 interface EventsSectionProps {
   events: Event[];
+  settings?: any;
 }
 
-export default function EventsSection({ events }: EventsSectionProps) {
+export default function EventsSection({ events, settings }: EventsSectionProps) {
+  const customTitle = settings?.sectionTitles?.eventsTitle || eventsSection.title;
+  const customDesc = settings?.sectionTitles?.eventsDesc || eventsSection.description;
 
   return (
     <section id="events" className="py-20 lg:py-32 px-6 lg:px-12 bg-secondary/50">
@@ -27,38 +29,38 @@ export default function EventsSection({ events }: EventsSectionProps) {
           <PartyPopper className="w-4 h-4 mr-2" />
           {eventsSection.badge}
         </Badge>
-        <h2 className="text-4xl font-bold mb-4 font-headline">{eventsSection.title}</h2>
+        <h2 className="text-4xl font-bold mb-4 font-headline">{customTitle}</h2>
         <p className="text-muted-foreground mb-12 max-w-2xl mx-auto">
-          {eventsSection.description}
+          {customDesc}
         </p>
 
         {events && events.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 text-left">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 text-left">
             {events.map((event, index) => (
-                <div key={index} className="group perspective-1000">
-                    <Card className="h-full bg-background/60 rounded-xl shadow-lg transition-all duration-500 transform-style-3d group-hover:-translate-y-2 group-hover:shadow-2xl group-hover:shadow-primary/20">
-                        <CardHeader>
-                            <CardTitle className="font-headline text-2xl">{event.title}</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="flex items-center text-muted-foreground mb-4">
-                                <CalendarDays className="w-5 h-5 mr-3 text-primary" />
-                                <span className="text-sm font-medium">{format(new Date(event.date), "PPP")}</span>
-                            </div>
-                            <p className="text-muted-foreground/80">{event.description}</p>
-                        </CardContent>
-                    </Card>
-                </div>
+              <div key={index} className="group perspective-1000">
+                <Card className="h-full bg-background/60 rounded-xl shadow-lg transition-all duration-500 transform-style-3d group-hover:-translate-y-2 group-hover:shadow-2xl group-hover:shadow-primary/20">
+                  <CardHeader>
+                    <CardTitle className="font-headline text-2xl">{event.title}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center text-muted-foreground mb-4">
+                      <CalendarDays className="w-5 h-5 mr-3 text-primary" />
+                      <span className="text-sm font-medium">{format(new Date(event.date), "PPP")}</span>
+                    </div>
+                    <p className="text-muted-foreground/80">{event.description}</p>
+                  </CardContent>
+                </Card>
+              </div>
             ))}
-            </div>
+          </div>
         ) : (
           <p className="text-muted-foreground">No upcoming events. Please check back soon!</p>
         )}
 
         <div className="mt-16 text-center">
-            <Button size="lg" variant="outline" asChild>
-                <Link href="/events">{eventsSection.viewAllButton} <ArrowRight className="ml-2 h-5 w-5" /></Link>
-            </Button>
+          <Button size="lg" variant="outline" asChild>
+            <Link href="/events">{eventsSection.viewAllButton} <ArrowRight className="ml-2 h-5 w-5" /></Link>
+          </Button>
         </div>
       </div>
     </section>

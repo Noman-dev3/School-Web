@@ -49,6 +49,7 @@ export default async function Home() {
     phone: settings.contactPhone || "",
     email: settings.contactEmail || "",
     officeHours: settings.officeHours || "",
+    sectionTitles: settings.sectionTitles,
   };
 
   const footerContent = {
@@ -85,13 +86,13 @@ export default async function Home() {
     features: <Features key="features" settings={settings} />,
     adBanner: <AdBanner key="adBanner" content={settings} />,
     about: <AboutSection key="about" content={settings} />,
-    toppers: <ToppersSection key="toppers" toppers={toppers} />,
+    toppers: <ToppersSection key="toppers" toppers={toppers} settings={settings} />,
     boardResults: <BoardResultsSection key="boardResults" boardStudents={boardStudents} />,
-    teachers: <TeachersSection key="teachers" teachers={teachers.slice(0, 3)} />,
-    events: <EventsSection key="events" events={events.slice(0, 3)} />,
-    gallery: <GallerySection key="gallery" galleryItems={galleryItems.slice(0, 4)} />,
-    testimonials: <TestimonialsSection key="testimonials" testimonials={testimonials} />,
-    faq: <FaqSection key="faq" faqs={faqs} />,
+    teachers: <TeachersSection key="teachers" teachers={teachers.slice(0, 3)} settings={settings} />,
+    events: <EventsSection key="events" events={events.slice(0, 3)} settings={settings} />,
+    gallery: <GallerySection key="gallery" galleryItems={galleryItems.slice(0, 4)} settings={settings} />,
+    testimonials: <TestimonialsSection key="testimonials" testimonials={testimonials} settings={settings} />,
+    faq: <FaqSection key="faq" faqs={faqs} settings={settings} />,
     contact: <ContactSection key="contact" content={contactContent} />,
   };
 

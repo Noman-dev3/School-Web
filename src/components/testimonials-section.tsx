@@ -1,4 +1,3 @@
-
 "use client";
 
 import * as React from "react";
@@ -17,9 +16,12 @@ import { Testimonial } from "@/app/admin/data-schemas";
 
 interface TestimonialsSectionProps {
   testimonials: Testimonial[];
+  settings?: any;
 }
 
-export default function TestimonialsSection({ testimonials }: TestimonialsSectionProps) {
+export default function TestimonialsSection({ testimonials, settings }: TestimonialsSectionProps) {
+  const customTitle = settings?.sectionTitles?.testimonialsTitle || testimonialsSection.title;
+  const customDesc = settings?.sectionTitles?.testimonialsDesc || testimonialsSection.description;
 
   return (
     <section id="testimonials" className="py-20 lg:py-32 px-6 lg:px-12 bg-secondary/50">
@@ -32,10 +34,10 @@ export default function TestimonialsSection({ testimonials }: TestimonialsSectio
           {testimonialsSection.badge}
         </Badge>
         <h2 className="text-4xl font-bold mb-4 font-headline">
-          {testimonialsSection.title}
+          {customTitle}
         </h2>
         <p className="text-muted-foreground mb-12 max-w-3xl mx-auto">
-          {testimonialsSection.description}
+          {customDesc}
         </p>
         {testimonials && testimonials.length > 0 ? (
           <Carousel

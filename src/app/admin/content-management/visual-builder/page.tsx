@@ -52,7 +52,13 @@ export default function LandingPageCMSStudio() {
     async function loadCMSData() {
       try {
         const fetched = await getSettings();
-        setConfig(fetched);
+        setConfig({
+          ...fetched,
+          sectionTitles: {
+            ...defaultSettings.sectionTitles,
+            ...(fetched.sectionTitles || {})
+          }
+        });
       } catch (err) {
         console.error("Failed to load CMS settings:", err);
       } finally {
@@ -781,21 +787,29 @@ export default function LandingPageCMSStudio() {
                   <div className="space-y-1">
                     <Label className="text-[11px] font-bold">Section Heading</Label>
                     <Input
-                      value={config.sectionTitles?.[sec.titleKey] || ""}
+                      value={config.sectionTitles?.[sec.titleKey] ?? (defaultSettings.sectionTitles as any)[sec.titleKey] ?? ""}
                       onChange={(e) => setConfig({
                         ...config,
-                        sectionTitles: { ...config.sectionTitles, [sec.titleKey]: e.target.value }
+                        sectionTitles: {
+                          ...defaultSettings.sectionTitles,
+                          ...(config.sectionTitles || {}),
+                          [sec.titleKey]: e.target.value
+                        }
                       })}
-                      className="h-8 text-xs rounded-lg"
+                      className="h-8 text-xs rounded-lg font-medium"
                     />
                   </div>
                   <div className="space-y-1">
                     <Label className="text-[11px] font-bold">Section Subtitle / Description</Label>
                     <Input
-                      value={config.sectionTitles?.[sec.descKey] || ""}
+                      value={config.sectionTitles?.[sec.descKey] ?? (defaultSettings.sectionTitles as any)[sec.descKey] ?? ""}
                       onChange={(e) => setConfig({
                         ...config,
-                        sectionTitles: { ...config.sectionTitles, [sec.descKey]: e.target.value }
+                        sectionTitles: {
+                          ...defaultSettings.sectionTitles,
+                          ...(config.sectionTitles || {}),
+                          [sec.descKey]: e.target.value
+                        }
                       })}
                       className="h-8 text-xs rounded-lg"
                     />

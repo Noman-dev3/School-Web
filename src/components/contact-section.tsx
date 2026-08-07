@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState } from 'react';
@@ -25,12 +24,16 @@ interface ContactSectionProps {
         phone: string;
         email: string;
         officeHours: string;
+        sectionTitles?: any;
     };
 }
 
 export default function ContactSection({ content }: ContactSectionProps) {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+
+  const customTitle = content?.sectionTitles?.contactTitle || contactForm.title;
+  const customDesc = content?.sectionTitles?.contactDesc || "Reach out to our admissions office for enrollment guidelines and campus tours.";
 
   const currentContactInfo = [
       { icon: <MapPin className="w-6 h-6 text-primary" />, title: "Address", value: content.address },
@@ -98,7 +101,9 @@ export default function ContactSection({ content }: ContactSectionProps) {
       <div className="container mx-auto">
         <div className="grid lg:grid-cols-2 gap-12 items-start">
           <div className="flex flex-col">
-            <h2 className="text-4xl font-bold mb-6 font-headline">{contactForm.title}</h2>
+            <h2 className="text-4xl font-bold mb-2 font-headline">{customTitle}</h2>
+            <p className="text-muted-foreground mb-6 text-sm">{customDesc}</p>
+
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid sm:grid-cols-2 gap-6">
                 <div className="space-y-2">

@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +13,7 @@ import { formatExperience } from "@/lib/utils";
 
 interface TeachersSectionProps {
   teachers: Teacher[];
+  settings?: any;
 }
 
 const TeacherCard = ({ teacher }: { teacher: Teacher }) => {
@@ -61,34 +61,9 @@ const TeacherCard = ({ teacher }: { teacher: Teacher }) => {
   );
 };
 
-
-export default function TeachersSection({ teachers }: TeachersSectionProps) {
-  if (!teachers || teachers.length === 0) {
-    return (
-        <section id="teachers" className="py-20 lg:py-32 px-6 lg:px-12 bg-background">
-            <div className="container mx-auto text-center">
-                <Badge variant="outline" className="mb-4 bg-secondary/80">
-                    <Users className="w-4 h-4 mr-2" />
-                    {teachersSection.badge}
-                </Badge>
-                <h2 className="text-4xl font-bold mb-4 font-headline">
-                    {teachersSection.title}
-                </h2>
-                <p className="text-muted-foreground mb-12 max-w-3xl mx-auto">
-                    {teachersSection.description}
-                </p>
-                <p className="text-center text-muted-foreground">Faculty details will be available soon.</p>
-                 <div className="mt-16 text-center">
-                    <Button size="lg" asChild>
-                        <Link href="/faculty">
-                            {teachersSection.viewAllButton} <ArrowRight className="ml-2 h-5 w-5" />
-                        </Link>
-                    </Button>
-                </div>
-            </div>
-        </section>
-    )
-  }
+export default function TeachersSection({ teachers, settings }: TeachersSectionProps) {
+  const customTitle = settings?.sectionTitles?.teachersTitle || teachersSection.title;
+  const customDesc = settings?.sectionTitles?.teachersDesc || teachersSection.description;
 
   return (
     <section id="teachers" className="py-20 lg:py-32 px-6 lg:px-12 bg-background">
@@ -101,22 +76,28 @@ export default function TeachersSection({ teachers }: TeachersSectionProps) {
           {teachersSection.badge}
         </Badge>
         <h2 className="text-4xl font-bold mb-4 font-headline">
-          {teachersSection.title}
+          {customTitle}
         </h2>
         <p className="text-muted-foreground mb-12 max-w-3xl mx-auto">
-          {teachersSection.description}
+          {customDesc}
         </p>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {teachers.map((teacher, index) => (
-            <TeacherCard key={index} teacher={teacher} />
-        ))}
-        </div>
+
+        {teachers && teachers.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {teachers.map((teacher, index) => (
+              <TeacherCard key={index} teacher={teacher} />
+            ))}
+          </div>
+        ) : (
+          <p className="text-center text-muted-foreground">Faculty details will be available soon.</p>
+        )}
+
         <div className="mt-16 text-center">
-            <Button size="lg" asChild>
-                <Link href="/faculty">
-                    {teachersSection.viewAllButton} <ArrowRight className="ml-2 h-5 w-5" />
-                </Link>
-            </Button>
+          <Button size="lg" asChild>
+            <Link href="/faculty">
+              {teachersSection.viewAllButton} <ArrowRight className="ml-2 h-5 w-5" />
+            </Link>
+          </Button>
         </div>
       </div>
     </section>

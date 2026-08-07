@@ -12,14 +12,17 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { Badge } from "@/components/ui/badge";
-import { toppersSection } from "@/lib/data";
-import { Topper } from "@/app/admin/data-schemas";
+import { topperSchema, Topper } from "@/app/admin/data-schemas";
 
 interface ToppersSectionProps {
   toppers: Topper[];
+  settings?: any;
 }
 
-export default function ToppersSection({ toppers }: ToppersSectionProps) {
+export default function ToppersSection({ toppers, settings }: ToppersSectionProps) {
+  const customTitle = settings?.sectionTitles?.toppersTitle || "FBISE Board Distinction Achievers";
+  const customDesc = settings?.sectionTitles?.toppersDesc || "Celebrating our star scholars who secured top positions across Federal Board (FBISE) matric and intermediate examinations.";
+
   return (
     <section id="results" className="py-20 lg:py-28 px-4 sm:px-6 lg:px-8 bg-card/60 border-y border-border/50 relative overflow-hidden">
       {/* Background Accent Mesh */}
@@ -41,10 +44,10 @@ export default function ToppersSection({ toppers }: ToppersSectionProps) {
           </div>
 
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black font-headline text-foreground tracking-tight">
-            FBISE Board <span className="text-amber-500">Distinction Achievers</span>
+            {customTitle}
           </h2>
           <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
-            Celebrating our star scholars who secured top positions across Federal Board (FBISE) matric and intermediate examinations.
+            {customDesc}
           </p>
         </div>
 
