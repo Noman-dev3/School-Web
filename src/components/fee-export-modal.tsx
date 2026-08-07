@@ -162,7 +162,7 @@ export function FeeExportModal({ feeRecords, triggerButton }: FeeExportModalProp
           new Paragraph({
             text: "Official Institutional Fee & Ledger Financial Report",
             alignment: AlignmentType.CENTER,
-            children: [new TextRun({ italic: true, size: 20, color: "475569" })]
+            children: [new TextRun({ italics: true, size: 20, color: "475569" })]
           }),
           new Paragraph({ text: "" }),
 
