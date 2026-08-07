@@ -1,3 +1,6 @@
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 import React from "react";
 import AboutSection from "@/components/about-section";
 import { AcademicPrograms } from "@/components/academic-programs";
@@ -23,7 +26,7 @@ import {
 } from "@/lib/data-fetching";
 
 export default async function Home() {
-  // Fetch all data on the server in parallel
+  // Fetch all data on the server in parallel directly from Supabase
   const [
     settings,
     toppers,

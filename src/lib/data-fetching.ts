@@ -224,7 +224,12 @@ export async function getSettings() {
 
       const sectionOrder = (fetchedSettings.sectionOrder || cmsConfig.sectionOrder || DEFAULT_SECTION_ORDER).filter((s: string) => s !== 'stats');
       const sectionVisibility = { ...DEFAULT_SECTION_VISIBILITY, ...cmsConfig.sectionVisibility, ...fetchedSettings.sectionVisibility, stats: false };
-      const sectionTitles = fetchedSettings.sectionTitles || cmsConfig.sectionTitles || defaultSettings.sectionTitles;
+      
+      const sectionTitles = {
+        ...defaultSettings.sectionTitles,
+        ...(cmsConfig.sectionTitles || {}),
+        ...(fetchedSettings.sectionTitles || {})
+      };
 
       return {
         ...defaultSettings,
